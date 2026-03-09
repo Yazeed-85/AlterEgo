@@ -1504,7 +1504,7 @@ function hiCommit(y) {
 
   const prev = iphoneState.currentView;
 
-  if(dy >= half || (held > 600 && dy >= 45)) {
+  if(dy >= half || (held > 450 && dy >= 45)) {
     // مبدّل التطبيقات
     prevViewBeforeSwitcher = prev;
     showIphoneView('switcher');
@@ -1775,3 +1775,4 @@ setInterval(() => {
 </script>
 </body>
 </html>
+

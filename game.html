@@ -76,6 +76,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 #screen { position: absolute; top: 2px; left: 2px; width: 383px; height: 842px; background: #000; border-radius: 44px; overflow: hidden; transition: var(--transition-smooth); }
 #screen.off { background: #000 !important; }
 #screen.off #screen-content { opacity: 0; pointer-events: none; }
+#screen.off #status-bar { opacity: 0; pointer-events: none; }
+#screen.off #home-indicator { opacity: 0; pointer-events: none; }
 #screen-content { width: 100%; height: 100%; position: relative; background: linear-gradient(160deg, #0d1117 0%, #161b27 50%, #0d1117 100%); transition: var(--transition-smooth); overflow: hidden; }
 
 /* ===== STATUS BAR ===== */
@@ -208,20 +210,21 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .app-card-close { margin-right: auto; background: rgba(255,59,48,0.9); border: none; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .app-card-preview { flex: 1; background: #111; margin: 0 10px 10px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 46px; overflow: hidden; }
 
-/* ===== CHAT APP — يخرج للأعلى كـ iOS ===== */
+/* ===== CHAT APP — مخفي افتراضياً، يفتح بأنيميشن ===== */
 #chat-app-view {
   position: absolute; inset: 0; background: #0f0f0f;
   display: flex; flex-direction: column; z-index: 45;
-  transform: scale(1) translateY(0);
+  transform: scale(0.92) translateY(60px);
   transform-origin: bottom center;
-  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s;
+  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.32s;
+  opacity: 0;
+  pointer-events: none;   /* مخفي افتراضياً */
+}
+#chat-app-view.show {
+  transform: scale(1) translateY(0);
   opacity: 1;
+  pointer-events: all;
 }
-#chat-app-view.app-hidden {
-  transform: scale(0.88) translateY(30px);
-  opacity: 0; pointer-events: none;
-}
-#chat-app-view.show { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
 
 .chat-header { background: rgba(28,28,30,0.97); backdrop-filter: blur(15px); padding: 50px 15px 13px; border-bottom: 1px solid #1c1c1e; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer; }
 .chat-header-inner { display: flex; flex-direction: column; align-items: center; }
@@ -1314,27 +1317,41 @@ window.closeAnnouncement = () => {
 };
 
 // === iPHONE HARDWARE ===
-// ── Double-tap لتشغيل الهاتف
+// ── نقرتان على الهاتف لتشغيله (على iphone-body مباشرة)
 let tapCount = 0, tapTimer = null;
-document.getElementById('screen-content').addEventListener('pointerdown', (e) => {
+
+function wakeUpScreen() {
+  const s = document.getElementById('screen');
+  s.classList.remove('off');
+  // أظهر شاشة القفل بأنيميشن انبثاق
+  const ls = document.getElementById('lock-screen');
+  ls.style.transition = 'none';
+  ls.style.transform  = 'scale(0.92) translateY(30px)';
+  ls.style.opacity    = '0';
+  ls.classList.add('show');
+  iphoneState.currentView = 'lock';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ls.style.transition = '';
+      ls.style.transform  = '';
+      ls.style.opacity    = '';
+    });
+  });
+}
+
+// نستمع على iphone-body لأن screen-content معطّل pointer-events عندما الشاشة مطفأة
+document.getElementById('iphone-body').addEventListener('pointerdown', (e) => {
   if(!phoneWokeUp) return;
   const screenOff = document.getElementById('screen').classList.contains('off');
-  if(!screenOff) return; // الهاتف شغّال بالفعل
+  if(!screenOff) return; // الشاشة شغّالة بالفعل → لا تفعل شيئاً هنا
+
   tapCount++;
-  if(tapCount === 1) {
+  clearTimeout(tapTimer);
+  if(tapCount >= 2) {
+    tapCount = 0;
+    wakeUpScreen();
+  } else {
     tapTimer = setTimeout(() => { tapCount = 0; }, 500);
-  } else if(tapCount >= 2) {
-    clearTimeout(tapTimer); tapCount = 0;
-    // إضاءة الهاتف بأنيميشن انبثاق
-    const s = document.getElementById('screen');
-    s.classList.remove('off');
-    // reset lock screen أولاً ثم اظهارها
-    const ls = document.getElementById('lock-screen');
-    ls.classList.remove('show');
-    iphoneState.currentView = 'lock';
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { ls.classList.add('show'); });
-    });
   }
 }, { passive: true });
 
@@ -1343,13 +1360,11 @@ document.getElementById('power-button').addEventListener('click', () => {
   if(!phoneWokeUp) return;
   const screen = document.getElementById('screen');
   if(screen.classList.contains('off')) {
-    screen.classList.remove('off');
-    const ls = document.getElementById('lock-screen');
-    ls.classList.remove('show');
-    iphoneState.currentView = 'lock';
-    requestAnimationFrame(() => requestAnimationFrame(() => ls.classList.add('show')));
+    wakeUpScreen();
   } else {
+    // إطفاء الشاشة
     screen.classList.add('off');
+    iphoneState.currentView = 'none';
   }
 });
 
@@ -1482,10 +1497,10 @@ function hiCommit(y) {
   const dy      = hiStartY - y;
   const held    = Date.now() - hiStartTime;
   const screenH = getScreenHeight();
-  const quarter = screenH * 0.18;   // أخف قليلاً
-  const half    = screenH * 0.42;
+  const quarter = screenH * 0.12;   // أسهل — 12% فقط
+  const half    = screenH * 0.40;
 
-  if(dy < 6) return;
+  if(dy < 5) return;
 
   const prev = iphoneState.currentView;
 
@@ -1623,14 +1638,24 @@ function closePanelReturnToPrev() {
 function closeSwitcherReturnToPrev() {
   document.getElementById('app-switcher').classList.remove('show');
   const back = prevViewBeforeSwitcher || 'home';
-  // إخفاء كل الشاشات أولاً
+
+  // إخفاء الكل أولاً
   document.getElementById('home-screen').classList.remove('show');
   const chatEl2 = document.getElementById('chat-app-view');
-  // إعادة للمشهد السابق
+  chatEl2.classList.remove('show');
+
+  // العودة للمشهد المناسب
   if(back === 'chat') {
-    chatEl2.classList.add('show');
-    chatEl2.classList.remove('app-hidden');
-    iphoneState.currentView = 'chat';
+    // فقط إذا كان التطبيق لا يزال في الـ DOM (لم يُحذف)
+    const cardStillExists = document.querySelector('.app-cards-scroll .app-card') !== null;
+    if(cardStillExists) {
+      chatEl2.classList.add('show');
+      iphoneState.currentView = 'chat';
+    } else {
+      // التطبيق أُغلق → اذهب للهوم
+      document.getElementById('home-screen').classList.add('show');
+      iphoneState.currentView = 'home';
+    }
   } else if(back === 'photos') {
     document.getElementById('photos-app-view').style.transform = 'translateX(0)';
     iphoneState.currentView = 'photos';
@@ -1661,11 +1686,10 @@ function closeSwitcherReturnToPrev() {
         const c = cardStart;
         setTimeout(() => {
           c.remove();
-          // إغلاق التطبيق بالكامل + العودة للهوم
-          if(appName === 'chat') {
-            const ce = document.getElementById('chat-app-view');
-            ce.classList.remove('show'); ce.classList.remove('app-hidden');
-          }
+          // أغلق التطبيق تماماً
+          const ce = document.getElementById('chat-app-view');
+          ce.classList.remove('show');
+          // اضبط وجهة العودة للشاشة الرئيسية
           prevViewBeforeSwitcher = 'home';
           closeSwitcherReturnToPrev();
         }, 280);

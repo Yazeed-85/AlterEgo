@@ -14,7 +14,7 @@
         .pin-box { font-size: 1.5rem; font-weight: 900; color: #a855f7; letter-spacing: 3px;}
         .timer-box { font-size: 1.5rem; font-weight: bold; color: #facc15; display: none;}
         .timer-warning { color: #ef4444; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* الشاشة المنقسمة */
         .main-layout { flex: 1; display: flex; overflow: hidden; }
@@ -29,9 +29,13 @@
         
         /* شاشة الهاتف الرئيسية (Home Screen) */
         .phone-home { flex: 1; background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover; padding: 50px 20px; display: flex; align-items: flex-start;}
-        .app-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #10b981, #047857); border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; position: relative;}
+        .app-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #10b981, #047857); border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; position: relative; opacity: 0.5; pointer-events: none;}
         .app-icon:active { transform: scale(0.9); }
         .app-icon::after { content: 'شات المجهولين'; position: absolute; bottom: -25px; font-size: 0.8rem; color: white; white-space: nowrap; font-weight: bold;}
+        
+        /* تأثير اهتزاز التطبيق عندما يفتح الهوست اللعبة */
+        @keyframes bounceApp { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .app-ready-anim { animation: bounceApp 1.5s infinite; opacity: 1 !important; pointer-events: auto !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.8) !important; border: 2px solid #fff;}
 
         /* شاشة تطبيق الشات (Chat App) */
         .phone-chat-app { flex: 1; background: #0f172a; display: none; flex-direction: column; z-index: 5;}
@@ -102,11 +106,16 @@
 
     <div class="top-bar">
         <div class="pin-box">PIN: <span id="pinDisplay">----</span></div>
-        <div id="statusText" style="color:#a1a1aa;">بانتظار تجهيز اللاعبين لملفاتهم الوهمية...</div>
-        <div class="timer-box" id="timerBox">02:00</div>
+        
+        <div id="statusText" style="color:#a1a1aa; font-weight:bold;">بانتظار تجهيز اللاعبين لملفاتهم الوهمية...</div>
+        
         <div id="hostControls" style="display:none;">
-            <button onclick="hostStartChat()" style="background:#a855f7; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer;">بدء المحادثة والمؤقت</button>
+            <button onclick="hostStartChat()" style="background: linear-gradient(135deg, #10b981, #047857); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:bold; font-family:'Cairo'; font-size:1.1rem; box-shadow: 0 0 20px rgba(16,185,129,0.5); animation: pulse 1.5s infinite;">
+                ▶️ بدء اللعب والشات!
+            </button>
         </div>
+
+        <div class="timer-box" id="timerBox">02:00</div>
     </div>
 
     <div class="main-layout">
@@ -117,8 +126,7 @@
                 
                 <div class="form-group">
                     <label>اختر صورة لحسابك:</label>
-                    <div class="avatars-grid" id="avatarsGrid">
-                        </div>
+                    <div class="avatars-grid" id="avatarsGrid"></div>
                 </div>
 
                 <div class="form-group">
@@ -157,7 +165,7 @@
 
             <div class="ready-msg" id="readyMsg">
                 ✅ تم حفظ شخصيتك الوهمية بنجاح!<br>
-                انتظر حتى ينتهي البقية من بناء شخصياتهم لفتح الشات.
+                انتظر حتى ينتهي البقية من بناء شخصياتهم.
             </div>
             
             <div id="playerListArea" style="margin-top:30px; display:none;">
@@ -171,7 +179,7 @@
                 <div class="notch"></div>
                 
                 <div class="phone-home" id="phoneHome">
-                    <div class="app-icon" id="chatAppIcon" onclick="openChatApp()" style="opacity: 0.5; pointer-events: none;">💬</div>
+                    <div class="app-icon" id="chatAppIcon" onclick="openChatApp()">💬</div>
                 </div>
 
                 <div class="phone-chat-app" id="phoneChatApp">
@@ -180,11 +188,10 @@
                         <button class="close-app-btn" onclick="closeChatApp()">خروج</button>
                     </div>
                     
-                    <div class="chat-messages" id="chatBox">
-                        </div>
+                    <div class="chat-messages" id="chatBox"></div>
 
                     <div class="chat-input-area">
-                        <input type="text" class="chat-input" id="msgInput" placeholder="اكتب رسالتك كشخصيتك الوهمية..." autocomplete="off" onkeypress="if(event.key === 'Enter') sendMessage()">
+                        <input type="text" class="chat-input" id="msgInput" placeholder="اكتب كشخصيتك الوهمية..." autocomplete="off" onkeypress="if(event.key === 'Enter') sendMessage()">
                         <button class="chat-send-btn" onclick="sendMessage()">➤</button>
                     </div>
                 </div>
@@ -237,7 +244,6 @@
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, push, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
@@ -267,7 +273,7 @@
         let selectedAvatar = 1;
         let timerInterval;
 
-        // 1. توليد الأفاتارات
+        // توليد الأفاتارات
         const avatarsGrid = document.getElementById('avatarsGrid');
         for(let i=1; i<=6; i++) {
             let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i*10}&backgroundColor=b6e3f4`;
@@ -279,14 +285,14 @@
             el.classList.add('selected');
         };
 
-        // 2. تسجيل الدخول
+        // تسجيل الدخول
         get(ref(db, `alterego/${pin}/players/${myId}`)).then((snap) => {
             if (!snap.exists()) {
                 set(ref(db, `alterego/${pin}/players/${myId}`), { realName: myRealName, isAlive: true, isReady: false });
             }
         });
 
-        // 3. الاستماع لقاعدة البيانات
+        // الاستماع لقاعدة البيانات
         onValue(stateRef, snap => { 
             gameState = snap.val() || { status: 'lobby' }; 
             updateUIState();
@@ -326,23 +332,21 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         });
 
-        // الإعلانات (القتل والكشف)
         onValue(announcementsRef, snap => {
             const ann = snap.val();
             if(ann && ann.time > Date.now() - 10000) {
-                document.getElementById('votingOverlay').style.display = 'none'; // إغلاق التصويت
+                document.getElementById('votingOverlay').style.display = 'none'; 
                 document.getElementById('announcementOverlay').style.display = 'flex';
                 document.getElementById('annIcon').innerText = ann.isCorrect ? '🎯' : '💀';
                 document.getElementById('annTitle').innerText = ann.isCorrect ? 'كشف خطير!' : 'تخمين خاطئ!';
                 document.getElementById('annTitle').style.color = ann.isCorrect ? '#10b981' : '#ef4444';
                 document.getElementById('annDesc').innerText = ann.text;
                 
-                // إغلاق التصويت من السيرفر بعد الكشف
                 if(isHost) update(stateRef, { status: 'chatting', deadline: Date.now() + 120000 });
             }
         });
 
-        // 4. حفظ الشخصية
+        // حفظ الشخصية
         window.saveProfile = async () => {
             if(!players[myId]?.isAlive) return alert("أنت ميت!");
             
@@ -363,7 +367,7 @@
             document.getElementById('readyMsg').style.display = 'block';
         };
 
-        // 5. وظائف الهاتف
+        // التحكم بالهاتف
         window.openChatApp = () => {
             if(gameState.status !== 'chatting' && gameState.status !== 'voting') return;
             document.getElementById('phoneHome').style.display = 'none';
@@ -396,32 +400,48 @@
             document.getElementById('profileModal').style.display = 'flex';
         };
 
-        // 6. التحكم بالوقت والأدوار (Host Only)
+        // التحكم الأساسي للهوست (تم الإصلاح هنا!)
         function checkAllReady() {
             if(!isHost) return;
             const pList = Object.values(players);
             if(pList.length > 1 && pList.every(p => p.isReady) && gameState.status === 'lobby') {
-                document.getElementById('hostControls').style.display = 'block';
+                // نغير حالة اللعبة لـ ready_to_start
                 update(stateRef, { status: 'ready_to_start' });
             }
         }
 
         window.hostStartChat = async () => {
             if(!isHost) return;
-            await update(stateRef, { status: 'chatting', deadline: Date.now() + 120000 }); // دقيقتين
-            document.getElementById('hostControls').style.display = 'none';
+            await update(stateRef, { status: 'chatting', deadline: Date.now() + 120000 }); 
         };
 
-        // 7. إدارة الواجهة والمؤقت
+        // تحديث الواجهة (UI)
         function updateUIState() {
             const appIcon = document.getElementById('chatAppIcon');
             const statusText = document.getElementById('statusText');
             const timerBox = document.getElementById('timerBox');
+            const hostControls = document.getElementById('hostControls');
 
-            if (gameState.status === 'chatting' || gameState.status === 'voting') {
-                appIcon.style.opacity = '1';
-                appIcon.style.pointerEvents = 'auto';
+            if (gameState.status === 'lobby') {
+                statusText.innerText = "بانتظار تجهيز اللاعبين لملفاتهم الوهمية...";
+                statusText.style.display = 'block';
+                hostControls.style.display = 'none';
+            }
+            else if (gameState.status === 'ready_to_start') {
+                if (isHost) {
+                    statusText.style.display = 'none';
+                    hostControls.style.display = 'block'; // يظهر الزر الأخضر للهوست
+                } else {
+                    statusText.innerHTML = "الجميع جاهز! 🟢<br>بانتظار الهوست لبدء الشات...";
+                    statusText.style.color = "#10b981";
+                    statusText.style.display = 'block';
+                    hostControls.style.display = 'none';
+                }
+            }
+            else if (gameState.status === 'chatting' || gameState.status === 'voting') {
+                appIcon.classList.add('app-ready-anim'); // الأيقونة تنبض وتتوهج
                 statusText.style.display = 'none';
+                hostControls.style.display = 'none';
                 timerBox.style.display = 'block';
                 document.getElementById('playerListArea').style.display = 'block';
             }
@@ -465,12 +485,11 @@
             });
         }
 
-        // 8. منطق التصويت المرعب!
         function populateVotingSelects() {
             const realSelect = document.getElementById('voteRealSelect');
             const fakeSelect = document.getElementById('voteFakeSelect');
             realSelect.innerHTML = '<option value="">-- اختر الاسم الحقيقي --</option>';
-            fakeSelect.innerHTML = '<option value="">-- اختر الشخصية الوهمية التي يتقمصها --</option>';
+            fakeSelect.innerHTML = '<option value="">-- اختر الشخصية الوهمية --</option>';
             
             Object.keys(players).forEach(id => {
                 if(players[id].isAlive && id !== myId) {
@@ -486,7 +505,7 @@
 
         window.submitVote = async () => {
             const targetRealId = document.getElementById('voteRealSelect').value;
-            const targetFakeId = document.getElementById('voteFakeSelect').value; // ID of the creator of this profile
+            const targetFakeId = document.getElementById('voteFakeSelect').value; 
 
             if(!targetRealId || !targetFakeId) return alert("يجب اختيار اسم حقيقي واسم وهمي!");
 
@@ -496,11 +515,9 @@
             let announcementMsg = '';
 
             if (isCorrect) {
-                // أصاب! يقصى الهدف
                 await update(ref(db, `alterego/${pin}/players/${targetRealId}`), { isAlive: false });
                 announcementMsg = `اللاعب 🎯 [${players[myId].realName}] كشف هوية [${players[targetRealId].realName}]! لقد كان يتخفى بشخصية "${profiles[targetRealId].fakeName}"! تم إقصاء ${players[targetRealId].realName}.`;
             } else {
-                // أخطأ! يقصى السائل
                 await update(ref(db, `alterego/${pin}/players/${myId}`), { isAlive: false });
                 announcementMsg = `اللاعب 💀 [${players[myId].realName}] أخطأ في التخمين ودفع الثمن! تم إقصاؤه. للمعلومية كان يتخفى بشخصية "${profiles[myId].fakeName}".`;
             }

@@ -43,16 +43,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== LAYOUT ===== */
 .main-layout { flex: 1; display: flex; overflow: hidden; }
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
-/* ===== DASHBOARD (RIGHT) ===== */
+
 /* ===== DASHBOARD (RIGHT) ===== */
 .right-dashboard { flex: 1.2; padding: 30px; background: var(--game-bg); overflow-y: auto; display: flex; flex-direction: column; border-left: 2px solid var(--game-border); }
 .profile-builder { background: var(--game-card); padding: 30px; border-radius: 24px; border: 1px solid var(--game-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -462,7 +453,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 900px) {
-  /* منع التكبير بالضغطة المزدوجة */
   html { touch-action: manipulation; }
   body { overflow: auto; height: auto; min-height: 100vh; }
 
@@ -470,16 +460,14 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .pin-box { font-size: 1.2rem; }
   #statusText { font-size: 0.9rem; }
 
-  /* تحويل اللاي-آوت من أفقي لعمودي: الفورم أولاً ثم الأيفون */
   .main-layout {
     flex-direction: column;
     overflow: visible;
     align-items: center;
-    padding: 15px 12px 30px;
-    gap: 24px;
+    padding: 15px 12px 40px;
+    gap: 0;
   }
 
-  /* داشبورد الفورم: العرض الكامل في الأعلى */
   .right-dashboard {
     flex: none;
     width: 100%;
@@ -501,42 +489,29 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }
 
-  /* قسم الأيفون: يأتي بعد الفورم */
+  /* حاوية الأيفون - الارتفاع يُحسب بـ JS */
   .left-phone-section {
     flex: none;
     width: 100%;
-    min-height: 520px;
     order: 2;
     background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
     border-radius: 20px;
-    padding: 20px 0;
+    padding: 20px 0 30px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    overflow: hidden;
+    position: relative;
+    /* الارتفاع يُضبط ديناميكياً بـ JS */
+    height: 680px;
   }
 
-  /* تصغير الأيفون ليناسب عرض الشاشة */
   #iphone-container {
-    transform: scale(0.55);
     transform-origin: top center;
-    margin-bottom: -220px;
+    position: absolute;
+    top: 20px;
+    /* الـ scale يُضبط ديناميكياً بـ JS */
   }
-}
-
-@media (max-width: 430px) {
-  #iphone-container { transform: scale(0.48); margin-bottom: -270px; }
-  .left-phone-section { min-height: 440px; }
-}
-
-@media (max-width: 380px) {
-  #iphone-container { transform: scale(0.42); margin-bottom: -310px; }
-  .left-phone-section { min-height: 400px; }
-}
-
-/* آيباد */
-@media (min-width: 768px) and (max-width: 900px) {
-  #iphone-container { transform: scale(0.62); margin-bottom: -190px; }
-  .left-phone-section { min-height: 580px; }
 }
 </style>
 </head>
@@ -1831,7 +1806,50 @@ function showToast(msg) {
   t._t = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// === TIME & BATTERY ===
+// ===== MOBILE: ضبط حجم الأيفون ديناميكياً =====
+(function setupMobileIphone() {
+  if (window.innerWidth > 900) return; // فقط على الجوال
+
+  const IPHONE_NATURAL_W = 393; // العرض الأصلي للأيفون بالـ px
+  const IPHONE_NATURAL_H = 852; // الارتفاع الأصلي
+
+  function scaleIphone() {
+    if (window.innerWidth > 900) return;
+    const screenW = window.innerWidth;
+    const availW = screenW - 32; // مع هامش 16px من كل جانب
+    // نجعل الأيفون يأخذ 90% من عرض الشاشة كحد أقصى
+    const targetW = Math.min(availW * 0.90, 370);
+    const scale = targetW / IPHONE_NATURAL_W;
+    const scaledH = IPHONE_NATURAL_H * scale;
+
+    const container = document.getElementById('iphone-container');
+    const section = document.querySelector('.left-phone-section');
+    if (!container || !section) return;
+
+    container.style.transform = `scale(${scale})`;
+    section.style.height = (scaledH + 60) + 'px'; // 60px هوامش علوية وسفلية
+  }
+
+  // تشغيل عند التحميل وعند تغيير الحجم
+  scaleIphone();
+  window.addEventListener('resize', scaleIphone);
+
+  // ===== إصلاح مشكلة الكيبورد =====
+  // عندما يظهر الكيبورد على iOS، الصفحة تتحرك لأعلى بشكل غريب
+  // نمنع هذا بتثبيت scroll position
+  const inputs = document.querySelectorAll('.form-input, input, textarea, select');
+  inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+      // نأخذ الـ scroll الحالي ونحتفظ به
+      const scrollY = window.scrollY;
+      setTimeout(() => {
+        // نعيد الـ scroll لنفس المكان بعد ظهور الكيبورد
+        window.scrollTo(0, scrollY);
+      }, 100);
+    });
+  });
+})();
+
 function updateTime() {
   const d = new Date();
   const str = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
@@ -1867,4 +1885,3 @@ setInterval(() => {
 </script>
 </body>
 </html>
-

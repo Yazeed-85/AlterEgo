@@ -69,7 +69,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #050508 100%); position: relative; }
 
 /* ===== iPHONE HARDWARE ===== */
-#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6)); }
+#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6)); z-index: 2; }
 #iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #444, #111); border-radius: var(--radius-xl); border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 2px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.4); }
 #dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 200; cursor: pointer; transition: var(--transition-smooth); }
 #dynamic-island:hover { transform: translateX(-50%) scale(1.05); }
@@ -112,8 +112,16 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .app-icon:active { transform: scale(0.88); }
 .app-label { font-size: 12px; color: white; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,0.9); text-align: center; }
 
-/* ===== CONTROL CENTER ===== */
-#control-center { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(25px); z-index: 150; transform: translateY(-100%); transition: 0.4s cubic-bezier(0.25,0.46,0.45,0.94); padding: 70px 18px 40px; color: white; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+/* ===== CONTROL CENTER — يظهر فوق كل شيء بما فيه التطبيقات ===== */
+#control-center {
+  position: absolute; inset: 0;
+  background: rgba(5,5,15,0.82); backdrop-filter: blur(35px);
+  z-index: 300;   /* فوق التطبيقات z-index:45 والمودالز */
+  transform: translateY(-100%);
+  transition: 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding: 70px 18px 40px; color: white;
+  display: flex; flex-direction: column; gap: 12px; overflow-y: auto;
+}
 #control-center.show { transform: translateY(0); }
 .cc-top-row { display: flex; gap: 12px; }
 .cc-connectivity { flex: 1; background: rgba(255,255,255,0.12); border-radius: 18px; padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -133,8 +141,15 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .cc-action-btn .icon { font-size: 22px; }
 .cc-action-btn.active { background: rgba(0,122,255,0.6); }
 
-/* ===== NOTIFICATION CENTER ===== */
-#notification-center { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(25px); z-index: 150; transform: translateY(-100%); transition: 0.4s cubic-bezier(0.25,0.46,0.45,0.94); padding: 60px 18px 40px; color: white; display: flex; flex-direction: column; }
+/* ===== NOTIFICATION CENTER — فوق التطبيقات ===== */
+#notification-center {
+  position: absolute; inset: 0;
+  background: rgba(5,5,15,0.82); backdrop-filter: blur(35px);
+  z-index: 300;
+  transform: translateY(-100%);
+  transition: 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding: 60px 18px 40px; color: white; display: flex; flex-direction: column;
+}
 #notification-center.show { transform: translateY(0); }
 .nc-header { text-align: center; margin-bottom: 20px; }
 .nc-time { font-size: 68px; font-weight: 100; letter-spacing: -2px; }
@@ -148,19 +163,54 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .nc-item-msg { font-size: 13px; opacity: 0.8; }
 .nc-item-time { font-size: 11px; opacity: 0.5; margin-top: 4px; }
 
-/* ===== APP SWITCHER ===== */
-#app-switcher { position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(25px); z-index: 160; opacity: 0; pointer-events: none; transition: opacity 0.3s; display: flex; flex-direction: column; padding: 60px 0 100px; }
-#app-switcher.show { opacity: 1; pointer-events: all; }
-.switcher-title { text-align: center; font-size: 18px; font-weight: 700; color: white; margin-bottom: 20px; }
-.app-cards-scroll { flex: 1; display: flex; gap: 18px; overflow-x: auto; align-items: center; padding: 10px 20px; }
-.app-card { min-width: 220px; height: 360px; background: rgba(255,255,255,0.1); border-radius: 18px; position: relative; cursor: pointer; transition: var(--transition-smooth); display: flex; flex-direction: column; }
-.app-card-header { padding: 12px 14px; display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; font-weight: 700; }
-.app-card-close { margin-left: auto; background: #ff3b30; border: none; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.app-card-preview { flex: 1; background: #0f0f0f; margin: 0 12px 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 50px; }
+/* ===== APP SWITCHER — انبثاق من الأسفل ===== */
+#app-switcher {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(28px);
+  z-index: 160; pointer-events: none;
+  display: flex; flex-direction: column; padding: 55px 0 85px;
+  transform: translateY(100%); opacity: 0;
+  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s ease;
+}
+#app-switcher.show { transform: translateY(0); opacity: 1; pointer-events: all; }
+.switcher-title { text-align: center; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+.app-cards-scroll { flex: 1; display: flex; gap: 14px; overflow-x: auto; align-items: center; padding: 10px 20px; }
+/* كل بطاقة تنبثق بتأخير تصاعدي */
+.app-card {
+  min-width: 195px; max-width: 195px; height: 330px;
+  background: rgba(28,28,30,0.97); border-radius: 18px;
+  cursor: pointer; display: flex; flex-direction: column;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  transform: translateY(60px) scale(0.88); opacity: 0;
+  transition: transform 0.38s, opacity 0.3s;
+  flex-shrink: 0;
+}
+#app-switcher.show .app-card          { transform: translateY(0) scale(1); opacity: 1; transition-delay: 0.05s; }
+#app-switcher.show .app-card:nth-child(2){ transition-delay: 0.1s; }
+#app-switcher.show .app-card:nth-child(3){ transition-delay: 0.15s; }
+/* رفع البطاقة للأعلى = حذفها */
+.app-card.dismissing {
+  transform: translateY(-120%) scale(0.8) !important; opacity: 0 !important;
+  transition: transform 0.28s ease-in, opacity 0.25s ease-in !important;
+}
+.app-card-header { padding: 10px 12px; display: flex; align-items: center; gap: 8px; color: white; font-size: 12px; font-weight: 700; }
+.app-card-close { margin-right: auto; background: rgba(255,59,48,0.9); border: none; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.app-card-preview { flex: 1; background: #111; margin: 0 10px 10px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 46px; overflow: hidden; }
 
-/* ===== CHAT APP ===== */
-#chat-app-view { position: absolute; inset: 0; background: #0f0f0f; display: flex; flex-direction: column; z-index: 45; transform: translateX(100%); transition: var(--transition-smooth); }
-#chat-app-view.show { transform: translateX(0); }
+/* ===== CHAT APP — يخرج للأعلى كـ iOS ===== */
+#chat-app-view {
+  position: absolute; inset: 0; background: #0f0f0f;
+  display: flex; flex-direction: column; z-index: 45;
+  transform: scale(1) translateY(0);
+  transform-origin: bottom center;
+  transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s;
+  opacity: 1;
+}
+#chat-app-view.app-hidden {
+  transform: scale(0.88) translateY(30px);
+  opacity: 0; pointer-events: none;
+}
+#chat-app-view.show { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
 
 .chat-header { background: rgba(28,28,30,0.97); backdrop-filter: blur(15px); padding: 50px 15px 13px; border-bottom: 1px solid #1c1c1e; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer; }
 .chat-header-inner { display: flex; flex-direction: column; align-items: center; }
@@ -171,54 +221,61 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 /* تلجرام-ستايل خلفية */
 .chat-messages { flex: 1; padding: 12px 10px 15px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; background: #0f0f0f; touch-action: pan-y; }
 
-/* ===== MESSAGE BUBBLES ===== */
-/* رسائلي = يمين (flex-end)، الآخرين = يسار (flex-start) */
-.msg-wrapper { display: flex; width: 100%; margin-top: 10px; position: relative; }
-.msg-wrapper.mine  { justify-content: flex-end; }
-.msg-wrapper.other { justify-content: flex-start; }
+/* ===== MESSAGE BUBBLES — تلجرام ستايل حقيقي =====
+   chat-messages له dir=ltr حتى يعمل الـ flex بشكل صحيح مع RTL
+   mine  → يمين الشاشة (flex-end في LTR)
+   other → يسار الشاشة (flex-start في LTR)
+   النص والأرقام العربية داخل الفقاعة تبقى RTL
+   ================================================== */
+.chat-messages { direction: ltr; }         /* نجبر LTR للفلكس فقط */
+.msg-wrapper { display: flex; width: 100%; margin-top: 10px; position: relative; direction: ltr; }
+.msg-wrapper.mine  { justify-content: flex-end;  }   /* يمين ✓ */
+.msg-wrapper.other { justify-content: flex-start; }  /* يسار ✓ */
 .msg-wrapper.grouped { margin-top: 3px; }
 
-.msg-bubble { display: flex; max-width: 78%; position: relative; gap: 7px; align-items: flex-end; }
-.msg-wrapper.mine  .msg-bubble { flex-direction: row; }
+/* الفقاعة الداخلية */
+.msg-bubble { display: flex; gap: 7px; align-items: flex-end; max-width: 78%; }
+/* other: أفاتار على اليسار ثم النص */
 .msg-wrapper.other .msg-bubble { flex-direction: row; }
+/* mine: نص فقط (أفاتار مخفي) */
+.msg-wrapper.mine  .msg-bubble { flex-direction: row; }
 
-/* أفاتار فقط للآخرين */
+/* أفاتار */
 .msg-avatar { width: 34px; height: 34px; border-radius: 50%; background: #333; cursor: pointer; flex-shrink: 0; overflow: hidden; border: 1px solid #3a3a3c; }
 .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .msg-avatar.hidden { opacity: 0; pointer-events: none; }
 
-.msg-content-box { display: flex; flex-direction: column; }
-/* mine: نص على اليمين ← align-items: flex-end (RTL يجعله يمين) */
-/* other: نص على اليسار ← align-items: flex-start */
-.msg-wrapper.mine  .msg-content-box { align-items: flex-end; }
+/* صندوق المحتوى — النص والوقت */
+.msg-content-box { display: flex; flex-direction: column; direction: rtl; }   /* RTL للنص */
+.msg-wrapper.mine  .msg-content-box { align-items: flex-end;   }
 .msg-wrapper.other .msg-content-box { align-items: flex-start; }
 
-/* اسم المُرسِل - فقط للآخرين، أول رسالة */
+/* اسم المُرسِل */
 .msg-sender-name { font-size: 0.82rem; color: var(--game-purple); margin-bottom: 3px; font-weight: 700; padding: 0 4px; }
 
-/* فقاعات الرسائل */
-.msg-text { padding: 9px 13px; color: white; font-size: 1rem; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.4); position: relative; word-break: break-word; }
-.msg-wrapper.other .msg-text { background: #1e1e1e; border-radius: 4px 16px 16px 16px; }
-.msg-wrapper.other.grouped .msg-text { border-radius: 16px 16px 16px 16px; }
-.msg-wrapper.mine .msg-text { background: var(--game-purple); border-radius: 16px 4px 16px 16px; }
-.msg-wrapper.mine.grouped .msg-text { border-radius: 16px 16px 16px 16px; }
+/* الفقاعات */
+.msg-text { padding: 9px 13px; color: white; font-size: 1rem; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.4); word-break: break-word; direction: rtl; }
+/* other: ذيل أعلى اليسار */
+.msg-wrapper.other         .msg-text { background: #262626; border-radius: 2px 16px 16px 16px; }
+.msg-wrapper.other.grouped .msg-text { background: #262626; border-radius: 16px 16px 16px 16px; }
+/* mine: ذيل أعلى اليمين */
+.msg-wrapper.mine          .msg-text { background: var(--game-purple); border-radius: 16px 2px 16px 16px; }
+.msg-wrapper.mine.grouped  .msg-text { background: var(--game-purple); border-radius: 16px 16px 16px 16px; }
 
-/* شريط التجميع للآخرين */
-.msg-group-line { position: absolute; right: -2px; top: 0; bottom: 0; width: 2px; background: var(--game-purple); border-radius: 2px; opacity: 0.5; }
-.msg-wrapper.other .msg-group-line { right: auto; left: -2px; }
-
-/* داخل الفقاعة: الرد */
+/* رد داخل فقاعة */
 .reply-snippet { background: rgba(0,0,0,0.25); border-right: 3px solid rgba(255,255,255,0.5); padding: 5px 9px; border-radius: 8px; margin-bottom: 6px; font-size: 0.85rem; cursor: pointer; }
 .msg-wrapper.mine .reply-snippet { border-right: none; border-left: 3px solid rgba(255,255,255,0.7); }
 .reply-sn-name { font-weight: 700; margin-bottom: 1px; color: #ddd; font-size: 0.8rem; }
 .reply-sn-text { color: rgba(255,255,255,0.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; font-size: 0.82rem; }
 
-.msg-time { font-size: 0.62rem; color: rgba(255,255,255,0.45); align-self: flex-end; margin-top: 3px; white-space: nowrap; padding: 0 2px; }
+.msg-time { font-size: 0.62rem; color: rgba(255,255,255,0.45); align-self: flex-end; margin-top: 3px; white-space: nowrap; padding: 0 2px; direction: ltr; }
 
-/* أيقونة السحب — mine: تظهر على اليسار (نسحب لليسار)، other: تظهر على اليمين (نسحب لليمين) */
-.swipe-icon { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(135,116,225,0.2); border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; opacity: 0; font-size: 13px; transition: opacity 0.15s; pointer-events: none; }
-.msg-wrapper.mine  .swipe-icon { left: -36px; }
-.msg-wrapper.other .swipe-icon { right: -36px; }
+/* أيقونة السحب للريبلاي
+   mine (يمين) → أسحب لليسار  → الأيقونة تظهر على يسار الفقاعة
+   other (يسار)→ أسحب لليمين  → الأيقونة تظهر على يمين الفقاعة  */
+.swipe-icon { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(135,116,225,0.25); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; opacity: 0; font-size: 14px; transition: opacity 0.15s; pointer-events: none; }
+.msg-wrapper.mine  .swipe-icon { left:  -38px; }   /* ظهور على يسار فقاعتي */
+.msg-wrapper.other .swipe-icon { right: -38px; }   /* ظهور على يمين فقاعة الآخر */
 
 /* ===== CHAT BOTTOM ===== */
 .chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; }
@@ -270,30 +327,42 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 #announcementOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
 .announcement-box { background: #18181b; padding: 50px 30px; border-radius: 25px; text-align: center; max-width: 600px; width: 100%; border: 2px solid #10b981; }
 
-/* ===== HOME INDICATOR - محسّن ===== */
+/* ===== HOME INDICATOR — محسّن بالكامل ===== */
 #home-indicator {
-  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
-  width: 134px; height: 8px; /* أعرض للمس أسهل */
-  background: rgba(255,255,255,0.5); border-radius: 4px; z-index: 200;
+  position: absolute; bottom: 9px; left: 50%; transform: translateX(-50%);
+  width: 148px; height: 6px;
+  background: rgba(255,255,255,0.55); border-radius: 3px;
+  z-index: 500;   /* أعلى من كل شيء */
   cursor: grab; touch-action: none;
-  /* منطقة لمس أكبر بكثير عبر padding وهمي */
+  transition: background 0.15s, width 0.15s;
 }
+/* منطقة لمس موسّعة جداً */
 #home-indicator::before {
   content: ''; position: absolute;
-  top: -18px; left: -30px; right: -30px; bottom: -18px;
-  /* منطقة لمس موسّعة */
+  top: -22px; left: -50px; right: -50px; bottom: -14px;
 }
-#home-indicator:hover { background: rgba(255,255,255,0.85); }
-#home-indicator.dragging { background: rgba(255,255,255,0.9); width: 100px; }
+#home-indicator:hover   { background: rgba(255,255,255,0.85); }
+#home-indicator.lifting { background: white; width: 120px; }
 
 /* ===== FLASHLIGHT GLOW ===== */
 .flashlight-glow {
-  position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, rgba(255,255,200,0.9) 0%, rgba(255,255,150,0.4) 40%, transparent 70%);
+  /* ضوء الفلاش خلف الهاتف — أعلى اليسار (مكان كاميرا الخلف على الأيفون) */
+  position: absolute;
+  /* تموضع بالنسبة لـ left-phone-section */
+  top:  calc(50% - 426px + 40px);   /* أعلى الهاتف */
+  left: calc(50% - 196px - 10px);   /* يسار الهاتف (RTL = كاميرا الخلف) */
+  width: 300px; height: 300px;
+  background: radial-gradient(ellipse at 55% 45%,
+    rgba(255,255,210,0.88) 0%,
+    rgba(255,255,140,0.45) 30%,
+    rgba(255,240,80,0.15)  55%,
+    transparent 72%
+  );
   border-radius: 50%; pointer-events: none; opacity: 0;
-  transition: opacity 0.4s ease; z-index: 1;
-  filter: blur(8px);
+  transition: opacity 0.45s ease;
+  z-index: 1;        /* قبل iphone-container الذي z-index طبيعي */
+  filter: blur(16px);
+  transform: scale(1);
 }
 .flashlight-glow.on { opacity: 1; }
 
@@ -685,6 +754,8 @@ let replyingToMsgId = null;
 let localSkipVoting = false;
 let phoneWokeUp = false;
 let iphoneState = { currentView: 'none', volume: 50, brightness: 80, isSilent: false, isFlashlight: false, batteryLevel: 100 };
+let prevViewBeforePanel    = null;   // المشهد السابق قبل فتح CC/NC
+let prevViewBeforeSwitcher = null;   // المشهد السابق قبل مبدّل التطبيقات
 
 // === AVATARS ===
 const avatarsGrid = document.getElementById('avatarsGrid');
@@ -937,9 +1008,12 @@ function updateRealNamesList() {
 
 // === iPHONE VIEW SYSTEM ===
 window.showIphoneView = function(viewName) {
+  // إخفاء الكل
   document.getElementById('lock-screen').classList.remove('show');
   document.getElementById('home-screen').classList.remove('show');
-  document.getElementById('chat-app-view').classList.remove('show');
+  const chatV = document.getElementById('chat-app-view');
+  chatV.classList.remove('show');
+  chatV.classList.remove('app-hidden');
   document.getElementById('photos-app-view').style.transform = 'translateX(100%)';
   document.getElementById('control-center').classList.remove('show');
   document.getElementById('notification-center').classList.remove('show');
@@ -949,13 +1023,25 @@ window.showIphoneView = function(viewName) {
 
   iphoneState.currentView = viewName;
 
-  if(viewName === 'lock') document.getElementById('lock-screen').classList.add('show');
-  else if(viewName === 'home') document.getElementById('home-screen').classList.add('show');
-  else if(viewName === 'chat') document.getElementById('chat-app-view').classList.add('show');
-  else if(viewName === 'photos') document.getElementById('photos-app-view').style.transform = 'translateX(0)';
-  else if(viewName === 'control') document.getElementById('control-center').classList.add('show');
-  else if(viewName === 'notify') document.getElementById('notification-center').classList.add('show');
-  else if(viewName === 'switcher') document.getElementById('app-switcher').classList.add('show');
+  if(viewName === 'lock')     document.getElementById('lock-screen').classList.add('show');
+  else if(viewName === 'home')    document.getElementById('home-screen').classList.add('show');
+  else if(viewName === 'chat')    { chatV.classList.add('show'); }
+  else if(viewName === 'photos')  document.getElementById('photos-app-view').style.transform = 'translateX(0)';
+  else if(viewName === 'control') {
+    document.getElementById('control-center').classList.add('show');
+    // CC يظهر فوق التطبيق الحالي — لا يُخفيه
+    // نعيد تشغيل التطبيق الخلفي إن كان مفتوحاً
+    if(prevViewBeforePanel === 'chat') chatV.classList.add('show');
+  }
+  else if(viewName === 'notify') {
+    document.getElementById('notification-center').classList.add('show');
+    if(prevViewBeforePanel === 'chat') chatV.classList.add('show');
+  }
+  else if(viewName === 'switcher') {
+    prevViewBeforeSwitcher = iphoneState.currentView === 'switcher' ? prevViewBeforeSwitcher : iphoneState.currentView;
+    document.getElementById('app-switcher').classList.add('show');
+    iphoneState.currentView = 'switcher';
+  }
 };
 
 window.openChatApp = () => { if(phoneWokeUp) showIphoneView('chat'); };
@@ -1039,16 +1125,16 @@ chatBox.addEventListener('pointermove', (e) => {
   if(Math.abs(dx) < 8 || dy > Math.abs(dx)) return;
 
   const isMine = swipeWrapper.classList.contains('mine');
-  const icon = swipeWrapper.querySelector('.swipe-icon');
+  const icon   = swipeWrapper.querySelector('.swipe-icon');
 
-  // رسائلي (يمين): سحب لليمين dx > 0
-  // رسائل الآخرين (يسار): سحب لليسار dx < 0
-  if(isMine && dx > 0 && dx < 65) {
-    swipeWrapper.style.transform = `translateX(${dx}px)`;
-    if(icon) icon.style.opacity = Math.min(1, dx / 50);
-  } else if(!isMine && dx < 0 && dx > -65) {
+  // mine (يمين) → سحب لليسار → dx < 0
+  // other (يسار)→ سحب لليمين → dx > 0
+  if(isMine && dx < 0 && dx > -70) {
     swipeWrapper.style.transform = `translateX(${dx}px)`;
     if(icon) icon.style.opacity = Math.min(1, Math.abs(dx) / 50);
+  } else if(!isMine && dx > 0 && dx < 70) {
+    swipeWrapper.style.transform = `translateX(${dx}px)`;
+    if(icon) icon.style.opacity = Math.min(1, dx / 50);
   }
 }, { passive: true });
 
@@ -1061,9 +1147,9 @@ const finishSwipe = (e) => {
   if(icon) icon.style.opacity = 0;
 
   const isMine = swipeWrapper.classList.contains('mine');
-  // mine: تفعيل عند سحب >45 لليمين
-  // other: تفعيل عند سحب >45 لليسار
-  if((isMine && dx > 45) || (!isMine && dx < -45)) {
+  // mine: تفعيل عند سحب >45 لليسار (dx < -45)
+  // other: تفعيل عند سحب >45 لليمين (dx > 45)
+  if((isMine && dx < -45) || (!isMine && dx > 45)) {
     const msgId = swipeWrapper.dataset.id;
     const text  = swipeWrapper.dataset.text;
     const name  = swipeWrapper.dataset.name;
@@ -1302,100 +1388,174 @@ function setupSlider(trackId, fillId, onChange) {
   }, { passive: true });
 }
 
-// === HOME INDICATOR — محسّن بالكامل ===
-// يعمل من داخل التطبيقات أيضاً، استجابة فورية، منطقة لمس واسعة
+// ================================================================
+// HOME INDICATOR — استجابة مرنة وفورية
+// ربع الشاشة = home/unlock   ،   نصف الشاشة = app switcher
+// ================================================================
 const homeIndicator = document.getElementById('home-indicator');
-let hiStartY = 0, hiStartTime = 0, hiMoved = false, hiMaxDelta = 0;
-let hiActive = false;
+const screenEl2 = document.getElementById('screen');
+let hiActive = false, hiStartY = 0, hiCurrentY = 0, hiStartTime = 0;
 
-function hiStart(clientY) {
-  hiStartY = clientY;
+function getScreenHeight() { return screenEl2.getBoundingClientRect().height || 842; }
+
+function hiBegin(y) {
+  if(!phoneWokeUp) return;
+  hiActive    = true;
+  hiStartY    = y;
+  hiCurrentY  = y;
   hiStartTime = Date.now();
-  hiMoved = false;
-  hiMaxDelta = 0;
-  hiActive = true;
-  homeIndicator.classList.add('dragging');
+  homeIndicator.classList.add('lifting');
 }
-
-function hiMove(clientY) {
+function hiMove2(y) {
   if(!hiActive) return;
-  const dy = hiStartY - clientY;
-  if(dy > 5) hiMoved = true;
-  hiMaxDelta = Math.max(hiMaxDelta, dy);
+  hiCurrentY = y;
 }
-
-function hiEnd(clientY) {
+function hiCommit(y) {
   if(!hiActive) return;
   hiActive = false;
-  homeIndicator.classList.remove('dragging');
-  if(!phoneWokeUp) return;
+  homeIndicator.classList.remove('lifting');
 
-  const dy = hiStartY - clientY;
-  const held = Date.now() - hiStartTime;
-  const finalDelta = Math.max(hiMaxDelta, dy);
+  const dy        = hiStartY - y;          // موجب = سحب للأعلى
+  const held      = Date.now() - hiStartTime;
+  const screenH   = getScreenHeight();
+  const quarter   = screenH * 0.22;
+  const half      = screenH * 0.45;
 
-  if(finalDelta > 25) {
-    if(held > 400 || finalDelta > 150) {
-      // مطوّل أو سحب كبير = مبدّل التطبيقات
-      showIphoneView('switcher');
+  if(dy < 8) return; // لمسة بسيطة بدون سحب
+
+  const prev = iphoneState.currentView;
+
+  if(dy >= half || held > 420) {
+    // سحب للنصف أو أكثر → مبدّل التطبيقات
+    showIphoneView('switcher');
+  } else if(dy >= quarter) {
+    // ربع الشاشة → home أو فك القفل
+    if(prev === 'lock') showIphoneView('home');
+    else if(prev === 'chat' || prev === 'photos') {
+      // إخفاء التطبيق بأنيميشن للأعلى
+      const chatEl = document.getElementById('chat-app-view');
+      const photoEl = document.getElementById('photos-app-view');
+      if(prev === 'chat') {
+        chatEl.classList.add('app-hidden');
+        chatEl.classList.remove('show');
+        setTimeout(() => { chatEl.classList.remove('app-hidden'); }, 400);
+      }
+      showIphoneView('home');
     } else {
-      // سحب قصير = العودة للهوم
-      if(iphoneState.currentView === 'lock') showIphoneView('home');
-      else showIphoneView('home');
+      showIphoneView('home');
     }
   }
 }
 
-// Touch events
-homeIndicator.addEventListener('touchstart', (e) => { e.stopPropagation(); hiStart(e.touches[0].clientY); }, { passive: true });
-document.addEventListener('touchmove', (e) => { if(hiActive) hiMove(e.touches[0].clientY); }, { passive: true });
-document.addEventListener('touchend', (e) => { if(hiActive) hiEnd(e.changedTouches[0].clientY); }, { passive: true });
+// Touch
+homeIndicator.addEventListener('touchstart',  e => { e.stopPropagation(); hiBegin(e.touches[0].clientY); }, { passive: true });
+homeIndicator.addEventListener('touchmove',   e => { e.stopPropagation(); hiMove2(e.touches[0].clientY); }, { passive: true });
+homeIndicator.addEventListener('touchend',    e => { e.stopPropagation(); hiCommit(e.changedTouches[0].clientY); }, { passive: true });
+// Mouse
+homeIndicator.addEventListener('mousedown',   e => { e.stopPropagation(); hiBegin(e.clientY); });
+document.addEventListener('mousemove', e => { if(hiActive) hiMove2(e.clientY); });
+document.addEventListener('mouseup',   e => { if(hiActive) hiCommit(e.clientY); });
 
-// Mouse/pointer events
-homeIndicator.addEventListener('mousedown', (e) => { e.stopPropagation(); hiStart(e.clientY); });
-document.addEventListener('mousemove', (e) => { if(hiActive) hiMove(e.clientY); });
-document.addEventListener('mouseup', (e) => { if(hiActive) hiEnd(e.clientY); });
-
-// Pointer events (fallback)
-homeIndicator.addEventListener('pointerdown', (e) => { e.stopPropagation(); if(e.pointerType !== 'mouse' && e.pointerType !== 'touch') hiStart(e.clientY); });
-
-// === SCREEN SWIPE GESTURES ===
-// يعمل من كل الشاشات بما فيها التطبيقات
+// ================================================================
+// SCREEN SWIPE GESTURES — من أي مشهد
+// ================================================================
 const screenContent = document.getElementById('screen-content');
 let sgStartX = 0, sgStartY = 0, sgActive = false;
 
-screenContent.addEventListener('pointerdown', (e) => {
-  if(e.target.closest('#home-indicator, .chat-input-row, .reply-preview-bar, .cc-slider-track, .cc-conn-item, .cc-action-btn, .cc-conn-item, button')) return;
-  sgStartX = e.clientX;
-  sgStartY = e.clientY;
-  sgActive = true;
+screenContent.addEventListener('pointerdown', e => {
+  if(e.target.closest('#home-indicator, .chat-input-row, .reply-preview-bar, .cc-slider-track, .app-card')) return;
+  sgStartX = e.clientX; sgStartY = e.clientY; sgActive = true;
 }, { passive: true });
 
-screenContent.addEventListener('pointerup', (e) => {
-  if(!sgActive) return;
-  sgActive = false;
+screenContent.addEventListener('pointerup', e => {
+  if(!sgActive) return; sgActive = false;
   if(e.target.closest('#home-indicator, .chat-input-row, .reply-preview-bar, .cc-slider-track')) return;
 
   const dx = e.clientX - sgStartX;
   const dy = e.clientY - sgStartY;
-  const screenRect = screenContent.getBoundingClientRect();
-  const relX = sgStartX - screenRect.left;
-  const relY = sgStartY - screenRect.top;
+  const rect = screenContent.getBoundingClientRect();
+  const relX = sgStartX - rect.left;
+  const relY = sgStartY - rect.top;
+  const cv   = iphoneState.currentView;
 
-  // سحب من أعلى الشاشة للأسفل (من أي مشهد)
-  if(dy > 55 && relY < 90) {
-    if(relX > screenRect.width * 0.5) { showIphoneView('control'); return; }
-    else { showIphoneView('notify'); return; }
+  // ── سحب من أعلى الشاشة للأسفل → CC أو NC (من أي مشهد)
+  if(dy > 50 && relY < 85) {
+    if(relX > rect.width * 0.5) openControlCenter();
+    else                         openNotifyCenter();
+    return;
   }
 
-  // إغلاق مراكز التحكم/الإشعارات بالسحب للأعلى
-  if(dy < -50 && (iphoneState.currentView === 'control' || iphoneState.currentView === 'notify')) {
-    showIphoneView(iphoneState.currentView === 'control' ? 'home' : 'home'); return;
+  // ── ضغطة في المنتصف/الأسفل داخل CC أو NC أو Switcher → إغلاق والعودة
+  const isTapCC  = cv === 'control'  && relY > rect.height * 0.35 && Math.abs(dx) < 15 && Math.abs(dy) < 15;
+  const isTapNC  = cv === 'notify'   && relY > rect.height * 0.35 && Math.abs(dx) < 15 && Math.abs(dy) < 15;
+  const isTapSW  = cv === 'switcher' && relY > rect.height * 0.35 && Math.abs(dx) < 15 && Math.abs(dy) < 15;
+
+  if(isTapCC || isTapNC) {
+    closePanelReturnToPrev(); return;
+  }
+  if(isTapSW) {
+    closeSwitcherReturnToPrev(); return;
   }
 
-  // شاشة القفل → سحب للأعلى
-  if(iphoneState.currentView === 'lock' && dy < -50) { showIphoneView('home'); return; }
+  // ── سحب للأعلى من CC/NC → إغلاق
+  if(dy < -45 && (cv === 'control' || cv === 'notify')) {
+    closePanelReturnToPrev(); return;
+  }
+  // ── شاشة القفل + سحب للأعلى → فتح
+  if(cv === 'lock' && dy < -45) { showIphoneView('home'); return; }
 }, { passive: true });
+
+// ── فتح CC/NC مع حفظ المشهد السابق
+function openControlCenter() {
+  prevViewBeforePanel = iphoneState.currentView;
+  document.getElementById('control-center').classList.add('show');
+  document.getElementById('notification-center').classList.remove('show');
+  iphoneState.currentView = 'control';
+}
+function openNotifyCenter() {
+  prevViewBeforePanel = iphoneState.currentView;
+  document.getElementById('notification-center').classList.add('show');
+  document.getElementById('control-center').classList.remove('show');
+  iphoneState.currentView = 'notify';
+}
+function closePanelReturnToPrev() {
+  document.getElementById('control-center').classList.remove('show');
+  document.getElementById('notification-center').classList.remove('show');
+  const back = prevViewBeforePanel || 'home';
+  iphoneState.currentView = back;
+}
+
+// ── إغلاق مبدّل التطبيقات والعودة
+function closeSwitcherReturnToPrev() {
+  document.getElementById('app-switcher').classList.remove('show');
+  const back = prevViewBeforeSwitcher || 'home';
+  iphoneState.currentView = back;
+  // إذا كان في تطبيق → أعده
+  if(back === 'chat')   { document.getElementById('chat-app-view').classList.add('show'); iphoneState.currentView = 'chat'; }
+  else if(back === 'photos') { document.getElementById('photos-app-view').style.transform = 'translateX(0)'; iphoneState.currentView = 'photos'; }
+  else { document.getElementById('home-screen').classList.add('show'); }
+}
+
+// ── رفع بطاقة التطبيق للأعلى = إغلاقها
+(function setupCardSwipe() {
+  const scroll = document.querySelector('.app-cards-scroll');
+  if(!scroll) return;
+  let cardStart = null, cardStartY = 0;
+  scroll.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.app-card');
+    if(!card) return;
+    cardStart = card; cardStartY = e.clientY;
+  });
+  document.addEventListener('pointerup', e => {
+    if(!cardStart) return;
+    const dy = cardStartY - e.clientY;
+    if(dy > 55) {
+      cardStart.classList.add('dismissing');
+      setTimeout(() => cardStart?.remove(), 300);
+    }
+    cardStart = null;
+  });
+})();
 
 // === NOTIFICATIONS ===
 window.clearNotifications = () => {

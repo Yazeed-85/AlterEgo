@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
 /* =========================================
-   متغيرات النظام واللعبة
+   1. متغيرات النظام واللعبة (The Best YZ + Game)
    ========================================= */
 :root {
   --primary-blue: #007aff;
@@ -24,77 +24,91 @@
   --radius-large: 22px;
   --radius-xl: 47px;
   --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   
-  --game-purple: #a855f7;
-  --game-bg: #09090b;
+  /* Game Colors */
+  --game-purple: #8774e1; /* Telegram Purple */
+  --game-bg: #0f0f0f;
   --game-card: #18181b;
   --game-border: #27272a;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent;}
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent;}
 body { background-color: var(--game-bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none;}
 
 /* =========================================
-   شريط اللعبة العلوي
+   2. تخطيط الشاشة الأساسي للعبة
    ========================================= */
-.top-bar { background: var(--game-card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--game-border); z-index: 10;}
-.pin-box { font-size: 1.5rem; font-weight: 900; color: var(--game-purple); letter-spacing: 3px;}
+.top-bar { background: var(--game-card); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--game-border); z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.5);}
+.pin-box { font-size: 1.6rem; font-weight: 900; color: var(--game-purple); letter-spacing: 2px;}
 .status-container { display: flex; flex-direction: column; align-items: center;}
 #statusText { color: #a1a1aa; font-weight: bold; font-size: 1.1rem; text-align: center;}
-#playerStatusCount { color: var(--game-purple); font-size: 1rem; font-weight: bold; margin-top: 5px; background: rgba(168,85,247,0.1); padding: 3px 15px; border-radius: 20px;}
-.timer-box { font-size: 1.8rem; font-weight: bold; color: #facc15; display: none;}
+#playerStatusCount { color: var(--game-purple); font-size: 1rem; font-weight: bold; margin-top: 5px; background: rgba(135, 116, 225, 0.15); padding: 3px 15px; border-radius: 20px;}
+
+.timer-box { font-size: 1.8rem; font-weight: 900; color: #facc15; display: none;}
 .timer-warning { color: #ef4444; animation: pulse 1s infinite; }
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+@keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); text-shadow: 0 0 15px #ef4444;} }
 
 .main-layout { flex: 1; display: flex; overflow: hidden; }
 
 /* =========================================
-   الداشبورد (بناء الشخصية)
+   3. القسم الأيمن: لوحة التحكم (الداشبورد)
    ========================================= */
 .right-dashboard { flex: 1.2; padding: 30px; background: var(--game-bg); overflow-y: auto; display: flex; flex-direction: column; border-left: 2px solid var(--game-border);}
-.profile-builder { background: var(--game-card); padding: 30px; border-radius: 20px; border: 1px solid var(--game-border);}
+.profile-builder { background: var(--game-card); padding: 30px; border-radius: 24px; border: 1px solid var(--game-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);}
 .section-title { font-size: 1.8rem; font-weight: bold; color: var(--game-purple); margin-bottom: 20px; border-bottom: 2px solid var(--game-border); padding-bottom: 10px;}
+
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.9rem;}
-.form-input { width: 100%; padding: 12px; background: var(--game-bg); border: 1px solid #3f3f46; border-radius: 8px; color: white; font-size: 1.1rem; outline: none;}
-.form-input:focus { border-color: var(--game-purple); }
-.avatars-grid { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;}
-.avatar-option { width: 60px; height: 60px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s;}
+.form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.95rem; font-weight: bold;}
+.form-input { width: 100%; padding: 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 12px; color: white; font-size: 1.1rem; outline: none; transition: 0.2s;}
+.form-input:focus { border-color: var(--game-purple); box-shadow: 0 0 0 3px rgba(135,116,225,0.2);}
+
+.avatars-grid { display: flex; gap: 12px; margin-bottom: 20px; justify-content: center;}
+.avatar-option { width: 65px; height: 65px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s;}
 .avatar-option img { width: 90%; height: 90%; border-radius: 50%;}
-.avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 15px var(--game-purple);}
-.btn-save { background: #10b981; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3);}
-.btn-save:active { transform: scale(0.95); }
-.ready-msg { color: #10b981; font-size: 1.2rem; font-weight: bold; text-align: center; display: none; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border: 1px solid #10b981;}
-#playerListArea { margin-top:30px; display:none; background:#18181b; padding:20px; border-radius:15px; border:1px solid #27272a;}
-#realNamesList { color:#cbd5e1; line-height:2; list-style:none; padding:0; font-size: 1.1rem;}
+.avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 20px rgba(135,116,225,0.4);}
+
+.btn-save { background: linear-gradient(135deg, #10b981, #047857); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3); transition: 0.2s;}
+.btn-save:active { transform: scale(0.96); }
+
+.ready-msg { color: #10b981; font-size: 1.2rem; font-weight: bold; text-align: center; display: none; padding: 25px; background: rgba(16, 185, 129, 0.1); border-radius: 15px; border: 1px solid #10b981; line-height: 1.6;}
+
+#playerListArea { margin-top:30px; background:var(--game-card); padding:25px; border-radius:20px; border:1px solid var(--game-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3);}
+.real-names-title { color:#facc15; margin-bottom: 15px; border-bottom:1px solid #3f3f46; padding-bottom:10px; font-size: 1.4rem;}
+#realNamesList { color:#cbd5e1; line-height:2.2; list-style:none; padding:0; font-size: 1.15rem; font-weight: bold;}
+.kick-btn { background: #ef4444; color: white; border: none; border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: 0.8rem; margin-right: 10px; transition: 0.2s;}
+.kick-btn:hover { background: #dc2626; transform: scale(1.1);}
 
 /* =========================================
-   الآيفون 17 Pro (The Best YZ UI)
+   4. القسم الأيسر: محاكي الآيفون (The Best YZ 100%)
    ========================================= */
-.left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #09090b 100%); position: relative; perspective: 1200px;}
-#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));}
-#iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #333, #111); border-radius: var(--radius-xl); border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2);}
-#dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 100; transition: var(--transition-smooth); cursor: pointer;}
+.left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #050508 100%); position: relative; perspective: 1200px;}
+
+#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6));}
+#iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #444, #111); border-radius: var(--radius-xl); border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 2px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2);}
+#dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 100; cursor: pointer;}
 
 #screen { position: absolute; top: 2px; left: 2px; width: 383px; height: 842px; background: #000; border-radius: 44px; overflow: hidden; transition: var(--transition-smooth);}
 #screen.off { background: #000 !important; }
 #screen.off #screen-content { opacity: 0; pointer-events: none; }
-#screen-content { width: 100%; height: 100%; position: relative; background: #1c1c1e; transition: var(--transition-smooth); overflow: hidden;}
+#screen-content { width: 100%; height: 100%; position: relative; background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover; transition: var(--transition-smooth); overflow: hidden;}
 
 /* شريط الحالة والشبكة */
-#status-bar { position: absolute; top: 0; width: 100%; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px 0; color: white; font-size: 16px; font-weight: 600; z-index: 50; backdrop-filter: var(--blur-backdrop);}
+#status-bar { position: absolute; top: 0; width: 100%; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px 0; color: white; font-size: 16px; font-weight: 600; z-index: 50; backdrop-filter: blur(10px);}
 #status-left { display: flex; align-items: center; }
-#status-right { display: flex; align-items: center; gap: 6px; }
-.signal-bars { display: flex; gap: 2px; align-items: flex-end;}
+#status-right { display: flex; align-items: center; gap: 5px; flex-direction: row-reverse; /* تعديل RTL لترتيب البطارية والأبراج */ }
+
+.signal-bars { display: flex; gap: 2px; align-items: flex-end; margin-right: 4px;}
 .signal-bar { width: 3px; background: white; border-radius: 1px; }
 .signal-bar:nth-child(1){height:4px;} .signal-bar:nth-child(2){height:6px;} .signal-bar:nth-child(3){height:8px;} .signal-bar:nth-child(4){height:10px;}
+
 .battery-container { display: flex; align-items: center;}
-.battery-icon { position: relative; width: 27px; height: 13px; border: 1.5px solid white; border-radius: 3px; margin-right: 2px; overflow: hidden;}
-.battery-icon::after { content: ''; position: absolute; right: -4px; top: 3px; width: 2px; height: 7px; background: white; border-radius: 0 1px 1px 0; }
-.battery-fill { position: absolute; top: 1px; left: 1px; height: 8px; background: white; border-radius: 1px; width: 100%;}
+.battery-icon { position: relative; width: 27px; height: 13px; border: 1.5px solid white; border-radius: 3px; overflow: hidden;}
+.battery-icon::after { content: ''; position: absolute; left: -4px; top: 3px; width: 2px; height: 7px; background: white; border-radius: 1px 0 0 1px; } /* تعديل RTL لاتجاه البطارية */
+.battery-fill { position: absolute; top: 1px; right: 1px; height: 8px; background: white; border-radius: 1px; width: 100%;}
 
 /* شاشة القفل والهوم */
-#lock-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); transition: 0.4s ease; transform: scale(1.05); z-index: 40; cursor: pointer;}
+#lock-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); transition: 0.4s ease; transform: scale(1.05); z-index: 40;}
 #lock-screen.show { opacity: 1; pointer-events: all; transform: scale(1); }
 #lock-time { font-size: 90px; font-weight: 200; margin-bottom: 10px; letter-spacing: -2px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
 #lock-date { font-size: 18px; font-weight: 500; margin-bottom: 50px; opacity: 0.9;}
@@ -108,95 +122,21 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .app-icon:active { transform: scale(0.9); }
 .app-label { position: absolute; bottom: -25px; font-size: 13px; color: white; font-weight: bold; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
 
-/* =========================================
-   تطبيق الشات (يمين ويسار + دمج + سحب للرد)
-   ========================================= */
-#chat-app-view { position: absolute; inset: 0; background: #0f172a; display: flex; flex-direction: column; z-index: 45; transform: translateX(100%); transition: var(--transition-smooth);}
-#chat-app-view.show { transform: translateX(0); }
-
-.chat-header { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); padding: 50px 15px 15px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer;}
-.chat-header-title { font-weight: bold; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 8px;}
-.chat-header-title::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981;}
-
-.chat-messages { flex: 1; padding: 15px 15px 30px; overflow-y: auto; display: flex; flex-direction: column; background: url('https://www.transparenttextures.com/patterns/cubes.png') #0f172a; overflow-x: hidden;}
-
-/* منطق اتجاه الرسائل */
-.msg-bubble { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; margin-top: 15px; position: relative; flex-direction: row-reverse; align-self: flex-start; transition: transform 0.2s ease-out;} /* الآخرين في اليسار */
-.msg-mine { flex-direction: row; align-self: flex-end; } /* رسائلي في اليمين */
-
-.msg-avatar { width: 35px; height: 35px; border-radius: 50%; background: #334155; cursor: pointer; flex-shrink: 0; overflow: hidden; border: 2px solid transparent;}
-.msg-avatar img { width: 100%; height: 100%; object-fit: cover;}
-
-.msg-content-wrapper { display: flex; flex-direction: column; align-items: flex-start;}
-.msg-mine .msg-content-wrapper { align-items: flex-end;}
-
-.msg-name { font-size: 0.8rem; color: var(--game-purple); margin-bottom: 4px; font-weight: bold; margin-left: 5px; margin-right: 5px;}
-.msg-mine .msg-name { display: none; }
-
-.msg-content { background: #1e293b; padding: 10px 15px; border-radius: 18px; border-bottom-left-radius: 4px; color: white; font-size: 1.05rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
-.msg-mine .msg-content { background: linear-gradient(135deg, #9333ea, #7e22ce); border-bottom-left-radius: 18px; border-bottom-right-radius: 4px;}
-
-/* الدمج */
-.msg-bubble.grouped { margin-top: 4px; }
-.msg-bubble.grouped .msg-avatar { opacity: 0; pointer-events: none; }
-.msg-bubble.grouped .msg-name { display: none; }
-.msg-bubble.grouped .msg-content { border-top-left-radius: 4px; border-bottom-left-radius: 18px; }
-.msg-mine.grouped .msg-content { border-top-right-radius: 4px; border-bottom-right-radius: 18px; }
-
-/* شكل الرد */
-.reply-snippet { background: rgba(0,0,0,0.25); border-left: 3px solid #10b981; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem;}
-.msg-mine .reply-snippet { border-left: none; border-right: 3px solid #facc15;}
-.reply-name { color: #10b981; font-weight: bold; margin-bottom: 2px;}
-.msg-mine .reply-name { color: #facc15; }
-.reply-text { color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;}
-
-.chat-bottom-wrapper { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; flex-direction: column; z-index: 2; padding-bottom: 25px;}
-.reply-preview-bar { display: none; background: rgba(15, 23, 42, 0.8); padding: 10px 15px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between;}
-.reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right;}
-.reply-preview-name { color: var(--game-purple); font-size: 0.85rem; font-weight: bold;}
-.reply-preview-text { color: #94a3b8; font-size: 0.9rem;}
-.cancel-reply-btn { background: transparent; border: none; color: #ef4444; font-size: 1.4rem; cursor: pointer; padding: 5px;}
-
-.chat-input-area { padding: 10px 15px; display: flex; gap: 10px; align-items: center;}
-.chat-input { flex: 1; padding: 14px 18px; border-radius: 25px; border: 1px solid #3f3f46; background: #09090b; color: white; outline: none; font-size: 1.05rem;}
-.chat-send-btn { background: var(--game-purple); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem;}
-
-/* =========================================
-   نوافذ الهاتف الداخلية (بروفايل، جروب)
-   ========================================= */
-.phone-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.95); z-index: 60; display: none; flex-direction: column; align-items: center; padding: 80px 20px; backdrop-filter: blur(10px); transform: translateY(100%); transition: 0.3s;}
-.phone-modal.show { transform: translateY(0); }
-.cv-card { background: #1e293b; border: 1px solid #334155; border-radius: 25px; padding: 30px 20px; text-align: center; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);}
-.cv-avatar { width: 100px; height: 100px; margin: 0 auto 15px; background: #27272a; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 4px solid var(--game-purple);}
-.cv-name { font-size: 1.8rem; font-weight: bold; color: white; margin-bottom: 20px;}
-.cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;}
-.cv-detail { background: #0f172a; padding: 12px; border-radius: 12px; font-size: 1rem; color: #cbd5e1; border: 1px solid #27272a;}
-.cv-detail strong { color: var(--game-purple); display: block; margin-bottom: 5px;}
-.close-cv-btn { background: #3f3f46; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer;}
-
-.group-list { width: 100%; background: #1e293b; border-radius: 20px; padding: 15px; margin-top: 20px; max-height: 400px; overflow-y: auto;}
-.group-member { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #334155; cursor: pointer;}
-.group-member:last-child { border-bottom: none; }
-.gm-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--game-purple);}
-.gm-info { text-align: right;}
-.gm-name { font-weight: bold; font-size: 1.1rem;}
-.gm-job { font-size: 0.85rem; color: #94a3b8;}
-
-/* =========================================
-   مراكز الآيفون والأزرار
-   ========================================= */
-#home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: rgba(255,255,255,0.7); border-radius: 3px; z-index: 150; cursor: pointer;}
-#home-indicator:active { background: white; }
+/* أزرار الآيفون الخارجية وهاردوير */
+#home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 3px; z-index: 200; cursor: grab;}
 .side-button { position: absolute; background: #333; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);}
 #power-button { width: 4px; height: 100px; top: 200px; right: -5px; border-radius: 0 4px 4px 0; cursor: pointer;}
-#power-button:active { transform: translateX(-1px); }
 #volume-up { width: 4px; height: 70px; left: -5px; top: 160px; border-radius: 4px 0 0 4px; cursor: pointer;}
 #volume-down { width: 4px; height: 70px; left: -5px; top: 240px; border-radius: 4px 0 0 4px; cursor: pointer;}
 #silent-switch { position: absolute; width: 4px; height: 30px; left: -5px; top: 120px; background: #666; border-radius: 4px 0 0 4px;}
+#charging-port { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 50px; height: 6px; background: #1d1d1f; border-radius: 3px;}
+.speaker-grill { position: absolute; bottom: -3px; display: flex; gap: 2px; opacity: 0.3;}
+.speaker-left { left: 40px; } .speaker-right { right: 40px; }
+.speaker-hole { width: 2px; height: 6px; background: #000; border-radius: 1px;}
 
-/* مراكز التحكم والإشعارات ومبدل التطبيقات */
-#control-center, #notification-center, #app-switcher { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); z-index: 80; transform: translateY(-100%); transition: 0.4s; padding: 80px 20px; color: white; display: flex; flex-direction: column; align-items: center;}
-#control-center.show, #notification-center.show, #app-switcher.show { transform: translateY(0); }
+/* مراكز التحكم والإشعارات */
+#control-center, #notification-center { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); z-index: 150; transform: translateY(-100%); transition: 0.4s; padding: 80px 20px; color: white; display: flex; flex-direction: column; align-items: center;}
+#control-center.show, #notification-center.show { transform: translateY(0); }
 .cc-box { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; width: 100%; text-align: center; font-weight: bold;}
 
 #volume-indicator { position: absolute; left: -80px; top: 50%; transform: translateY(-50%); width: 60px; height: 180px; background: rgba(0,0,0,0.9); border-radius: 30px; padding: 12px; opacity: 0; z-index: 1000; transition: 0.3s; backdrop-filter: blur(10px);}
@@ -205,18 +145,107 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 #volume-fill { position: absolute; bottom: 0; width: 100%; background: white; transition: height 0.2s;}
 
 /* =========================================
-   شاشات التصويت والنهاية
+   5. تطبيق الشات (Telegram Style 100%)
+   ========================================= */
+#chat-app-view { position: absolute; inset: 0; background: #0f0f0f; display: flex; flex-direction: column; z-index: 45; transform: translateX(100%); transition: var(--transition-smooth);}
+#chat-app-view.show { transform: translateX(0); }
+
+.chat-header { background: rgba(33, 33, 33, 0.95); backdrop-filter: blur(10px); padding: 50px 15px 15px; border-bottom: 1px solid #111; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+.chat-header-title { font-weight: bold; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 8px;}
+.chat-header-title::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981;}
+
+/* خلفية تيليجرام الأيقونية */
+.chat-messages { flex: 1; padding: 15px 10px 30px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; background: url('https://www.transparenttextures.com/patterns/cubes.png') #0f0f0f; touch-action: pan-y;}
+
+/* هندسة الرسائل (اليمين واليسار) */
+.msg-wrapper { display: flex; width: 100%; margin-top: 12px; }
+.msg-wrapper.mine { justify-content: flex-start; } /* يمين في RTL */
+.msg-wrapper.other { justify-content: flex-end; } /* يسار في RTL */
+
+.msg-bubble { display: flex; max-width: 80%; position: relative; gap: 8px; align-items: flex-end;}
+.msg-wrapper.other .msg-bubble { flex-direction: row-reverse; } /* للصورة لتكون في اليسار */
+
+.msg-avatar { width: 35px; height: 35px; border-radius: 50%; background: #333; cursor: pointer; flex-shrink: 0; overflow: hidden; border: 1px solid #444;}
+.msg-avatar img { width: 100%; height: 100%; object-fit: cover;}
+
+.msg-content-box { display: flex; flex-direction: column;}
+.msg-wrapper.other .msg-content-box { align-items: flex-end; } /* محاذاة لليسار */
+.msg-wrapper.mine .msg-content-box { align-items: flex-start; } /* محاذاة لليمين */
+
+.msg-name { font-size: 0.85rem; color: var(--game-purple); margin-bottom: 4px; font-weight: bold; padding: 0 5px;}
+.msg-wrapper.mine .msg-name { display: none; } /* لا يظهر اسمي */
+
+/* ألوان وشكل الفقاعات */
+.msg-text { padding: 10px 15px; color: white; font-size: 1.05rem; box-shadow: 0 1px 2px rgba(0,0,0,0.3); position: relative; word-wrap: break-word;}
+.msg-wrapper.other .msg-text { background: #212121; border-radius: 18px 18px 4px 18px; } /* ذيل في الأسفل يسار */
+.msg-wrapper.mine .msg-text { background: var(--game-purple); border-radius: 18px 18px 18px 4px; } /* ذيل في الأسفل يمين */
+
+/* دمج الرسائل المتتالية */
+.msg-wrapper.grouped { margin-top: 4px; }
+.msg-wrapper.grouped .msg-avatar { opacity: 0; pointer-events: none; }
+.msg-wrapper.grouped .msg-name { display: none; }
+.msg-wrapper.grouped.other .msg-text { border-radius: 18px 4px 4px 18px; }
+.msg-wrapper.grouped.mine .msg-text { border-radius: 4px 18px 18px 4px; }
+
+/* شكل الرد داخل الرسالة */
+.reply-snippet { background: rgba(0,0,0,0.3); border-right: 3px solid var(--game-purple); padding: 6px 10px; border-radius: 8px; margin-bottom: 6px; font-size: 0.9rem;}
+.msg-wrapper.mine .reply-snippet { border-right: none; border-left: 3px solid white;}
+.reply-name { font-weight: bold; margin-bottom: 2px; color: var(--game-purple);}
+.msg-wrapper.mine .reply-name { color: white; }
+.reply-text { color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;}
+
+.msg-time { font-size: 0.65rem; color: rgba(255,255,255,0.5); align-self: flex-end; margin-top: 4px; margin-left: 5px; margin-right: 5px;}
+
+/* منطقة الكتابة والرد (أسفل الشات) */
+.chat-bottom-wrapper { background: #212121; border-top: 1px solid #111; display: flex; flex-direction: column; z-index: 2; padding-bottom: 25px;}
+.reply-preview-bar { display: none; background: #1a1a1a; padding: 10px 15px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between;}
+.reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right;}
+.reply-preview-name { color: var(--game-purple); font-size: 0.85rem; font-weight: bold;}
+.reply-preview-text { color: #aaa; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.cancel-reply-btn { background: transparent; border: none; color: #ef4444; font-size: 1.4rem; cursor: pointer; padding: 5px;}
+
+.chat-input-area { padding: 10px 15px; display: flex; gap: 10px; align-items: center;}
+.chat-input { flex: 1; padding: 14px 18px; border-radius: 25px; border: none; background: #0f0f0f; color: white; outline: none; font-size: 1.05rem;}
+.chat-send-btn { background: var(--game-purple); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(135, 116, 225, 0.3); flex-shrink: 0; font-size: 1.2rem;}
+
+/* أيقونة السحب للرد */
+.swipe-reply-icon { position: absolute; left: -40px; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; opacity: 0; transition: 0.2s;}
+.msg-wrapper.mine .swipe-reply-icon { left: auto; right: -40px; }
+
+/* =========================================
+   6. نوافذ الهاتف الداخلية (بروفايل، جروب)
+   ========================================= */
+.phone-modal { position: absolute; inset: 0; background: rgba(15,15,15,0.95); z-index: 60; display: none; flex-direction: column; align-items: center; padding: 80px 20px; backdrop-filter: blur(15px); transform: translateY(100%); transition: 0.3s;}
+.phone-modal.show { transform: translateY(0); }
+.cv-card { background: #212121; border-radius: 25px; padding: 30px 20px; text-align: center; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);}
+.cv-avatar { width: 100px; height: 100px; margin: 0 auto 15px; background: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 4px solid var(--game-purple);}
+.cv-name { font-size: 1.8rem; font-weight: bold; color: white; margin-bottom: 20px;}
+.cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;}
+.cv-detail { background: #0f0f0f; padding: 12px; border-radius: 12px; font-size: 1rem; color: #cbd5e1;}
+.cv-detail strong { color: var(--game-purple); display: block; margin-bottom: 5px; font-size: 0.9rem;}
+.close-cv-btn { background: #333; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; font-size: 1.1rem;}
+
+.group-list { width: 100%; background: #212121; border-radius: 20px; padding: 15px; margin-top: 20px; max-height: 400px; overflow-y: auto;}
+.group-member { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #333; cursor: pointer;}
+.group-member:last-child { border-bottom: none; }
+.gm-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--game-purple);}
+.gm-info { text-align: right;}
+.gm-name { font-weight: bold; font-size: 1.1rem; color: white;}
+.gm-job { font-size: 0.85rem; color: #888;}
+
+/* =========================================
+   7. شاشات التصويت والنهاية
    ========================================= */
 #votingOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
 .voting-box { background: #18181b; padding: 40px 30px; border-radius: 25px; border: 2px solid #ef4444; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);}
-.voting-title { font-size: 2.2rem; color: #ef4444; margin-bottom: 5px; font-weight: 900;}
-.voting-desc { color: #a1a1aa; margin-bottom: 30px; font-size: 1rem;}
+.voting-title { font-size: 2.5rem; color: #ef4444; margin-bottom: 5px; font-weight: 900;}
+.voting-desc { color: #a1a1aa; margin-bottom: 30px; font-size: 1.1rem;}
 .select-box { width: 100%; padding: 15px; background: #09090b; border: 1px solid #3f3f46; color: white; font-size: 1.1rem; border-radius: 12px; outline: none; margin-bottom: 20px; font-family: 'Cairo';}
 .btn-vote { background: #ef4444; color: white; width: 100%; padding: 15px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 15px;}
 .btn-cancel-vote { background: transparent; color: #a1a1aa; border: 2px solid #3f3f46; width: 100%; padding: 12px; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;}
 .btn-cancel-vote:hover { background: #27272a; color: white;}
 
-#announcementOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
+#announcementOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
 .announcement-box { background: #18181b; padding: 50px 30px; border-radius: 25px; text-align: center; max-width: 600px; width: 100%; border: 2px solid #10b981;}
 </style>
 </head>
@@ -229,7 +258,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         <div id="playerStatusCount" style="display:none;"></div>
     </div>
     <div id="hostControls" style="display:none;">
-        <button onclick="hostStartGame()" style="background: linear-gradient(135deg, #10b981, #047857); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:1.1rem;">
+        <button onclick="hostStartGame()" style="background: linear-gradient(135deg, #10b981, #047857); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:1.1rem; box-shadow: 0 0 20px rgba(16,185,129,0.5); animation: pulse 1.5s infinite;">
             ▶️ بدء اللعب (إضاءة الهواتف)!
         </button>
     </div>
@@ -278,7 +307,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         </div>
         
         <div id="playerListArea">
-            <h3 style="color:#facc15; margin-bottom: 10px; border-bottom:1px solid #3f3f46; padding-bottom:10px;">الأسماء الحقيقية للمتواجدين:</h3>
+            <h3 class="real-names-title">الأسماء الحقيقية للمتواجدين (الأحياء):</h3>
             <ul id="realNamesList"></ul>
         </div>
     </div>
@@ -290,27 +319,28 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                 
                 <div id="screen" class="off">
                     <div id="screen-content">
+                        
                         <div id="status-bar">
                             <div id="status-left"><span id="current-time">9:41</span></div>
                             <div id="status-right">
-                                <span style="margin:0 2px; font-size:12px;">5G</span>
-                                <div class="signal-bars"><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div></div>
                                 <div class="battery-container">
                                     <div class="battery-icon"><div class="battery-fill" id="batt-fill"></div></div>
                                 </div>
+                                <span style="margin:0 2px; font-size:13px;">5G</span>
+                                <div class="signal-bars"><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div></div>
                             </div>
                         </div>
                         
                         <div id="lock-screen">
                             <div id="lock-time">9:41</div>
                             <div id="lock-date">اسحب للأعلى للفتح</div>
-                            <div class="unlock-hint">👆 اسحب من الأسفل 👆</div>
+                            <div class="unlock-hint">👆 اسحب من الشريط السفلي 👆</div>
                         </div>
                         
                         <div id="home-screen">
                             <div class="app-grid">
                                 <div style="text-align:center;">
-                                    <button class="app-icon" onclick="openChatApp()" style="background: linear-gradient(135deg, #10b981, #047857);">💬</button>
+                                    <button class="app-icon" onclick="openChatApp()" style="background: linear-gradient(135deg, #8774e1, #5d46c7);">💬</button>
                                     <div class="app-label">شات المجهولين</div>
                                 </div>
                                 <div style="text-align:center;">
@@ -322,7 +352,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
                         <div id="chat-app-view">
                             <div class="chat-header" onclick="openGroupInfo()">
-                                <div class="chat-header-title">قروب المجهولين 🕶️</div>
+                                <div class="chat-header-title">قروب المجهولين</div>
+                                <div style="font-size:0.8rem; color:#aaa; margin-top:2px;" id="chatSubTitle">اضغط لعرض الأعضاء</div>
                             </div>
                             
                             <div class="chat-messages" id="chatBox"></div>
@@ -337,7 +368,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                                 </div>
                                 <div class="chat-input-area">
                                     <button class="chat-send-btn" onclick="sendMessage()">➤</button>
-                                    <input type="text" class="chat-input" id="msgInput" placeholder="اكتب رسالة..." autocomplete="off">
+                                    <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -353,21 +384,20 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                                 <div class="cv-detail" style="margin-bottom:15px;"><strong>المهنة</strong> <span id="cvJob"></span></div>
                                 <div class="cv-detail" style="text-align: right; min-height:60px;">
                                     <strong>السيرة الذاتية (Bio):</strong><br>
-                                    <span id="cvBio" style="color:#94a3b8;"></span>
+                                    <span id="cvBio" style="color:#aaa;"></span>
                                 </div>
-                                <button class="close-cv-btn" onclick="document.getElementById('profileModal').classList.remove('show')">إغلاق</button>
+                                <button class="close-cv-btn" onclick="document.getElementById('profileModal').classList.remove('show')">إغلاق البروفايل</button>
                             </div>
                         </div>
 
                         <div class="phone-modal" id="groupInfoModal">
                             <h2 style="color:white; margin-bottom: 20px;">أعضاء القروب 👥</h2>
                             <div class="group-list" id="groupMembersList"></div>
-                            <button class="close-cv-btn" style="margin-top: auto;" onclick="document.getElementById('groupInfoModal').classList.remove('show')">إغلاق</button>
+                            <button class="close-cv-btn" style="margin-top: auto;" onclick="document.getElementById('groupInfoModal').classList.remove('show')">رجوع للشات</button>
                         </div>
 
                         <div id="control-center"><div class="cc-box">مركز التحكم<br><span style="font-size:0.8rem; color:#aaa;">اسحب للأعلى للإغلاق</span></div></div>
                         <div id="notification-center"><div class="cc-box">لا توجد إشعارات</div></div>
-                        <div id="app-switcher"><div class="cc-box">مبدل التطبيقات<br><span style="font-size:0.8rem; color:#aaa;">اضغط في أي مكان للعودة</span></div></div>
 
                     </div>
                     <div id="home-indicator"></div>
@@ -377,6 +407,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                 <div id="volume-up" class="side-button"></div>
                 <div id="volume-down" class="side-button"></div>
                 <div id="silent-switch"></div>
+                <div id="charging-port"></div>
+                <div class="speaker-grill speaker-left"><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div></div>
+                <div class="speaker-grill speaker-right"><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div></div>
             </div>
         </div>
         <div id="volume-indicator"><div id="volume-bar"><div id="volume-fill" style="height:50%;"></div></div></div>
@@ -420,7 +453,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
     document.getElementById('pinDisplay').innerText = pin;
 
-    // حفظ الجلسة للاعب (Persistence) لعدم تكرار الدخول
+    // حفظ واسترجاع الجلسة
     let myId = localStorage.getItem('alterego_id_' + pin);
     if (!myId) {
         myId = "p_" + Date.now();
@@ -433,6 +466,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     const profilesRef = ref(db, `alterego/${pin}/profiles`);
     const chatRef = ref(db, `alterego/${pin}/chat`);
     const announcementsRef = ref(db, `alterego/${pin}/announcements`);
+    const skipsRef = ref(db, `alterego/${pin}/skips`);
 
     let serverGameState = { status: 'lobby' };
     let players = {};
@@ -443,10 +477,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     let localSkipVoting = false;
     let phoneWokeUp = false;
 
-    // متغيرات الآيفون
     let iphoneState = { currentView: 'none', volume: 50 };
 
-    // 1. توليد الأفاتارات
+    // توليد الأفاتارات
     const avatarsGrid = document.getElementById('avatarsGrid');
     for(let i=1; i<=8; i++) {
         let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i*15}&backgroundColor=b6e3f4`;
@@ -458,13 +491,18 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         el.classList.add('selected');
     };
 
-    // 2. تسجيل الدخول
+    // تسجيل اللاعب
     get(ref(db, `alterego/${pin}/players/${myId}`)).then((snap) => {
         if (!snap.exists()) set(ref(db, `alterego/${pin}/players/${myId}`), { realName: myRealName, isAlive: true, isReady: false });
-        else myRealName = snap.val().realName; // استرجاع الاسم لو كان مسجلاً
+        else {
+            myRealName = snap.val().realName;
+            if(snap.val().isReady) {
+                document.getElementById('profileBuilder').style.display = 'none';
+                document.getElementById('readyMsg').style.display = 'block';
+            }
+        }
     });
 
-    // 3. الاستماع للبيانات من السيرفر
     onValue(stateRef, snap => { 
         serverGameState = snap.val() || { status: 'lobby' }; 
         updateGameUI();
@@ -478,7 +516,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
     onValue(profilesRef, snap => { profiles = snap.val() || {}; });
 
-    // 4. نظام الشات المطور
+    // نظام الشات اليمين/يسار والدمج
     onValue(chatRef, snap => {
         const chatBox = document.getElementById('chatBox');
         chatBox.innerHTML = '';
@@ -489,8 +527,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
             const pInfo = profiles[msg.senderId];
             if(!pInfo) return;
             
-            const isMine = msg.senderId === myId ? 'msg-mine' : '';
-            const isGrouped = msg.senderId === lastSenderId ? 'grouped' : '';
+            const isMine = msg.senderId === myId;
+            const isGrouped = msg.senderId === lastSenderId;
+            
+            let wrapperClass = isMine ? 'mine' : 'other';
+            let groupClass = isGrouped ? 'grouped' : '';
             let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${pInfo.avatarId*15}&backgroundColor=b6e3f4`;
 
             let replyHtml = '';
@@ -504,12 +545,21 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                     </div>`;
             }
 
+            let d = new Date(msg.time);
+            let timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+
             chatBox.innerHTML += `
-                <div class="msg-bubble ${isMine} ${isGrouped}" data-id="${msgId}" data-text="${msg.text}" data-name="${pInfo.fakeName}">
-                    <div class="msg-avatar" onclick="openProfile('${msg.senderId}')"><img src="${avatarUrl}"></div>
-                    <div class="msg-content-wrapper">
-                        <div class="msg-name">${pInfo.fakeName}</div>
-                        <div class="msg-content">${replyHtml}${msg.text}</div>
+                <div class="msg-wrapper ${wrapperClass} ${groupClass}" data-id="${msgId}" data-text="${msg.text}" data-name="${pInfo.fakeName}">
+                    <div class="msg-bubble">
+                        ${!isMine ? `<div class="msg-avatar" onclick="openProfile('${msg.senderId}')"><img src="${avatarUrl}"></div>` : ''}
+                        <div class="msg-content-box">
+                            <div class="msg-name">${pInfo.fakeName}</div>
+                            <div class="msg-text">
+                                ${replyHtml}
+                                ${msg.text}
+                                <span class="msg-time">${timeStr}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
@@ -524,13 +574,22 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
             document.getElementById('votingOverlay').style.display = 'none';
             document.getElementById('announcementOverlay').style.display = 'flex';
             document.getElementById('annIcon').innerText = ann.isCorrect ? '🎯' : '💀';
-            document.getElementById('annTitle').innerText = ann.isCorrect ? 'إصابة!' : 'إقصاء!';
+            document.getElementById('annTitle').innerText = ann.isCorrect ? 'كشف خطير!' : 'إقصاء!';
             document.getElementById('annTitle').style.color = ann.isCorrect ? '#10b981' : '#ef4444';
             document.getElementById('annDesc').innerText = ann.text;
         }
     });
 
-    // 5. حفظ الشخصية وطرد اللاعبين
+    onValue(skipsRef, async snap => {
+        if(!isHost || serverGameState.status !== 'voting') return;
+        const skips = snap.val() || {};
+        let aliveCount = Object.values(players).filter(p => p.isAlive).length;
+        if (Object.keys(skips).length >= aliveCount && aliveCount > 0) {
+            await remove(skipsRef);
+            await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+        }
+    });
+
     window.saveProfile = async () => {
         if(players[myId] && !players[myId].isAlive) return alert("أنت مقصى ولا يمكنك اللعب!");
         const fakeName = document.getElementById('fakeName').value.trim();
@@ -574,7 +633,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         }
     }
 
-    // 6. التحكم باللعبة والوقت (3 دقائق)
     window.hostStartGame = async () => {
         if(!isHost) return;
         await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 }); // 3 دقائق
@@ -587,7 +645,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         const screenEl = document.getElementById('screen');
 
         if (serverGameState.status === 'lobby') {
-            statusText.innerText = "بانتظار تجهيز الشخصيات الوهمية...";
+            statusText.innerText = "بانتظار تجهيز الشخصيات...";
             statusText.style.display = 'block';
             hostControls.style.display = 'none';
         }
@@ -601,12 +659,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                 statusText.style.display = 'block';
             }
         }
-        else if (serverGameState.status === 'chatting' || serverGameState.status === 'voting') {
+        else if (serverGameState.status === 'chatting' || serverGameState.status === 'voting' || serverGameState.status === 'game_over') {
             statusText.style.display = 'none';
             hostControls.style.display = 'none';
             timerBox.style.display = 'block';
             
-            // اللحظة السينمائية (تنبيه الهاتف للجميع)
             if (!phoneWokeUp) {
                 screenEl.classList.remove('off');
                 showIphoneView('lock');
@@ -615,7 +672,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
             if(serverGameState.status === 'chatting') localSkipVoting = false;
         }
 
-        // نافذة التصويت
         if (serverGameState.status === 'voting' && players[myId]?.isAlive && !localSkipVoting) {
             populateVotingSelects();
             document.getElementById('votingOverlay').style.display = 'flex';
@@ -623,7 +679,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
             document.getElementById('votingOverlay').style.display = 'none';
         }
 
-        // المؤقت
         clearInterval(gameTimerInterval);
         if (serverGameState.status === 'chatting' && serverGameState.deadline) {
             gameTimerInterval = setInterval(() => {
@@ -637,22 +692,23 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                 if(left === 0 && isHost) {
                     clearInterval(gameTimerInterval);
                     update(stateRef, { status: 'voting' });
+                    remove(skipsRef); // تصفير التخطي
                 }
             }, 1000);
+        } else if (serverGameState.status === 'game_over') {
+            timerBox.innerText = "انتهت";
         }
     }
 
     // =========================================
-    // نظام الآيفون المعقد (The Best YZ Logic)
+    // نظام الآيفون
     // =========================================
-
     function showIphoneView(viewName) {
         document.getElementById('lock-screen').classList.remove('show');
         document.getElementById('home-screen').classList.remove('show');
         document.getElementById('chat-app-view').classList.remove('show');
         document.getElementById('control-center').classList.remove('show');
         document.getElementById('notification-center').classList.remove('show');
-        document.getElementById('app-switcher').classList.remove('show');
         document.getElementById('profileModal').classList.remove('show');
         document.getElementById('groupInfoModal').classList.remove('show');
         
@@ -663,10 +719,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         else if(viewName === 'chat') document.getElementById('chat-app-view').classList.add('show');
         else if(viewName === 'control') document.getElementById('control-center').classList.add('show');
         else if(viewName === 'notify') document.getElementById('notification-center').classList.add('show');
-        else if(viewName === 'switcher') document.getElementById('app-switcher').classList.add('show');
     }
 
-    // زر الطاقة (القفل)
     document.getElementById('power-button').addEventListener('click', () => {
         if(!phoneWokeUp) return;
         const screen = document.getElementById('screen');
@@ -678,7 +732,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         }
     });
 
-    // أزرار الصوت
     document.getElementById('volume-up').addEventListener('click', () => adjustVolume(10));
     document.getElementById('volume-down').addEventListener('click', () => adjustVolume(-10));
     function adjustVolume(change) {
@@ -690,10 +743,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         ind.timeout = setTimeout(() => ind.classList.remove('show'), 1500);
     }
 
-    // فتح التطبيقات
     window.openChatApp = () => { if(phoneWokeUp) showIphoneView('chat'); };
 
-    // فتح البروفايلات
     window.openProfile = (targetId) => {
         const p = profiles[targetId];
         if(!p) return;
@@ -725,27 +776,19 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         document.getElementById('groupInfoModal').classList.add('show');
     };
 
-    // =========================================
-    // نظام اللمس المتقدم (TouchManager)
-    // (السحب للأعلى والأسفل وللرد)
-    // =========================================
+    // نظام اللمس المتقدم والسحب للرد
     const screenContent = document.getElementById('screen-content');
     const homeIndicator = document.getElementById('home-indicator');
     let startX = 0, startY = 0;
 
-    // سحب شريط الهوم من الأسفل
     homeIndicator.addEventListener('pointerdown', e => { startY = e.clientY; });
     homeIndicator.addEventListener('pointerup', e => {
         let deltaY = startY - e.clientY;
-        if(deltaY > 50) { // سحب قوي (هوم أو مبدل)
-            if(deltaY > 150) showIphoneView('switcher');
-            else showIphoneView('home');
-        }
+        if(deltaY > 50) showIphoneView('home');
     });
 
-    // السحب على الشاشة (للقفل ومراكز التحكم)
     screenContent.addEventListener('pointerdown', e => {
-        if(e.target.closest('.chat-messages')) return; // تجاهل لمس الشات هنا لتجنب التعارض
+        if(e.target.closest('.chat-messages')) return;
         startX = e.clientX;
         startY = e.clientY;
     });
@@ -755,61 +798,74 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
         let deltaY = e.clientY - startY;
         let deltaX = startX - e.clientX;
 
-        // من شاشة القفل -> سحب للأعلى لفتح الجهاز
         if(iphoneState.currentView === 'lock' && deltaY < -50) showIphoneView('home');
-        
-        // من الأعلى للأسفل -> مراكز التحكم
         if(iphoneState.currentView === 'home' && startY < 100 && deltaY > 100) {
             if(startX > window.innerWidth / 2) showIphoneView('control');
             else showIphoneView('notify');
         }
-
-        // إغلاق المراكز
-        if((iphoneState.currentView === 'control' || iphoneState.currentView === 'notify' || iphoneState.currentView === 'switcher') && (deltaY < -50 || Math.abs(deltaY) < 10)) {
+        if((iphoneState.currentView === 'control' || iphoneState.currentView === 'notify') && deltaY < -50) {
             showIphoneView('home');
         }
     });
 
-    // السحب للرد (خاص بـ ChatBox فقط، يمين لليسار)
+    // السحب للرد (Swipe to Reply) - تم التعديل لليمين واليسار
     const chatBox = document.getElementById('chatBox');
-    let chatStartX = 0, chatStartY = 0, currentBubble = null;
+    let chatStartX = 0, chatStartY = 0, currentWrapper = null;
 
     chatBox.addEventListener('pointerdown', (e) => {
         if(e.target.closest('.reply-snippet') || e.target.closest('.msg-avatar')) return;
-        currentBubble = e.target.closest('.msg-bubble');
-        if(currentBubble) {
+        currentWrapper = e.target.closest('.msg-wrapper');
+        if(currentWrapper) {
             chatStartX = e.clientX;
             chatStartY = e.clientY;
-            currentBubble.style.transition = 'none';
+            currentWrapper.style.transition = 'none';
         }
     });
 
     chatBox.addEventListener('pointermove', (e) => {
-        if(!currentBubble) return;
-        let deltaX = e.clientX - chatStartX; // موجب يعني من اليمين لليسار (RTL)
+        if(!currentWrapper) return;
+        let deltaX = e.clientX - chatStartX; 
         let deltaY = Math.abs(chatStartY - e.clientY);
         
-        if (deltaX > 10 && deltaX > deltaY) {
-            currentBubble.style.transform = `translateX(-${Math.min(deltaX, 60)}px)`;
+        if (Math.abs(deltaX) > 10 && Math.abs(deltaX) > deltaY) {
+            // رسائلي (يمين) نسحبها لليسار -> سالب
+            // رسائلهم (يسار) نسحبها لليسار -> سالب
+            if (deltaX < 0 && deltaX > -60) {
+                currentWrapper.style.transform = `translateX(${deltaX}px)`;
+                
+                // إظهار أيقونة الرد
+                let icon = currentWrapper.querySelector('.swipe-reply-icon');
+                if(!icon) {
+                    icon = document.createElement('div');
+                    icon.className = 'swipe-reply-icon';
+                    icon.innerHTML = '↩️';
+                    currentWrapper.appendChild(icon);
+                }
+                icon.style.opacity = Math.abs(deltaX) / 60;
+            }
         }
     });
 
     const resetBubble = (e) => {
-        if(!currentBubble) return;
+        if(!currentWrapper) return;
         let deltaX = e.clientX - chatStartX;
-        currentBubble.style.transition = 'transform 0.2s';
+        currentWrapper.style.transition = 'transform 0.2s';
         
-        if (deltaX > 40) {
-            const msgId = currentBubble.dataset.id;
-            const text = currentBubble.dataset.text;
-            const name = currentBubble.dataset.name;
+        let icon = currentWrapper.querySelector('.swipe-reply-icon');
+        if(icon) icon.style.opacity = 0;
+
+        if (deltaX < -40) {
+            const msgId = currentWrapper.dataset.id;
+            const text = currentWrapper.dataset.text;
+            const name = currentWrapper.dataset.name;
             prepareReply(msgId, text, name);
         }
-        currentBubble.style.transform = 'translateX(0)';
-        currentBubble = null;
+        currentWrapper.style.transform = 'translateX(0)';
+        setTimeout(() => { if(icon) icon.remove(); }, 200);
+        currentWrapper = null;
     };
     chatBox.addEventListener('pointerup', resetBubble);
-    chatBox.addEventListener('pointercancel', () => { if(currentBubble) { currentBubble.style.transform='translateX(0)'; currentBubble=null;} });
+    chatBox.addEventListener('pointercancel', () => { if(currentWrapper) { currentWrapper.style.transform='translateX(0)'; currentWrapper=null;} });
 
     function prepareReply(msgId, text, name) {
         replyingToMsgId = msgId;
@@ -838,28 +894,42 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     document.getElementById('msgInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
 
     // =========================================
-    // منطق التصويت والإقصاء وإنهاء اللعبة
+    // منطق التصويت وإنهاء اللعبة
     // =========================================
     function updateRealNamesList() {
         const ul = document.getElementById('realNamesList');
         ul.innerHTML = '';
         Object.keys(players).forEach(id => {
-            let kickBtn = (isHost && id !== myId) ? `<span style="cursor:pointer;" onclick="kickPlayer('${id}')">❌</span>` : '';
-            if(players[id].isAlive) ul.innerHTML += `<li>${players[id].realName} ${kickBtn}</li>`;
-            else ul.innerHTML += `<li style="text-decoration:line-through; color:#ef4444;">${players[id].realName} (مقصى) ${kickBtn}</li>`;
+            let kickBtn = (isHost && id !== myId) ? `<button class="kick-btn" onclick="kickPlayer('${id}')">❌ طرد</button>` : '';
+            if(players[id].isAlive) ul.innerHTML += `<li>${kickBtn} ${players[id].realName}</li>`;
+            else ul.innerHTML += `<li style="text-decoration:line-through; color:#ef4444;">${kickBtn} ${players[id].realName} (مقصى)</li>`;
+        });
+    }
+
+    function populateVotingSelects() {
+        const realSelect = document.getElementById('voteRealSelect');
+        const fakeSelect = document.getElementById('voteFakeSelect');
+        realSelect.innerHTML = '<option value="">-- من هو اللاعب الحقيقي؟ --</option>';
+        fakeSelect.innerHTML = '<option value="">-- ما هي شخصيته الوهمية؟ --</option>';
+        
+        Object.keys(players).forEach(id => {
+            if(players[id].isAlive && id !== myId) realSelect.innerHTML += `<option value="${id}">${players[id].realName}</option>`;
+        });
+        Object.keys(profiles).forEach(id => {
+            if(players[id].isAlive && id !== myId) fakeSelect.innerHTML += `<option value="${id}">${profiles[id].fakeName} (${profiles[id].job})</option>`;
         });
     }
 
     window.ignoreVoting = async () => {
         localSkipVoting = true;
         document.getElementById('votingOverlay').style.display = 'none';
-        checkPostVotingState();
+        await set(ref(db, `alterego/${pin}/skips/${myId}`), true);
     };
 
     window.submitVote = async () => {
         const targetRealId = document.getElementById('voteRealSelect').value;
         const targetFakeId = document.getElementById('voteFakeSelect').value; 
-        if(!targetRealId || !targetFakeId) return alert("اختر البيانات أولاً أو اضغط תراجع!");
+        if(!targetRealId || !targetFakeId) return alert("اختر البيانات أولاً أو اضغط تراجع!");
 
         document.getElementById('votingOverlay').style.display = 'none';
         let isCorrect = (targetRealId === targetFakeId);
@@ -883,19 +953,17 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
             const snap = await get(playersRef);
             const currentPlayers = snap.val();
             let aliveCount = Object.values(currentPlayers).filter(p => p.isAlive).length;
-            let totalCount = Object.values(currentPlayers).length;
 
-            if (aliveCount <= 2 && totalCount > 2) {
-                // بقاء لاعبين اثنين فقط (النهاية)
+            if (aliveCount <= 2) {
                 await set(announcementsRef, { text: "🏁 تبقى لاعبان فقط! اللعبة انتهت، الهويات أصبحت مكشوفة!", isCorrect: true, time: Date.now() });
+                await update(stateRef, { status: 'game_over' });
             } else {
-                // العودة للشات مع مؤقت جديد
                 await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+                await remove(skipsRef);
             }
-        }, 1000);
+        }, 1500);
     }
 
-    // تحديث ساعة الآيفون
     setInterval(() => {
         let d = new Date();
         let timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');

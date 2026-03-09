@@ -1495,20 +1495,24 @@ function hiCommit(y) {
   homeIndicator.classList.remove('lifting');
 
   const dy      = hiStartY - y;
-  const held    = Date.now() - hiStartTime;
+  const held    = Date.now() - hiStartTime; // الوقت المستغرق بالملي ثانية
   const screenH = getScreenHeight();
-  const quarter = screenH * 0.15;   // أسهل — 12% فقط
-  const half    = screenH * 0.45;
+  const quarter = screenH * 0.15;   // 15% من الشاشة
 
   if(dy < 5) return;
 
   const prev = iphoneState.currentView;
 
-  if(dy >= half || (held > 450 && dy >= 45)) {
-    // مبدّل التطبيقات
+  // الشرط الأول: مبدل التطبيقات 
+  // يفتح فـقـط إذا تم السحب لأعلى قليلاً (45 بكسل) واستمر السحب لمدة ثانيتين (2000 ملي ثانية) أو أكثر
+  if(held >= 2000 && dy >= 45) {
     prevViewBeforeSwitcher = prev;
     showIphoneView('switcher');
-  } else if(dy >= quarter) {
+  } 
+  // الشرط الثاني: السحبة الطبيعية / السريعة للرجوع
+  // إذا كانت أقل من ثانيتين (1500 ملي ثانية أو أسرع)
+  else if(dy >= quarter || (held < 2000 && dy >= 30)) { 
+    // ملاحظة: أضفت (dy >= 30) لضمان أن السحبة السريعة والقصيرة جداً ترجع للخلف بنجاح كما في الآيفون الحقيقي
     if(prev === 'lock') {
       showIphoneView('home');
     } else if(prev === 'chat') {
@@ -1523,7 +1527,6 @@ function hiCommit(y) {
     }
   }
 }
-
 // إغلاق تطبيق بأنيميشن للأعلى والعودة للهوم
 function exitAppToHome(appName) {
   const chatEl  = document.getElementById('chat-app-view');
@@ -1775,4 +1778,3 @@ setInterval(() => {
 </script>
 </body>
 </html>
-

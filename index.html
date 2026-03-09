@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>الوجه الآخر 🎭</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #09090b; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-image: radial-gradient(circle at center, #18181b 0%, #000 100%);}
+        .container { background: rgba(24, 24, 27, 0.9); padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 50px rgba(0,0,0,0.8); border: 1px solid #3f3f46; width: 90%; max-width: 400px;}
+        h1 { color: #f4f4f5; margin-bottom: 5px; font-size: 3rem; letter-spacing: 2px;}
+        h1 span { color: #a855f7; }
+        p { color: #a1a1aa; margin-bottom: 30px; font-size: 1.1rem;}
+        input { width: 100%; padding: 15px; font-size: 1.2rem; text-align: center; border-radius: 12px; border: 2px solid #52525b; background: #18181b; color: white; margin-bottom: 15px; outline: none;}
+        input:focus { border-color: #a855f7; }
+        .btn { display: block; width: 100%; padding: 15px; margin-bottom: 15px; border: none; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; color: white; transition: 0.2s;}
+        .btn:active { transform: scale(0.95); }
+        .btn-host { background: linear-gradient(135deg, #9333ea, #7e22ce); box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);}
+        .btn-player { background: linear-gradient(135deg, #3f3f46, #27272a); border: 1px solid #52525b;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>الوجه <span>الآخر</span> 🎭</h1>
+        <p>اصنع هويتك المزيفة.. واكشفهم جميعاً!</p>
+        
+        <input type="text" id="nameInput" placeholder="اكتب اسمك الحقيقي هنا..." maxlength="15">
+        
+        <div style="border-top: 1px solid #3f3f46; margin: 20px 0; padding-top: 20px;">
+            <input type="number" id="pinInput" placeholder="رقم الغرفة (PIN)" inputmode="numeric">
+            <button class="btn btn-player" onclick="joinRoom()">🕵️‍♂️ دخول للغرفة</button>
+        </div>
+
+        <button class="btn btn-host" onclick="createRoom()" style="margin-top: 10px;">👑 إنشاء غرفة جديدة</button>
+    </div>
+
+    <script>
+        function getName() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) { alert("يجب إدخال اسمك الحقيقي لتلعب!"); return null; }
+            return name;
+        }
+        function createRoom() {
+            const name = getName();
+            if (!name) return;
+            const pin = Math.floor(1000 + Math.random() * 9000);
+            window.location.href = `game.html?pin=${pin}&name=${encodeURIComponent(name)}&role=host`;
+        }
+        function joinRoom() {
+            const name = getName();
+            if (!name) return;
+            const pin = document.getElementById('pinInput').value;
+            if (pin.length === 4) {
+                window.location.href = `game.html?pin=${pin}&name=${encodeURIComponent(name)}`;
+            } else {
+                alert("رقم الغرفة غير صحيح!");
+            }
+        }
+    </script>
+</body>
+</html>

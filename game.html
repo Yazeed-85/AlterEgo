@@ -362,7 +362,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .flashlight-glow {
   /* فلاش 3D حقيقي — أعلى اليمين (مكان الكاميرا الخلفية على الأيفون) */
   position: absolute;
-  top:  calc(50% - 426px * 0.75 + 10px);
+  top:  calc(50% - 400px * 0.75 + 10px);
   right: calc(50% - 196px * 0.75 - 15px);
   width: 0; height: 0;
   pointer-events: none; opacity: 0;
@@ -1504,7 +1504,7 @@ function hiCommit(y) {
 
   const prev = iphoneState.currentView;
 
-  if(dy >= half || (held > 700 && dy >= 60)) {
+  if(dy >= half || (held > 850 && dy >= 60)) {
     // مبدّل التطبيقات
     prevViewBeforeSwitcher = prev;
     showIphoneView('switcher');

@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>الوجه الآخر - غرفة العمليات</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -449,7 +449,87 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== TOAST ===== */
 .toast { position: fixed; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px); background: rgba(40,40,40,0.95); color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; opacity: 0; transition: 0.3s; z-index: 9999; white-space: nowrap; backdrop-filter: blur(10px); }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }</style>
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 900px) {
+  /* منع التكبير بالضغطة المزدوجة */
+  html { touch-action: manipulation; }
+  body { overflow: auto; height: auto; min-height: 100vh; }
+
+  .top-bar { padding: 10px 15px; flex-wrap: wrap; gap: 6px; }
+  .pin-box { font-size: 1.2rem; }
+  #statusText { font-size: 0.9rem; }
+
+  /* تحويل اللاي-آوت من أفقي لعمودي: الفورم أولاً ثم الأيفون */
+  .main-layout {
+    flex-direction: column;
+    overflow: visible;
+    align-items: center;
+    padding: 15px 12px 30px;
+    gap: 24px;
+  }
+
+  /* داشبورد الفورم: العرض الكامل في الأعلى */
+  .right-dashboard {
+    flex: none;
+    width: 100%;
+    max-width: 560px;
+    border-left: none;
+    border-top: 2px solid var(--game-border);
+    padding: 20px 12px;
+    overflow: visible;
+    order: 1;
+  }
+
+  .profile-builder { padding: 18px 14px; }
+  .section-title { font-size: 1.3rem; }
+  .form-input { font-size: 1rem; padding: 11px 12px; }
+  .btn-save { font-size: 1rem; padding: 13px; }
+  .avatars-grid { gap: 8px; }
+  .avatar-option { width: 52px; height: 52px; }
+  #playerListArea { margin-top: 18px; padding: 16px 12px; }
+  .real-names-title { font-size: 1.1rem; }
+  #realNamesList { font-size: 1rem; line-height: 2; }
+
+  /* قسم الأيفون: يأتي بعد الفورم */
+  .left-phone-section {
+    flex: none;
+    width: 100%;
+    min-height: 520px;
+    order: 2;
+    background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
+    border-radius: 20px;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* تصغير الأيفون ليناسب عرض الشاشة */
+  #iphone-container {
+    transform: scale(0.55);
+    transform-origin: top center;
+    margin-bottom: -220px;
+  }
+}
+
+@media (max-width: 430px) {
+  #iphone-container { transform: scale(0.48); margin-bottom: -270px; }
+  .left-phone-section { min-height: 440px; }
+}
+
+@media (max-width: 380px) {
+  #iphone-container { transform: scale(0.42); margin-bottom: -310px; }
+  .left-phone-section { min-height: 400px; }
+}
+
+/* آيباد */
+@media (min-width: 768px) and (max-width: 900px) {
+  #iphone-container { transform: scale(0.62); margin-bottom: -190px; }
+  .left-phone-section { min-height: 580px; }
+}
+</style>
 </head>
 <body>
 

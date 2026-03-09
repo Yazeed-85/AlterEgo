@@ -362,10 +362,10 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .flashlight-glow {
   /* فلاش 3D حقيقي — أعلى اليمين (مكان الكاميرا الخلفية على الأيفون) */
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top:  calc(50% - 426px * 0.75 + 10px);
+  right: calc(50% - 196px * 0.75 - 15px);
   width: 0; height: 0;
-  opacity: 0;
+  pointer-events: none; opacity: 0;
   transition: opacity 0.4s ease;
   z-index: 1;
 }
@@ -373,22 +373,19 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .flashlight-glow::before {
   content: '';
   position: absolute;
-  top: -40px;
-  right: -40px;
-
-  width: 340px;
-  height: 460px;
-
+  top: -30px; left: -30px;
+  width: 320px; height: 420px;
   background:
-    radial-gradient(ellipse 80px 200px at 40px 30px,
-      rgba(255,255,255,0.95) 0%,
-      rgba(240,248,255,0.55) 30%,
-      rgba(220,235,255,0.18) 60%,
-      transparent 80%
+    radial-gradient(ellipse 60px 160px at 30px 20px,
+      rgba(255,255,255,0.96) 0%,
+      rgba(240,248,255,0.65) 25%,
+      rgba(220,235,255,0.25) 55%,
+      transparent 78%
     );
-
-  transform: rotate(-25deg);
-  filter: blur(8px);
+  transform-origin: 30px 20px;
+  transform: rotate(-15deg);
+  filter: blur(6px);
+  border-radius: 0 0 60% 60%;
 }
 /* هالة انعكاس على الخلفية */
 .flashlight-glow::after {

@@ -1,867 +1,909 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>الوجه الآخر - غرفة العمليات</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        /* =========================================
-           المتغيرات الأساسية لكلا النظامين
-           ========================================= */
-        :root {
-            /* متغيرات الآيفون The Best YZ */
-            --primary-blue: #007aff;
-            --destructive-red: #ff3b30;
-            --success-green: #30d158;
-            --warning-orange: #ff9500;
-            --surface-light: rgba(255,255,255,0.1);
-            --surface-medium: rgba(255,255,255,0.2);
-            --blur-backdrop: blur(30px);
-            --radius-large: 22px;
-            --radius-xl: 47px;
-            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            
-            /* متغيرات اللعبة */
-            --game-purple: #a855f7;
-            --game-bg: #09090b;
-            --game-card: #18181b;
-            --game-border: #27272a;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>الوجه الآخر - غرفة العمليات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* =========================================
+   متغيرات النظام واللعبة
+   ========================================= */
+:root {
+  --primary-blue: #007aff;
+  --destructive-red: #ff3b30;
+  --success-green: #30d158;
+  --warning-orange: #ff9500;
+  --secondary-gray: #8e8e93;
+  --background-dark: #1c1c1e;
+  --surface-light: rgba(255,255,255,0.1);
+  --surface-medium: rgba(255,255,255,0.2);
+  --blur-backdrop: blur(30px);
+  --radius-small: 8px;
+  --radius-medium: 16px;
+  --radius-large: 22px;
+  --radius-xl: 47px;
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  --game-purple: #a855f7;
+  --game-bg: #09090b;
+  --game-card: #18181b;
+  --game-border: #27272a;
+}
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent;}
-        body { background-color: var(--game-bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none;}
-        
-        /* =========================================
-           الشريط العلوي (Game Top Bar)
-           ========================================= */
-        .top-bar { background: var(--game-card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--game-border); z-index: 10;}
-        .pin-box { font-size: 1.5rem; font-weight: 900; color: var(--game-purple); letter-spacing: 3px;}
-        .status-container { display: flex; flex-direction: column; align-items: center;}
-        #statusText { color: #a1a1aa; font-weight: bold; font-size: 1.1rem; text-align: center;}
-        #playerStatusCount { color: var(--game-purple); font-size: 1rem; font-weight: bold; margin-top: 5px; background: rgba(168,85,247,0.1); padding: 3px 15px; border-radius: 20px;}
-        .timer-box { font-size: 1.8rem; font-weight: bold; color: #facc15; display: none;}
-        .timer-warning { color: #ef4444; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent;}
+body { background-color: var(--game-bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none;}
 
-        .main-layout { flex: 1; display: flex; overflow: hidden; }
+/* =========================================
+   شريط اللعبة العلوي
+   ========================================= */
+.top-bar { background: var(--game-card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--game-border); z-index: 10;}
+.pin-box { font-size: 1.5rem; font-weight: 900; color: var(--game-purple); letter-spacing: 3px;}
+.status-container { display: flex; flex-direction: column; align-items: center;}
+#statusText { color: #a1a1aa; font-weight: bold; font-size: 1.1rem; text-align: center;}
+#playerStatusCount { color: var(--game-purple); font-size: 1rem; font-weight: bold; margin-top: 5px; background: rgba(168,85,247,0.1); padding: 3px 15px; border-radius: 20px;}
+.timer-box { font-size: 1.8rem; font-weight: bold; color: #facc15; display: none;}
+.timer-warning { color: #ef4444; animation: pulse 1s infinite; }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* =========================================
-           القسم الأيمن: الداشبورد (Game Dashboard)
-           ========================================= */
-        .right-dashboard { flex: 1.2; padding: 30px; background: var(--game-bg); overflow-y: auto; display: flex; flex-direction: column; border-left: 2px solid var(--game-border);}
-        .profile-builder { background: var(--game-card); padding: 30px; border-radius: 20px; border: 1px solid var(--game-border);}
-        .section-title { font-size: 1.8rem; font-weight: bold; color: var(--game-purple); margin-bottom: 20px; border-bottom: 2px solid var(--game-border); padding-bottom: 10px;}
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.9rem;}
-        .form-input { width: 100%; padding: 12px; background: var(--game-bg); border: 1px solid #3f3f46; border-radius: 8px; color: white; font-size: 1.1rem; outline: none;}
-        .form-input:focus { border-color: var(--game-purple); }
-        .avatars-grid { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;}
-        .avatar-option { width: 60px; height: 60px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s;}
-        .avatar-option img { width: 90%; height: 90%; border-radius: 50%;}
-        .avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 15px var(--game-purple);}
-        .btn-save { background: #10b981; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3);}
-        .btn-save:active { transform: scale(0.95); }
-        .ready-msg { color: #10b981; font-size: 1.2rem; font-weight: bold; text-align: center; display: none; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border: 1px solid #10b981;}
-        #playerListArea { margin-top:30px; display:none; background:#18181b; padding:20px; border-radius:15px; border:1px solid #27272a;}
-        #realNamesList { color:#cbd5e1; line-height:2; list-style:none; padding:0; font-size: 1.1rem;}
+.main-layout { flex: 1; display: flex; overflow: hidden; }
 
-        /* =========================================
-           القسم الأيسر: محاكي الآيفون (The Best YZ 100%)
-           ========================================= */
-        .left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #09090b 100%); position: relative; perspective: 1200px;}
-        
-        #iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.8); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));}
-        
-        #iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #333, #111); border-radius: 47px; border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2);}
-        
-        #dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 100; transition: var(--transition-smooth); cursor: pointer;}
-        #dynamic-island:active { transform: translateX(-50%) scale(1.02); }
+/* =========================================
+   الداشبورد (بناء الشخصية)
+   ========================================= */
+.right-dashboard { flex: 1.2; padding: 30px; background: var(--game-bg); overflow-y: auto; display: flex; flex-direction: column; border-left: 2px solid var(--game-border);}
+.profile-builder { background: var(--game-card); padding: 30px; border-radius: 20px; border: 1px solid var(--game-border);}
+.section-title { font-size: 1.8rem; font-weight: bold; color: var(--game-purple); margin-bottom: 20px; border-bottom: 2px solid var(--game-border); padding-bottom: 10px;}
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.9rem;}
+.form-input { width: 100%; padding: 12px; background: var(--game-bg); border: 1px solid #3f3f46; border-radius: 8px; color: white; font-size: 1.1rem; outline: none;}
+.form-input:focus { border-color: var(--game-purple); }
+.avatars-grid { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;}
+.avatar-option { width: 60px; height: 60px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s;}
+.avatar-option img { width: 90%; height: 90%; border-radius: 50%;}
+.avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 15px var(--game-purple);}
+.btn-save { background: #10b981; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3);}
+.btn-save:active { transform: scale(0.95); }
+.ready-msg { color: #10b981; font-size: 1.2rem; font-weight: bold; text-align: center; display: none; padding: 20px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border: 1px solid #10b981;}
+#playerListArea { margin-top:30px; display:none; background:#18181b; padding:20px; border-radius:15px; border:1px solid #27272a;}
+#realNamesList { color:#cbd5e1; line-height:2; list-style:none; padding:0; font-size: 1.1rem;}
 
-        #screen { position: absolute; top: 2px; left: 2px; width: 383px; height: 842px; background: #000; border-radius: 44px; overflow: hidden; transition: var(--transition-smooth);}
-        #screen.off { background: #000 !important; }
-        #screen.off #screen-content { opacity: 0; pointer-events: none; }
-        
-        #screen-content { width: 100%; height: 100%; position: relative; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); background-size: cover; transition: var(--transition-smooth); overflow: hidden;}
-        
-        /* شريط الحالة للآيفون */
-        #status-bar { position: absolute; top: 0; width: 100%; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px 0; color: white; font-size: 16px; font-weight: 600; z-index: 50; backdrop-filter: var(--blur-backdrop);}
-        #status-left { display: flex; align-items: center; }
-        #status-right { display: flex; align-items: center; gap: 4px; }
-        .signal-bars { display: flex; gap: 2px; margin-left: 4px; align-items: flex-end;}
-        .signal-bar { width: 3px; background: white; border-radius: 1px; }
-        .signal-bar:nth-child(1){height:4px;} .signal-bar:nth-child(2){height:6px;} .signal-bar:nth-child(3){height:8px;} .signal-bar:nth-child(4){height:10px;}
-        .battery-container { display: flex; align-items: center; margin-right: 4px;}
-        .battery-icon { position: relative; width: 27px; height: 13px; border: 1.5px solid white; border-radius: 3px; margin-right: 2px; overflow: hidden;}
-        .battery-icon::after { content: ''; position: absolute; right: -4px; top: 3px; width: 2px; height: 7px; background: white; border-radius: 0 1px 1px 0; }
-        .battery-fill { position: absolute; top: 1px; left: 1px; height: 8px; background: white; border-radius: 1px; width: 100%;}
-        
-        /* شاشة القفل */
-        #lock-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); transition: 0.4s ease; transform: scale(1.05); z-index: 40; cursor: pointer;}
-        #lock-screen.show { opacity: 1; pointer-events: all; transform: scale(1); }
-        #lock-time { font-size: 90px; font-weight: 200; margin-bottom: 10px; letter-spacing: -2px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
-        #lock-date { font-size: 18px; font-weight: 500; margin-bottom: 50px; opacity: 0.9;}
-        .unlock-hint { font-size: 16px; opacity: 0.8; animation: bounceHint 2s infinite; position: absolute; bottom: 100px; font-weight: bold;}
-        @keyframes bounceHint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+/* =========================================
+   الآيفون 17 Pro (The Best YZ UI)
+   ========================================= */
+.left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #09090b 100%); position: relative; perspective: 1200px;}
+#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.5));}
+#iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #333, #111); border-radius: var(--radius-xl); border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,0.2), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.2);}
+#dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 100; transition: var(--transition-smooth); cursor: pointer;}
 
-        /* سطح المكتب */
-        #home-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: 0.4s ease; transform: scale(0.95); z-index: 30;}
-        #home-screen.show { opacity: 1; pointer-events: all; transform: scale(1); }
-        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 100px 25px; align-content: start;}
-        
-        .app-icon { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 35px; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: none; position: relative; justify-self: center;}
-        .app-icon:active { transform: scale(0.9); }
-        .app-label { position: absolute; bottom: -25px; font-size: 13px; color: white; font-weight: bold; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
-        
-        /* تطبيق الشات (Telegram Style) */
-        #chat-app-view { position: absolute; top: 0; width: 100%; height: 100%; background: #0f172a; display: flex; flex-direction: column; z-index: 45; transform: translateX(100%); transition: var(--transition-smooth);}
-        #chat-app-view.show { transform: translateX(0); }
-        
-        .chat-header { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 50px 15px 15px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; z-index: 2;}
-        .chat-header-title { font-weight: bold; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 8px;}
-        .chat-header-title::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981;}
-        .close-app-btn { background: transparent; border: none; color: #a855f7; font-size: 1.1rem; font-weight: bold; cursor: pointer;}
-        
-        .chat-messages { flex: 1; padding: 15px 10px; overflow-y: auto; display: flex; flex-direction: column; background: url('https://www.transparenttextures.com/patterns/cubes.png') #0f172a; touch-action: pan-y;}
-        
-        /* تصميم الرسائل (Grouped + Reply) */
-        .msg-bubble { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; margin-top: 15px; position: relative;}
-        .msg-mine { align-self: flex-end; flex-direction: row-reverse;}
-        
-        .msg-avatar { width: 35px; height: 35px; border-radius: 50%; background: #334155; cursor: pointer; flex-shrink: 0; overflow: hidden; border: 2px solid transparent; transition: 0.2s;}
-        .msg-avatar:active { transform: scale(0.9); border-color: var(--game-purple);}
-        .msg-avatar img { width: 100%; height: 100%; object-fit: cover;}
-        
-        .msg-content-wrapper { display: flex; flex-direction: column; align-items: flex-start;}
-        .msg-mine .msg-content-wrapper { align-items: flex-end;}
-        
-        .msg-name { font-size: 0.85rem; color: var(--game-purple); margin-bottom: 4px; font-weight: bold; margin-right: 5px; margin-left: 5px;}
-        .msg-mine .msg-name { display: none; }
-        
-        .msg-content { background: #1e293b; padding: 10px 15px; border-radius: 18px; border-bottom-right-radius: 4px; color: white; font-size: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
-        .msg-mine .msg-content { background: linear-gradient(135deg, #9333ea, #7e22ce); border-bottom-right-radius: 18px; border-bottom-left-radius: 4px;}
-        
-        /* ستايل دمج الرسائل المتتالية */
-        .msg-bubble.grouped { margin-top: 4px; }
-        .msg-bubble.grouped .msg-avatar { opacity: 0; pointer-events: none; }
-        .msg-bubble.grouped .msg-name { display: none; }
-        .msg-bubble.grouped .msg-content { border-bottom-right-radius: 18px; border-top-right-radius: 4px; }
-        .msg-mine.grouped .msg-content { border-bottom-left-radius: 18px; border-top-left-radius: 4px; }
+#screen { position: absolute; top: 2px; left: 2px; width: 383px; height: 842px; background: #000; border-radius: 44px; overflow: hidden; transition: var(--transition-smooth);}
+#screen.off { background: #000 !important; }
+#screen.off #screen-content { opacity: 0; pointer-events: none; }
+#screen-content { width: 100%; height: 100%; position: relative; background: #1c1c1e; transition: var(--transition-smooth); overflow: hidden;}
 
-        /* ستايل الردود */
-        .reply-snippet { background: rgba(0,0,0,0.25); border-right: 3px solid #10b981; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem;}
-        .msg-mine .reply-snippet { border-right: none; border-left: 3px solid #facc15;}
-        .reply-name { color: #10b981; font-weight: bold; margin-bottom: 2px;}
-        .msg-mine .reply-name { color: #facc15; }
-        .reply-text { color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;}
+/* شريط الحالة والشبكة */
+#status-bar { position: absolute; top: 0; width: 100%; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px 0; color: white; font-size: 16px; font-weight: 600; z-index: 50; backdrop-filter: var(--blur-backdrop);}
+#status-left { display: flex; align-items: center; }
+#status-right { display: flex; align-items: center; gap: 6px; }
+.signal-bars { display: flex; gap: 2px; align-items: flex-end;}
+.signal-bar { width: 3px; background: white; border-radius: 1px; }
+.signal-bar:nth-child(1){height:4px;} .signal-bar:nth-child(2){height:6px;} .signal-bar:nth-child(3){height:8px;} .signal-bar:nth-child(4){height:10px;}
+.battery-container { display: flex; align-items: center;}
+.battery-icon { position: relative; width: 27px; height: 13px; border: 1.5px solid white; border-radius: 3px; margin-right: 2px; overflow: hidden;}
+.battery-icon::after { content: ''; position: absolute; right: -4px; top: 3px; width: 2px; height: 7px; background: white; border-radius: 0 1px 1px 0; }
+.battery-fill { position: absolute; top: 1px; left: 1px; height: 8px; background: white; border-radius: 1px; width: 100%;}
 
-        /* منطقة الكتابة (Reply Bar + Input) */
-        .chat-bottom-wrapper { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px;}
-        .reply-preview-bar { display: none; background: rgba(15, 23, 42, 0.8); padding: 10px 15px; border-left: 3px solid var(--game-purple); align-items: center; justify-content: space-between;}
-        .reply-preview-info { display: flex; flex-direction: column; overflow: hidden;}
-        .reply-preview-name { color: var(--game-purple); font-size: 0.85rem; font-weight: bold;}
-        .reply-preview-text { color: #94a3b8; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .cancel-reply-btn { background: transparent; border: none; color: #ef4444; font-size: 1.4rem; cursor: pointer; padding: 5px;}
-        
-        .chat-input-area { padding: 10px 15px; display: flex; gap: 10px;}
-        .chat-input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #3f3f46; background: #09090b; color: white; outline: none; font-size: 1rem;}
-        .chat-send-btn { background: var(--game-purple); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4); flex-shrink: 0; font-size: 1.2rem;}
+/* شاشة القفل والهوم */
+#lock-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); transition: 0.4s ease; transform: scale(1.05); z-index: 40; cursor: pointer;}
+#lock-screen.show { opacity: 1; pointer-events: all; transform: scale(1); }
+#lock-time { font-size: 90px; font-weight: 200; margin-bottom: 10px; letter-spacing: -2px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);}
+#lock-date { font-size: 18px; font-weight: 500; margin-bottom: 50px; opacity: 0.9;}
+.unlock-hint { font-size: 16px; opacity: 0.8; animation: bounceHint 2s infinite; position: absolute; bottom: 100px; font-weight: bold;}
+@keyframes bounceHint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* بروفايل في الهاتف */
-        .phone-profile-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.95); z-index: 50; display: none; flex-direction: column; align-items: center; padding: 80px 20px; backdrop-filter: blur(10px); transform: translateY(100%); transition: 0.3s;}
-        .phone-profile-modal.show { transform: translateY(0); }
-        .cv-card { background: #1e293b; border: 1px solid #334155; border-radius: 25px; padding: 30px 20px; text-align: center; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);}
-        .cv-avatar { width: 100px; height: 100px; margin: 0 auto 15px; background: #27272a; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 4px solid var(--game-purple);}
-        .cv-name { font-size: 1.8rem; font-weight: bold; color: white; margin-bottom: 20px;}
-        .cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;}
-        .cv-detail { background: #0f172a; padding: 12px; border-radius: 12px; font-size: 1rem; color: #cbd5e1; border: 1px solid #27272a;}
-        .cv-detail strong { color: var(--game-purple); display: block; margin-bottom: 5px; font-size: 0.9rem;}
-        .close-cv-btn { background: #3f3f46; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer; font-size: 1.1rem;}
+#home-screen { position: absolute; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: 0.4s ease; transform: scale(0.95); z-index: 30;}
+#home-screen.show { opacity: 1; pointer-events: all; transform: scale(1); }
+.app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 100px 25px; align-content: start;}
+.app-icon { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 35px; cursor: pointer; transition: 0.2s; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: none; position: relative; justify-self: center;}
+.app-icon:active { transform: scale(0.9); }
+.app-label { position: absolute; bottom: -25px; font-size: 13px; color: white; font-weight: bold; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
 
-        /* =========================================
-           عناصر الآيفون (مراكز التحكم والأزرار)
-           ========================================= */
-        #home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: rgba(255,255,255,0.5); border-radius: 3px; z-index: 60; cursor: pointer;}
-        #home-indicator:active { background: white; }
-        
-        .side-button { position: absolute; background: #333; border-radius: 4px; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);}
-        .side-button:active { transform: scale(0.9); }
-        #power-button { width: 4px; height: 100px; top: 200px; right: -5px; border-radius: 0 4px 4px 0;}
-        #volume-up { width: 4px; height: 70px; left: -5px; top: 160px; border-radius: 4px 0 0 4px;}
-        #volume-down { width: 4px; height: 70px; left: -5px; top: 240px; border-radius: 4px 0 0 4px;}
-        #silent-switch { position: absolute; width: 4px; height: 30px; left: -5px; top: 120px; background: #666; border-radius: 4px 0 0 4px;}
+/* =========================================
+   تطبيق الشات (يمين ويسار + دمج + سحب للرد)
+   ========================================= */
+#chat-app-view { position: absolute; inset: 0; background: #0f172a; display: flex; flex-direction: column; z-index: 45; transform: translateX(100%); transition: var(--transition-smooth);}
+#chat-app-view.show { transform: translateX(0); }
 
-        /* تفاصيل هاردوير الآيفون السفلية */
-        #charging-port { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); width: 50px; height: 6px; background: #1d1d1f; border-radius: 3px;}
-        .speaker-grill { position: absolute; bottom: -3px; display: flex; gap: 2px; opacity: 0.3;}
-        .speaker-left { left: 40px; } .speaker-right { right: 40px; }
-        .speaker-hole { width: 2px; height: 6px; background: #000; border-radius: 1px;}
+.chat-header { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); padding: 50px 15px 15px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: center; z-index: 2; cursor: pointer;}
+.chat-header-title { font-weight: bold; font-size: 1.2rem; color: white; display: flex; align-items: center; gap: 8px;}
+.chat-header-title::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 50%; box-shadow: 0 0 10px #10b981;}
 
-        /* مراكز التحكم والإشعارات */
-        #control-center, #notification-center { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); z-index: 80; transform: translateY(-100%); transition: 0.4s; padding: 80px 20px; color: white; display: flex; flex-direction: column; align-items: center;}
-        #control-center.show, #notification-center.show { transform: translateY(0); }
-        .cc-box { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; width: 100%; text-align: center; font-weight: bold;}
+.chat-messages { flex: 1; padding: 15px 15px 30px; overflow-y: auto; display: flex; flex-direction: column; background: url('https://www.transparenttextures.com/patterns/cubes.png') #0f172a; overflow-x: hidden;}
 
-        #volume-indicator { position: absolute; left: -80px; top: 50%; transform: translateY(-50%); width: 60px; height: 180px; background: rgba(0,0,0,0.9); border-radius: 30px; padding: 12px; opacity: 0; transition: 0.3s; backdrop-filter: blur(10px);}
-        #volume-indicator.show { opacity: 1; }
-        #volume-bar { width: 36px; height: 156px; background: var(--surface-medium); border-radius: 18px; position: relative; overflow: hidden;}
-        #volume-fill { position: absolute; bottom: 0; width: 100%; background: white; transition: height 0.2s;}
+/* منطق اتجاه الرسائل */
+.msg-bubble { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; margin-top: 15px; position: relative; flex-direction: row-reverse; align-self: flex-start; transition: transform 0.2s ease-out;} /* الآخرين في اليسار */
+.msg-mine { flex-direction: row; align-self: flex-end; } /* رسائلي في اليمين */
 
-        /* =========================================
-           شاشة التصويت المرعبة (مع التخطي)
-           ========================================= */
-        #votingOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
-        .voting-box { background: #18181b; padding: 40px 30px; border-radius: 25px; border: 2px solid #ef4444; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);}
-        .voting-title { font-size: 2.2rem; color: #ef4444; margin-bottom: 5px; font-weight: 900;}
-        .voting-desc { color: #a1a1aa; margin-bottom: 30px; font-size: 1rem;}
-        .select-box { width: 100%; padding: 15px; background: #09090b; border: 1px solid #3f3f46; color: white; font-size: 1.1rem; border-radius: 12px; outline: none; margin-bottom: 20px; font-family: 'Cairo';}
-        .btn-vote { background: #ef4444; color: white; width: 100%; padding: 15px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 15px;}
-        .btn-cancel-vote { background: transparent; color: #a1a1aa; border: 2px solid #3f3f46; width: 100%; padding: 12px; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;}
-        .btn-cancel-vote:hover { background: #27272a; color: white;}
+.msg-avatar { width: 35px; height: 35px; border-radius: 50%; background: #334155; cursor: pointer; flex-shrink: 0; overflow: hidden; border: 2px solid transparent;}
+.msg-avatar img { width: 100%; height: 100%; object-fit: cover;}
 
-        #announcementOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
-        .announcement-box { background: #18181b; padding: 50px 30px; border-radius: 25px; text-align: center; max-width: 600px; width: 100%; border: 2px solid #10b981;}
-    </style>
+.msg-content-wrapper { display: flex; flex-direction: column; align-items: flex-start;}
+.msg-mine .msg-content-wrapper { align-items: flex-end;}
+
+.msg-name { font-size: 0.8rem; color: var(--game-purple); margin-bottom: 4px; font-weight: bold; margin-left: 5px; margin-right: 5px;}
+.msg-mine .msg-name { display: none; }
+
+.msg-content { background: #1e293b; padding: 10px 15px; border-radius: 18px; border-bottom-left-radius: 4px; color: white; font-size: 1.05rem; box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
+.msg-mine .msg-content { background: linear-gradient(135deg, #9333ea, #7e22ce); border-bottom-left-radius: 18px; border-bottom-right-radius: 4px;}
+
+/* الدمج */
+.msg-bubble.grouped { margin-top: 4px; }
+.msg-bubble.grouped .msg-avatar { opacity: 0; pointer-events: none; }
+.msg-bubble.grouped .msg-name { display: none; }
+.msg-bubble.grouped .msg-content { border-top-left-radius: 4px; border-bottom-left-radius: 18px; }
+.msg-mine.grouped .msg-content { border-top-right-radius: 4px; border-bottom-right-radius: 18px; }
+
+/* شكل الرد */
+.reply-snippet { background: rgba(0,0,0,0.25); border-left: 3px solid #10b981; padding: 6px 10px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem;}
+.msg-mine .reply-snippet { border-left: none; border-right: 3px solid #facc15;}
+.reply-name { color: #10b981; font-weight: bold; margin-bottom: 2px;}
+.msg-mine .reply-name { color: #facc15; }
+.reply-text { color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;}
+
+.chat-bottom-wrapper { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid #334155; display: flex; flex-direction: column; z-index: 2; padding-bottom: 25px;}
+.reply-preview-bar { display: none; background: rgba(15, 23, 42, 0.8); padding: 10px 15px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between;}
+.reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right;}
+.reply-preview-name { color: var(--game-purple); font-size: 0.85rem; font-weight: bold;}
+.reply-preview-text { color: #94a3b8; font-size: 0.9rem;}
+.cancel-reply-btn { background: transparent; border: none; color: #ef4444; font-size: 1.4rem; cursor: pointer; padding: 5px;}
+
+.chat-input-area { padding: 10px 15px; display: flex; gap: 10px; align-items: center;}
+.chat-input { flex: 1; padding: 14px 18px; border-radius: 25px; border: 1px solid #3f3f46; background: #09090b; color: white; outline: none; font-size: 1.05rem;}
+.chat-send-btn { background: var(--game-purple); color: white; border: none; width: 48px; height: 48px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem;}
+
+/* =========================================
+   نوافذ الهاتف الداخلية (بروفايل، جروب)
+   ========================================= */
+.phone-modal { position: absolute; inset: 0; background: rgba(15,23,42,0.95); z-index: 60; display: none; flex-direction: column; align-items: center; padding: 80px 20px; backdrop-filter: blur(10px); transform: translateY(100%); transition: 0.3s;}
+.phone-modal.show { transform: translateY(0); }
+.cv-card { background: #1e293b; border: 1px solid #334155; border-radius: 25px; padding: 30px 20px; text-align: center; width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);}
+.cv-avatar { width: 100px; height: 100px; margin: 0 auto 15px; background: #27272a; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 4px solid var(--game-purple);}
+.cv-name { font-size: 1.8rem; font-weight: bold; color: white; margin-bottom: 20px;}
+.cv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px;}
+.cv-detail { background: #0f172a; padding: 12px; border-radius: 12px; font-size: 1rem; color: #cbd5e1; border: 1px solid #27272a;}
+.cv-detail strong { color: var(--game-purple); display: block; margin-bottom: 5px;}
+.close-cv-btn { background: #3f3f46; color: white; border: none; padding: 15px; border-radius: 15px; font-weight: bold; width: 100%; margin-top: 20px; cursor: pointer;}
+
+.group-list { width: 100%; background: #1e293b; border-radius: 20px; padding: 15px; margin-top: 20px; max-height: 400px; overflow-y: auto;}
+.group-member { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #334155; cursor: pointer;}
+.group-member:last-child { border-bottom: none; }
+.gm-avatar { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--game-purple);}
+.gm-info { text-align: right;}
+.gm-name { font-weight: bold; font-size: 1.1rem;}
+.gm-job { font-size: 0.85rem; color: #94a3b8;}
+
+/* =========================================
+   مراكز الآيفون والأزرار
+   ========================================= */
+#home-indicator { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: rgba(255,255,255,0.7); border-radius: 3px; z-index: 150; cursor: pointer;}
+#home-indicator:active { background: white; }
+.side-button { position: absolute; background: #333; border-radius: 4px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);}
+#power-button { width: 4px; height: 100px; top: 200px; right: -5px; border-radius: 0 4px 4px 0; cursor: pointer;}
+#power-button:active { transform: translateX(-1px); }
+#volume-up { width: 4px; height: 70px; left: -5px; top: 160px; border-radius: 4px 0 0 4px; cursor: pointer;}
+#volume-down { width: 4px; height: 70px; left: -5px; top: 240px; border-radius: 4px 0 0 4px; cursor: pointer;}
+#silent-switch { position: absolute; width: 4px; height: 30px; left: -5px; top: 120px; background: #666; border-radius: 4px 0 0 4px;}
+
+/* مراكز التحكم والإشعارات ومبدل التطبيقات */
+#control-center, #notification-center, #app-switcher { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(25px); z-index: 80; transform: translateY(-100%); transition: 0.4s; padding: 80px 20px; color: white; display: flex; flex-direction: column; align-items: center;}
+#control-center.show, #notification-center.show, #app-switcher.show { transform: translateY(0); }
+.cc-box { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; width: 100%; text-align: center; font-weight: bold;}
+
+#volume-indicator { position: absolute; left: -80px; top: 50%; transform: translateY(-50%); width: 60px; height: 180px; background: rgba(0,0,0,0.9); border-radius: 30px; padding: 12px; opacity: 0; z-index: 1000; transition: 0.3s; backdrop-filter: blur(10px);}
+#volume-indicator.show { opacity: 1; }
+#volume-bar { width: 36px; height: 156px; background: var(--surface-medium); border-radius: 18px; position: relative; overflow: hidden;}
+#volume-fill { position: absolute; bottom: 0; width: 100%; background: white; transition: height 0.2s;}
+
+/* =========================================
+   شاشات التصويت والنهاية
+   ========================================= */
+#votingOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
+.voting-box { background: #18181b; padding: 40px 30px; border-radius: 25px; border: 2px solid #ef4444; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 0 50px rgba(239, 68, 68, 0.2);}
+.voting-title { font-size: 2.2rem; color: #ef4444; margin-bottom: 5px; font-weight: 900;}
+.voting-desc { color: #a1a1aa; margin-bottom: 30px; font-size: 1rem;}
+.select-box { width: 100%; padding: 15px; background: #09090b; border: 1px solid #3f3f46; color: white; font-size: 1.1rem; border-radius: 12px; outline: none; margin-bottom: 20px; font-family: 'Cairo';}
+.btn-vote { background: #ef4444; color: white; width: 100%; padding: 15px; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-bottom: 15px;}
+.btn-cancel-vote { background: transparent; color: #a1a1aa; border: 2px solid #3f3f46; width: 100%; padding: 12px; font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; transition: 0.2s;}
+.btn-cancel-vote:hover { background: #27272a; color: white;}
+
+#announcementOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px;}
+.announcement-box { background: #18181b; padding: 50px 30px; border-radius: 25px; text-align: center; max-width: 600px; width: 100%; border: 2px solid #10b981;}
+</style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <div class="pin-box">PIN: <span id="pinDisplay">----</span></div>
-        
-        <div class="status-container">
-            <div id="statusText">بانتظار تجهيز اللاعبين...</div>
-            <div id="playerStatusCount" style="display:none;"></div>
+<div class="top-bar">
+    <div class="pin-box">PIN: <span id="pinDisplay">----</span></div>
+    <div class="status-container">
+        <div id="statusText">بانتظار تجهيز اللاعبين...</div>
+        <div id="playerStatusCount" style="display:none;"></div>
+    </div>
+    <div id="hostControls" style="display:none;">
+        <button onclick="hostStartGame()" style="background: linear-gradient(135deg, #10b981, #047857); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:1.1rem;">
+            ▶️ بدء اللعب (إضاءة الهواتف)!
+        </button>
+    </div>
+    <div class="timer-box" id="timerBox">03:00</div>
+</div>
+
+<div class="main-layout">
+    
+    <div class="right-dashboard">
+        <div class="profile-builder" id="profileBuilder">
+            <div class="section-title">🕵️‍♂️ اصنع هويتك الوهمية</div>
+            <div class="form-group">
+                <label>اختر صورة لحسابك:</label>
+                <div class="avatars-grid" id="avatarsGrid"></div>
+            </div>
+            <div class="form-group">
+                <label>الاسم الثنائي الوهمي:</label>
+                <input type="text" class="form-input" id="fakeName" placeholder="مثال: سميح عبدالله" autocomplete="off">
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="form-group" style="flex:1;">
+                    <label>العمر:</label>
+                    <input type="number" class="form-input" id="fakeAge" placeholder="مثال: 39" autocomplete="off">
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>الحالة:</label>
+                    <select class="form-input" id="fakeStatus">
+                        <option value="أعزب">أعزب</option><option value="متزوج">متزوج</option>
+                        <option value="مطلق">مطلق</option><option value="أرمل">أرمل</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>المهنة الوهمية:</label>
+                <input type="text" class="form-input" id="fakeJob" placeholder="مثال: معلم تاريخ" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>نبذة عنك (Bio):</label>
+                <textarea class="form-input" id="fakeBio" rows="2" placeholder="اكتب نبذة قصيرة..."></textarea>
+            </div>
+            <button class="btn-save" onclick="saveProfile()">💾 حفظ الشخصية وإعلان الجاهزية</button>
+        </div>
+
+        <div class="ready-msg" id="readyMsg">
+            ✅ تم حفظ شخصيتك بنجاح!<br>هاتفك مغلق الآن.. سينير فجأة عند بدء اللعبة.
         </div>
         
-        <div id="hostControls" style="display:none;">
-            <button onclick="hostStartGame()" style="background: linear-gradient(135deg, #10b981, #047857); color:white; border:none; padding:10px 25px; border-radius:12px; cursor:pointer; font-weight:bold; font-size:1.1rem; box-shadow: 0 0 20px rgba(16,185,129,0.5); animation: pulse 1.5s infinite;">
-                ▶️ بدء اللعب (إضاءة الهواتف)!
-            </button>
+        <div id="playerListArea">
+            <h3 style="color:#facc15; margin-bottom: 10px; border-bottom:1px solid #3f3f46; padding-bottom:10px;">الأسماء الحقيقية للمتواجدين:</h3>
+            <ul id="realNamesList"></ul>
         </div>
-        <div class="timer-box" id="timerBox">02:00</div>
     </div>
 
-    <div class="main-layout">
-        
-        <div class="right-dashboard">
-            <div class="profile-builder" id="profileBuilder">
-                <div class="section-title">🕵️‍♂️ اصنع هويتك الوهمية</div>
-                <div class="form-group">
-                    <label>اختر صورة لحسابك:</label>
-                    <div class="avatars-grid" id="avatarsGrid"></div>
-                </div>
-                <div class="form-group">
-                    <label>الاسم الثنائي الوهمي:</label>
-                    <input type="text" class="form-input" id="fakeName" placeholder="مثال: سميح عبدالله" autocomplete="off">
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="form-group" style="flex:1;">
-                        <label>العمر:</label>
-                        <input type="number" class="form-input" id="fakeAge" placeholder="مثال: 39" autocomplete="off">
-                    </div>
-                    <div class="form-group" style="flex:1;">
-                        <label>الحالة:</label>
-                        <select class="form-input" id="fakeStatus">
-                            <option value="أعزب">أعزب</option><option value="متزوج">متزوج</option>
-                            <option value="مطلق">مطلق</option><option value="أرمل">أرمل</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>المهنة الوهمية:</label>
-                    <input type="text" class="form-input" id="fakeJob" placeholder="مثال: معلم تاريخ" autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label>نبذة عنك (Bio):</label>
-                    <textarea class="form-input" id="fakeBio" rows="2" placeholder="اكتب نبذة قصيرة..."></textarea>
-                </div>
-                <button class="btn-save" onclick="saveProfile()">💾 حفظ الشخصية وإعلان الجاهزية</button>
-            </div>
-
-            <div class="ready-msg" id="readyMsg">
-                ✅ تم حفظ شخصيتك بنجاح!<br>هاتفك مغلق الآن.. سينير فجأة عند بدء اللعبة.
-            </div>
-            
-            <div id="playerListArea">
-                <h3 style="color:#facc15; margin-bottom: 10px; border-bottom:1px solid #3f3f46; padding-bottom:10px;">الأسماء الحقيقية للمتواجدين:</h3>
-                <ul id="realNamesList"></ul>
-            </div>
-        </div>
-
-        <div class="left-phone-section">
-            <div id="iphone-container">
-                <div id="iphone-body">
-                    <div id="dynamic-island"></div>
-                    
-                    <div id="screen" class="off">
-                        <div id="screen-content">
-                            <div id="status-bar">
-                                <div id="status-left"><span id="current-time">9:41</span></div>
-                                <div id="status-right">
-                                    <div class="signal-bars"><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div></div>
-                                    <span style="margin:0 4px; font-size:12px;">5G</span>
-                                    <div class="battery-container">
-                                        <span style="font-size:12px; margin-left:2px;">100%</span>
-                                        <div class="battery-icon"><div class="battery-fill" id="batt-fill"></div></div>
-                                    </div>
+    <div class="left-phone-section">
+        <div id="iphone-container">
+            <div id="iphone-body">
+                <div id="dynamic-island"></div>
+                
+                <div id="screen" class="off">
+                    <div id="screen-content">
+                        <div id="status-bar">
+                            <div id="status-left"><span id="current-time">9:41</span></div>
+                            <div id="status-right">
+                                <span style="margin:0 2px; font-size:12px;">5G</span>
+                                <div class="signal-bars"><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div><div class="signal-bar"></div></div>
+                                <div class="battery-container">
+                                    <div class="battery-icon"><div class="battery-fill" id="batt-fill"></div></div>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <div id="lock-screen">
+                            <div id="lock-time">9:41</div>
+                            <div id="lock-date">اسحب للأعلى للفتح</div>
+                            <div class="unlock-hint">👆 اسحب من الأسفل 👆</div>
+                        </div>
+                        
+                        <div id="home-screen">
+                            <div class="app-grid">
+                                <div style="text-align:center;">
+                                    <button class="app-icon" onclick="openChatApp()" style="background: linear-gradient(135deg, #10b981, #047857);">💬</button>
+                                    <div class="app-label">شات المجهولين</div>
+                                </div>
+                                <div style="text-align:center;">
+                                    <button class="app-icon" onclick="alert('تطبيق الصور فارغ حالياً')" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">🖼️</button>
+                                    <div class="app-label">الصور</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="chat-app-view">
+                            <div class="chat-header" onclick="openGroupInfo()">
+                                <div class="chat-header-title">قروب المجهولين 🕶️</div>
                             </div>
                             
-                            <div id="lock-screen">
-                                <div id="lock-time">9:41</div>
-                                <div id="lock-date">اضغط أو اسحب للفتح</div>
-                                <div class="unlock-hint">👆 اضغط للفتح 👆</div>
-                            </div>
-                            
-                            <div id="home-screen">
-                                <div class="app-grid">
-                                    <div style="text-align:center;">
-                                        <button class="app-icon" onclick="openChatApp()" style="background: linear-gradient(135deg, #10b981, #047857);">💬</button>
-                                        <div class="app-label">شات المجهولين</div>
-                                    </div>
-                                    <div style="text-align:center;">
-                                        <button class="app-icon" onclick="alert('تطبيق الصور فارغ حالياً')" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">🖼️</button>
-                                        <div class="app-label">الصور</div>
+                            <div class="chat-messages" id="chatBox"></div>
+
+                            <div class="chat-bottom-wrapper">
+                                <div class="reply-preview-bar" id="replyPreviewBar">
+                                    <button class="cancel-reply-btn" onclick="cancelReply()">✖</button>
+                                    <div class="reply-preview-info">
+                                        <span class="reply-preview-name" id="replyName"></span>
+                                        <span class="reply-preview-text" id="replyText"></span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div id="chat-app-view">
-                                <div class="chat-header">
-                                    <div class="chat-header-title">قروب المجهولين 🕶️</div>
-                                </div>
-                                
-                                <div class="chat-messages" id="chatBox"></div>
-
-                                <div class="chat-bottom-wrapper">
-                                    <div class="reply-preview-bar" id="replyPreviewBar">
-                                        <div class="reply-preview-info">
-                                            <span class="reply-preview-name" id="replyName"></span>
-                                            <span class="reply-preview-text" id="replyText"></span>
-                                        </div>
-                                        <button class="cancel-reply-btn" onclick="cancelReply()">✖</button>
-                                    </div>
-                                    <div class="chat-input-area">
-                                        <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off">
-                                        <button class="chat-send-btn" onclick="sendMessage()">➤</button>
-                                    </div>
+                                <div class="chat-input-area">
+                                    <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+                                    <input type="text" class="chat-input" id="msgInput" placeholder="اكتب رسالة..." autocomplete="off">
                                 </div>
                             </div>
-
-                            <div class="phone-profile-modal" id="profileModal">
-                                <div class="cv-card">
-                                    <div class="cv-avatar" id="cvAvatar"></div>
-                                    <div class="cv-name" id="cvName">الاسم</div>
-                                    <div class="cv-grid">
-                                        <div class="cv-detail"><strong>العمر</strong> <span id="cvAge"></span></div>
-                                        <div class="cv-detail"><strong>الحالة</strong> <span id="cvStatus"></span></div>
-                                    </div>
-                                    <div class="cv-detail" style="margin-bottom:15px;"><strong>المهنة</strong> <span id="cvJob"></span></div>
-                                    <div class="cv-detail" style="text-align: right; min-height:60px;">
-                                        <strong>السيرة الذاتية (Bio):</strong><br>
-                                        <span id="cvBio" style="color:#94a3b8;"></span>
-                                    </div>
-                                    <button class="close-cv-btn" onclick="document.getElementById('profileModal').classList.remove('show')">إغلاق</button>
-                                </div>
-                            </div>
-
-                            <div id="control-center">
-                                <div class="cc-box">مركز التحكم<br><span style="font-size:0.8rem; color:#aaa;">اسحب للأعلى للإغلاق</span></div>
-                            </div>
-                            <div id="notification-center">
-                                <div class="cc-box">لا توجد إشعارات</div>
-                            </div>
-
                         </div>
-                        <div id="home-indicator"></div>
-                    </div>
 
-                    <div id="power-button" class="side-button"></div>
-                    <div id="volume-up" class="side-button"></div>
-                    <div id="volume-down" class="side-button"></div>
-                    <div id="silent-switch"></div>
-                    <div id="charging-port"></div>
-                    <div class="speaker-grill speaker-left">
-                        <div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div>
+                        <div class="phone-modal" id="profileModal">
+                            <div class="cv-card">
+                                <div class="cv-avatar" id="cvAvatar"></div>
+                                <div class="cv-name" id="cvName">الاسم</div>
+                                <div class="cv-grid">
+                                    <div class="cv-detail"><strong>العمر</strong> <span id="cvAge"></span></div>
+                                    <div class="cv-detail"><strong>الحالة</strong> <span id="cvStatus"></span></div>
+                                </div>
+                                <div class="cv-detail" style="margin-bottom:15px;"><strong>المهنة</strong> <span id="cvJob"></span></div>
+                                <div class="cv-detail" style="text-align: right; min-height:60px;">
+                                    <strong>السيرة الذاتية (Bio):</strong><br>
+                                    <span id="cvBio" style="color:#94a3b8;"></span>
+                                </div>
+                                <button class="close-cv-btn" onclick="document.getElementById('profileModal').classList.remove('show')">إغلاق</button>
+                            </div>
+                        </div>
+
+                        <div class="phone-modal" id="groupInfoModal">
+                            <h2 style="color:white; margin-bottom: 20px;">أعضاء القروب 👥</h2>
+                            <div class="group-list" id="groupMembersList"></div>
+                            <button class="close-cv-btn" style="margin-top: auto;" onclick="document.getElementById('groupInfoModal').classList.remove('show')">إغلاق</button>
+                        </div>
+
+                        <div id="control-center"><div class="cc-box">مركز التحكم<br><span style="font-size:0.8rem; color:#aaa;">اسحب للأعلى للإغلاق</span></div></div>
+                        <div id="notification-center"><div class="cc-box">لا توجد إشعارات</div></div>
+                        <div id="app-switcher"><div class="cc-box">مبدل التطبيقات<br><span style="font-size:0.8rem; color:#aaa;">اضغط في أي مكان للعودة</span></div></div>
+
                     </div>
-                    <div class="speaker-grill speaker-right">
-                        <div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div><div class="speaker-hole"></div>
-                    </div>
+                    <div id="home-indicator"></div>
                 </div>
+
+                <div id="power-button" class="side-button"></div>
+                <div id="volume-up" class="side-button"></div>
+                <div id="volume-down" class="side-button"></div>
+                <div id="silent-switch"></div>
             </div>
-            
-            <div id="volume-indicator"><div id="volume-bar"><div id="volume-fill" style="height:50%;"></div></div></div>
         </div>
+        <div id="volume-indicator"><div id="volume-bar"><div id="volume-fill" style="height:50%;"></div></div></div>
     </div>
+</div>
 
-    <div class="overlay" id="votingOverlay">
-        <div class="voting-box">
-            <div class="voting-title">دائرة الحقيقة 🎯</div>
-            <div class="voting-desc">اكتشف من يتخفى خلف الشخصيات الوهمية! (تخمين خاطئ = إقصاؤك وفضحك)</div>
-            
-            <select class="select-box" id="voteRealSelect"></select>
-            <select class="select-box" id="voteFakeSelect"></select>
-
-            <button class="btn-vote" onclick="submitVote()">🗡️ تأكيد التخمين والإقصاء!</button>
-            <button class="btn-cancel-vote" onclick="ignoreVoting()">🔙 لا أعرف.. العودة للشات</button>
-        </div>
-    </div>
-
-    <div class="overlay" id="announcementOverlay">
-        <div class="announcement-box">
-            <div id="annIcon" style="font-size: 5rem; margin-bottom: 10px;">💥</div>
-            <h1 id="annTitle" style="color:white; margin-bottom: 15px;">إعلان!</h1>
-            <p id="annDesc" style="font-size:1.2rem; color:#cbd5e1; line-height:1.6;"></p>
-            <button class="btn-save" style="margin-top:30px; width:auto; padding:10px 40px;" onclick="document.getElementById('announcementOverlay').style.display='none'">متابعة</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, push, get } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
-
-        const firebaseConfig = { apiKey: "AIzaSyB5CobIKfYdAz8jaabJpMQrGoqS9Ton28Y", authDomain: "buttons-f3501.firebaseapp.com", databaseURL: "https://buttons-f3501-default-rtdb.firebaseio.com", projectId: "buttons-f3501" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const pin = urlParams.get('pin');
-        let myRealName = urlParams.get('name');
-        const isHost = urlParams.get('role') === 'host';
-
-        document.getElementById('pinDisplay').innerText = pin;
-
-        const myId = "p_" + Date.now();
-        const roomRef = ref(db, `alterego/${pin}`);
-        const stateRef = ref(db, `alterego/${pin}/state`);
-        const playersRef = ref(db, `alterego/${pin}/players`);
-        const profilesRef = ref(db, `alterego/${pin}/profiles`);
-        const chatRef = ref(db, `alterego/${pin}/chat`);
-        const announcementsRef = ref(db, `alterego/${pin}/announcements`);
-
-        let serverGameState = { status: 'lobby' };
-        let players = {};
-        let profiles = {};
-        let selectedAvatar = 1;
-        let gameTimerInterval;
-        let replyingToMsgId = null;
-        let localSkipVoting = false;
-        let phoneWokeUp = false;
-
-        // متغيرات الآيفون
-        let iphoneState = { currentView: 'none', volume: 50 };
-
-        // 1. توليد الأفاتارات
-        const avatarsGrid = document.getElementById('avatarsGrid');
-        for(let i=1; i<=8; i++) {
-            let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i*15}&backgroundColor=b6e3f4`;
-            avatarsGrid.innerHTML += `<div class="avatar-option ${i===1?'selected':''}" onclick="selectAvatar(${i}, this)"><img src="${url}"></div>`;
-        }
-        window.selectAvatar = (num, el) => {
-            selectedAvatar = num;
-            document.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
-            el.classList.add('selected');
-        };
-
-        // 2. تسجيل الدخول
-        get(ref(db, `alterego/${pin}/players/${myId}`)).then((snap) => {
-            if (!snap.exists()) set(ref(db, `alterego/${pin}/players/${myId}`), { realName: myRealName, isAlive: true, isReady: false });
-        });
-
-        // 3. الاستماع للبيانات من السيرفر
-        onValue(stateRef, snap => { 
-            serverGameState = snap.val() || { status: 'lobby' }; 
-            updateGameUI();
-        });
-
-        onValue(playersRef, snap => {
-            players = snap.val() || {};
-            updatePlayerStatusCounts();
-            updateRealNamesList();
-        });
-
-        onValue(profilesRef, snap => { profiles = snap.val() || {}; });
-
-        // 4. نظام الشات المطور (دمج الرسائل + سحب للرد)
-        onValue(chatRef, snap => {
-            const chatBox = document.getElementById('chatBox');
-            chatBox.innerHTML = '';
-            const msgs = snap.val() || {};
-            let lastSenderId = null;
-
-            Object.entries(msgs).forEach(([msgId, msg]) => {
-                const pInfo = profiles[msg.senderId];
-                if(!pInfo) return;
-                
-                const isMine = msg.senderId === myId ? 'msg-mine' : '';
-                const isGrouped = msg.senderId === lastSenderId ? 'grouped' : '';
-                let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${pInfo.avatarId*15}&backgroundColor=b6e3f4`;
-
-                let replyHtml = '';
-                if(msg.replyTo && msgs[msg.replyTo]) {
-                    let rMsg = msgs[msg.replyTo];
-                    let rName = profiles[rMsg.senderId]?.fakeName || 'مجهول';
-                    replyHtml = `
-                        <div class="reply-snippet">
-                            <div class="reply-name">${rName}</div>
-                            <div class="reply-text">${rMsg.text}</div>
-                        </div>`;
-                }
-
-                chatBox.innerHTML += `
-                    <div class="msg-bubble ${isMine} ${isGrouped}" data-id="${msgId}" data-text="${msg.text}" data-name="${pInfo.fakeName}">
-                        <div class="msg-avatar" onclick="openProfile('${msg.senderId}')"><img src="${avatarUrl}"></div>
-                        <div class="msg-content-wrapper">
-                            <div class="msg-name">${pInfo.fakeName}</div>
-                            <div class="msg-content">${replyHtml}${msg.text}</div>
-                        </div>
-                    </div>
-                `;
-                lastSenderId = msg.senderId;
-            });
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
-
-        onValue(announcementsRef, snap => {
-            const ann = snap.val();
-            if(ann && ann.time > Date.now() - 15000) {
-                document.getElementById('votingOverlay').style.display = 'none';
-                document.getElementById('announcementOverlay').style.display = 'flex';
-                document.getElementById('annIcon').innerText = ann.isCorrect ? '🎯' : '💀';
-                document.getElementById('annTitle').innerText = ann.isCorrect ? 'كشف خطير!' : 'إقصاء!';
-                document.getElementById('annTitle').style.color = ann.isCorrect ? '#10b981' : '#ef4444';
-                document.getElementById('annDesc').innerText = ann.text;
-                
-                // بعد الإعلان، الهوست يفتح الشات مجدداً إذا كان مغلقاً
-                if(isHost && serverGameState.status === 'voting') {
-                    update(stateRef, { status: 'chatting', deadline: Date.now() + 120000 });
-                }
-            }
-        });
-
-        // 5. حفظ الشخصية
-        window.saveProfile = async () => {
-            if(!players[myId]?.isAlive) return alert("أنت مقصى!");
-            const fakeName = document.getElementById('fakeName').value.trim();
-            const fakeAge = document.getElementById('fakeAge').value;
-            const fakeJob = document.getElementById('fakeJob').value;
-            const fakeStatus = document.getElementById('fakeStatus').value;
-            const fakeBio = document.getElementById('fakeBio').value;
-
-            if(!fakeName || !fakeAge || !fakeJob || !fakeBio) return alert("أكمل جميع الحقول!");
-
-            await update(ref(db, `alterego/${pin}/profiles/${myId}`), {
-                fakeName, age: fakeAge, job: fakeJob, status: fakeStatus, bio: fakeBio, avatarId: selectedAvatar
-            });
-            await update(ref(db, `alterego/${pin}/players/${myId}`), { isReady: true });
-
-            document.getElementById('profileBuilder').style.display = 'none';
-            document.getElementById('readyMsg').style.display = 'block';
-        };
-
-        function updatePlayerStatusCounts() {
-            const pList = Object.values(players);
-            const total = pList.length;
-            const ready = pList.filter(p => p.isReady).length;
-            const countDiv = document.getElementById('playerStatusCount');
-            
-            if (serverGameState.status === 'lobby' || serverGameState.status === 'ready_to_start') {
-                countDiv.innerText = `اللاعبون: ${total} | الجاهزون: ${ready}`;
-                countDiv.style.display = 'block';
-            } else {
-                countDiv.style.display = 'none';
-            }
-
-            if (isHost && total > 1 && ready === total && serverGameState.status === 'lobby') {
-                update(stateRef, { status: 'ready_to_start' });
-            }
-        }
-
-        window.hostStartGame = async () => {
-            if(!isHost) return;
-            await update(stateRef, { status: 'chatting', deadline: Date.now() + 120000 }); 
-        };
-
-        // 6. الواجهة (اللعبة + الآيفون)
-        function updateGameUI() {
-            const statusText = document.getElementById('statusText');
-            const timerBox = document.getElementById('timerBox');
-            const hostControls = document.getElementById('hostControls');
-            const screenEl = document.getElementById('screen');
-
-            if (serverGameState.status === 'lobby') {
-                statusText.innerText = "بانتظار تجهيز الشخصيات الوهمية...";
-                statusText.style.display = 'block';
-                hostControls.style.display = 'none';
-            }
-            else if (serverGameState.status === 'ready_to_start') {
-                if (isHost) {
-                    statusText.style.display = 'none';
-                    hostControls.style.display = 'block';
-                } else {
-                    statusText.innerHTML = "الجميع جاهز! 🟢<br>بانتظار الهوست لبدء اللعبة...";
-                    statusText.style.color = "#10b981";
-                    statusText.style.display = 'block';
-                }
-            }
-            else if (serverGameState.status === 'chatting' || serverGameState.status === 'voting') {
-                statusText.style.display = 'none';
-                hostControls.style.display = 'none';
-                timerBox.style.display = 'block';
-                document.getElementById('playerListArea').style.display = 'block';
-                
-                // إضاءة الهاتف!
-                if (!phoneWokeUp) {
-                    screenEl.classList.remove('off');
-                    showIphoneView('lock');
-                    phoneWokeUp = true;
-                }
-                
-                if(serverGameState.status === 'chatting') localSkipVoting = false;
-            }
-
-            // نافذة التصويت
-            if (serverGameState.status === 'voting' && players[myId]?.isAlive && !localSkipVoting) {
-                populateVotingSelects();
-                document.getElementById('votingOverlay').style.display = 'flex';
-            } else {
-                document.getElementById('votingOverlay').style.display = 'none';
-            }
-
-            // المؤقت التنازلي
-            clearInterval(gameTimerInterval);
-            if (serverGameState.status === 'chatting' && serverGameState.deadline) {
-                gameTimerInterval = setInterval(() => {
-                    let left = Math.max(0, Math.floor((serverGameState.deadline - Date.now()) / 1000));
-                    let m = String(Math.floor(left/60)).padStart(2, '0');
-                    let s = String(left%60).padStart(2, '0');
-                    timerBox.innerText = `${m}:${s}`;
-                    if(left <= 10) timerBox.classList.add('timer-warning');
-                    else timerBox.classList.remove('timer-warning');
-
-                    if(left === 0 && isHost) {
-                        clearInterval(gameTimerInterval);
-                        update(stateRef, { status: 'voting' });
-                    }
-                }, 1000);
-            }
-        }
-
-        // =========================================
-        // أوامر محاكي الآيفون (The Best YZ Logic)
-        // =========================================
-        function showIphoneView(viewName) {
-            document.getElementById('lock-screen').classList.remove('show');
-            document.getElementById('home-screen').classList.remove('show');
-            document.getElementById('chat-app-view').classList.remove('show');
-            document.getElementById('control-center').classList.remove('show');
-            document.getElementById('notification-center').classList.remove('show');
-            document.getElementById('profileModal').classList.remove('show');
-            
-            iphoneState.currentView = viewName;
-            
-            if(viewName === 'lock') document.getElementById('lock-screen').classList.add('show');
-            else if(viewName === 'home') document.getElementById('home-screen').classList.add('show');
-            else if(viewName === 'chat') document.getElementById('chat-app-view').classList.add('show');
-            else if(viewName === 'control') document.getElementById('control-center').classList.add('show');
-            else if(viewName === 'notify') document.getElementById('notification-center').classList.add('show');
-        }
-
-        document.getElementById('power-button').addEventListener('click', () => {
-            if(!phoneWokeUp) return;
-            const screen = document.getElementById('screen');
-            if(screen.classList.contains('off')) {
-                screen.classList.remove('off');
-                showIphoneView('lock');
-            } else {
-                screen.classList.add('off');
-            }
-        });
-
-        document.getElementById('volume-up').addEventListener('click', () => adjustVolume(10));
-        document.getElementById('volume-down').addEventListener('click', () => adjustVolume(-10));
-        function adjustVolume(change) {
-            iphoneState.volume = Math.max(0, Math.min(100, iphoneState.volume + change));
-            document.getElementById('volume-fill').style.height = `${iphoneState.volume}%`;
-            const ind = document.getElementById('volume-indicator');
-            ind.classList.add('show');
-            clearTimeout(ind.timeout);
-            ind.timeout = setTimeout(() => ind.classList.remove('show'), 1500);
-        }
-
-        document.getElementById('lock-screen').addEventListener('click', () => {
-            if(iphoneState.currentView === 'lock') showIphoneView('home');
-        });
-
-        document.getElementById('home-indicator').addEventListener('click', () => {
-            if(iphoneState.currentView !== 'lock' && iphoneState.currentView !== 'none') showIphoneView('home');
-        });
-
-        window.openChatApp = () => { if(phoneWokeUp) showIphoneView('chat'); };
-        window.closeChatApp = () => { showIphoneView('home'); };
+<div class="overlay" id="votingOverlay">
+    <div class="voting-box">
+        <div class="voting-title">دائرة الحقيقة 🎯</div>
+        <div class="voting-desc">اكتشف من يتخفى خلف الشخصيات الوهمية! (تخمين خاطئ = إقصاؤك)</div>
         
-        window.openProfile = (targetId) => {
-            const p = profiles[targetId];
-            if(!p) return;
-            document.getElementById('cvAvatar').innerHTML = `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${p.avatarId*15}&backgroundColor=b6e3f4" style="width:100%; border-radius:50%;">`;
-            document.getElementById('cvName').innerText = p.fakeName;
-            document.getElementById('cvAge').innerText = p.age;
-            document.getElementById('cvStatus').innerText = p.status;
-            document.getElementById('cvJob').innerText = p.job;
-            document.getElementById('cvBio').innerText = p.bio;
-            document.getElementById('profileModal').classList.add('show');
-        };
+        <select class="select-box" id="voteRealSelect"></select>
+        <select class="select-box" id="voteFakeSelect"></select>
 
-        // نظام السحب للآيفون المطور (يعزل الشات عن سحب النظام)
-        const screenContent = document.getElementById('screen-content');
-        let touchStartY = 0, touchStartX = 0;
+        <button class="btn-vote" onclick="submitVote()">🗡️ تأكيد التخمين والإقصاء!</button>
+        <button class="btn-cancel-vote" onclick="ignoreVoting()">🔙 لا أعرف.. تخطي التصويت والعودة للشات</button>
+    </div>
+</div>
 
-        screenContent.addEventListener('pointerdown', (e) => {
-            if(e.target.closest('.chat-messages')) return; // تجاهل لمس الشات
-            touchStartY = e.clientY;
-            touchStartX = e.clientX;
-        });
+<div class="overlay" id="announcementOverlay">
+    <div class="announcement-box">
+        <div id="annIcon" style="font-size: 5rem; margin-bottom: 10px;">💥</div>
+        <h1 id="annTitle" style="color:white; margin-bottom: 15px;">إعلان!</h1>
+        <p id="annDesc" style="font-size:1.2rem; color:#cbd5e1; line-height:1.6;"></p>
+        <button class="btn-save" style="margin-top:30px; width:auto; padding:10px 40px;" onclick="document.getElementById('announcementOverlay').style.display='none'">متابعة</button>
+    </div>
+</div>
 
-        screenContent.addEventListener('pointerup', (e) => {
-            if(e.target.closest('.chat-messages')) return;
-            let deltaY = e.clientY - touchStartY;
-            let deltaX = touchStartX - e.clientX;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, update, push, get, remove } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-            // فتح مركز التحكم (سحب للأسفل)
-            if (iphoneState.currentView === 'home' && touchStartY < 150 && deltaY > 100) {
-                if (touchStartX > window.innerWidth / 2) showIphoneView('control');
-                else showIphoneView('notify');
-            }
-            // إغلاق المراكز (سحب للأعلى)
-            if ((iphoneState.currentView === 'control' || iphoneState.currentView === 'notify') && deltaY < -50) {
-                showIphoneView('home');
-            }
-        });
+    const firebaseConfig = { apiKey: "AIzaSyB5CobIKfYdAz8jaabJpMQrGoqS9Ton28Y", authDomain: "buttons-f3501.firebaseapp.com", databaseURL: "https://buttons-f3501-default-rtdb.firebaseio.com", projectId: "buttons-f3501" };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        // 7. نظام السحب للرد داخل الشات المضمون (Swipe to Reply)
+    const urlParams = new URLSearchParams(window.location.search);
+    const pin = urlParams.get('pin');
+    let myRealName = urlParams.get('name');
+    const isHost = urlParams.get('role') === 'host';
+
+    document.getElementById('pinDisplay').innerText = pin;
+
+    // حفظ الجلسة للاعب (Persistence) لعدم تكرار الدخول
+    let myId = localStorage.getItem('alterego_id_' + pin);
+    if (!myId) {
+        myId = "p_" + Date.now();
+        localStorage.setItem('alterego_id_' + pin, myId);
+    }
+
+    const roomRef = ref(db, `alterego/${pin}`);
+    const stateRef = ref(db, `alterego/${pin}/state`);
+    const playersRef = ref(db, `alterego/${pin}/players`);
+    const profilesRef = ref(db, `alterego/${pin}/profiles`);
+    const chatRef = ref(db, `alterego/${pin}/chat`);
+    const announcementsRef = ref(db, `alterego/${pin}/announcements`);
+
+    let serverGameState = { status: 'lobby' };
+    let players = {};
+    let profiles = {};
+    let selectedAvatar = 1;
+    let gameTimerInterval;
+    let replyingToMsgId = null;
+    let localSkipVoting = false;
+    let phoneWokeUp = false;
+
+    // متغيرات الآيفون
+    let iphoneState = { currentView: 'none', volume: 50 };
+
+    // 1. توليد الأفاتارات
+    const avatarsGrid = document.getElementById('avatarsGrid');
+    for(let i=1; i<=8; i++) {
+        let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i*15}&backgroundColor=b6e3f4`;
+        avatarsGrid.innerHTML += `<div class="avatar-option ${i===1?'selected':''}" onclick="selectAvatar(${i}, this)"><img src="${url}"></div>`;
+    }
+    window.selectAvatar = (num, el) => {
+        selectedAvatar = num;
+        document.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
+        el.classList.add('selected');
+    };
+
+    // 2. تسجيل الدخول
+    get(ref(db, `alterego/${pin}/players/${myId}`)).then((snap) => {
+        if (!snap.exists()) set(ref(db, `alterego/${pin}/players/${myId}`), { realName: myRealName, isAlive: true, isReady: false });
+        else myRealName = snap.val().realName; // استرجاع الاسم لو كان مسجلاً
+    });
+
+    // 3. الاستماع للبيانات من السيرفر
+    onValue(stateRef, snap => { 
+        serverGameState = snap.val() || { status: 'lobby' }; 
+        updateGameUI();
+    });
+
+    onValue(playersRef, snap => {
+        players = snap.val() || {};
+        updatePlayerStatusCounts();
+        updateRealNamesList();
+    });
+
+    onValue(profilesRef, snap => { profiles = snap.val() || {}; });
+
+    // 4. نظام الشات المطور
+    onValue(chatRef, snap => {
         const chatBox = document.getElementById('chatBox');
-        let chatStartX = 0, chatStartY = 0, currentBubble = null;
+        chatBox.innerHTML = '';
+        const msgs = snap.val() || {};
+        let lastSenderId = null;
 
-        chatBox.addEventListener('pointerdown', (e) => {
-            if(e.target.closest('.reply-snippet') || e.target.closest('.msg-avatar')) return;
-            currentBubble = e.target.closest('.msg-bubble');
-            if(currentBubble) {
-                chatStartX = e.clientX;
-                chatStartY = e.clientY;
-                currentBubble.style.transition = 'none';
+        Object.entries(msgs).forEach(([msgId, msg]) => {
+            const pInfo = profiles[msg.senderId];
+            if(!pInfo) return;
+            
+            const isMine = msg.senderId === myId ? 'msg-mine' : '';
+            const isGrouped = msg.senderId === lastSenderId ? 'grouped' : '';
+            let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${pInfo.avatarId*15}&backgroundColor=b6e3f4`;
+
+            let replyHtml = '';
+            if(msg.replyTo && msgs[msg.replyTo]) {
+                let rMsg = msgs[msg.replyTo];
+                let rName = profiles[rMsg.senderId]?.fakeName || 'مجهول';
+                replyHtml = `
+                    <div class="reply-snippet">
+                        <div class="reply-name">${rName}</div>
+                        <div class="reply-text">${rMsg.text}</div>
+                    </div>`;
             }
+
+            chatBox.innerHTML += `
+                <div class="msg-bubble ${isMine} ${isGrouped}" data-id="${msgId}" data-text="${msg.text}" data-name="${pInfo.fakeName}">
+                    <div class="msg-avatar" onclick="openProfile('${msg.senderId}')"><img src="${avatarUrl}"></div>
+                    <div class="msg-content-wrapper">
+                        <div class="msg-name">${pInfo.fakeName}</div>
+                        <div class="msg-content">${replyHtml}${msg.text}</div>
+                    </div>
+                </div>
+            `;
+            lastSenderId = msg.senderId;
         });
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
 
-        chatBox.addEventListener('pointermove', (e) => {
-            if(!currentBubble) return;
-            let deltaX = chatStartX - e.clientX;
-            let deltaY = Math.abs(chatStartY - e.clientY);
-            
-            if (deltaX > 10 && deltaX > deltaY) {
-                currentBubble.style.transform = `translateX(-${Math.min(deltaX, 60)}px)`;
-            }
+    onValue(announcementsRef, snap => {
+        const ann = snap.val();
+        if(ann && ann.time > Date.now() - 15000) {
+            document.getElementById('votingOverlay').style.display = 'none';
+            document.getElementById('announcementOverlay').style.display = 'flex';
+            document.getElementById('annIcon').innerText = ann.isCorrect ? '🎯' : '💀';
+            document.getElementById('annTitle').innerText = ann.isCorrect ? 'إصابة!' : 'إقصاء!';
+            document.getElementById('annTitle').style.color = ann.isCorrect ? '#10b981' : '#ef4444';
+            document.getElementById('annDesc').innerText = ann.text;
+        }
+    });
+
+    // 5. حفظ الشخصية وطرد اللاعبين
+    window.saveProfile = async () => {
+        if(players[myId] && !players[myId].isAlive) return alert("أنت مقصى ولا يمكنك اللعب!");
+        const fakeName = document.getElementById('fakeName').value.trim();
+        const fakeAge = document.getElementById('fakeAge').value;
+        const fakeJob = document.getElementById('fakeJob').value;
+        const fakeStatus = document.getElementById('fakeStatus').value;
+        const fakeBio = document.getElementById('fakeBio').value;
+
+        if(!fakeName || !fakeAge || !fakeJob || !fakeBio) return alert("أكمل جميع الحقول بدقة!");
+
+        await update(ref(db, `alterego/${pin}/profiles/${myId}`), {
+            fakeName, age: fakeAge, job: fakeJob, status: fakeStatus, bio: fakeBio, avatarId: selectedAvatar
         });
+        await update(ref(db, `alterego/${pin}/players/${myId}`), { isReady: true });
 
-        const resetBubble = () => {
-            if(!currentBubble) return;
-            let deltaX = chatStartX - event.clientX;
-            currentBubble.style.transition = 'transform 0.2s';
-            
-            if (deltaX > 40) {
-                const msgId = currentBubble.dataset.id;
-                const text = currentBubble.dataset.text;
-                const name = currentBubble.dataset.name;
-                prepareReply(msgId, text, name);
-            }
-            currentBubble.style.transform = 'translateX(0)';
-            currentBubble = null;
-        };
-        chatBox.addEventListener('pointerup', resetBubble);
-        chatBox.addEventListener('pointercancel', () => { if(currentBubble) { currentBubble.style.transform='translateX(0)'; currentBubble=null;} });
+        document.getElementById('profileBuilder').style.display = 'none';
+        document.getElementById('readyMsg').style.display = 'block';
+    };
 
-        function prepareReply(msgId, text, name) {
-            replyingToMsgId = msgId;
-            document.getElementById('replyName').innerText = name;
-            document.getElementById('replyText').innerText = text;
-            document.getElementById('replyPreviewBar').style.display = 'flex';
-            document.getElementById('msgInput').focus();
+    window.kickPlayer = async (targetId) => {
+        if(!isHost) return;
+        if(confirm("هل أنت متأكد من طرد هذا اللاعب؟")) {
+            await remove(ref(db, `alterego/${pin}/players/${targetId}`));
+            await remove(ref(db, `alterego/${pin}/profiles/${targetId}`));
         }
-        window.cancelReply = () => {
-            replyingToMsgId = null;
-            document.getElementById('replyPreviewBar').style.display = 'none';
-        };
+    };
 
-        window.sendMessage = async () => {
-            if(!players[myId]?.isAlive) return alert("اللاعبون المقصيون لا يكتبون!");
-            const input = document.getElementById('msgInput');
-            const text = input.value.trim();
-            if(text) {
-                let msgData = { senderId: myId, text: text, time: Date.now() };
-                if (replyingToMsgId) msgData.replyTo = replyingToMsgId;
-                await push(chatRef, msgData);
-                input.value = '';
-                cancelReply();
-            }
-        };
-        document.getElementById('msgInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+    function updatePlayerStatusCounts() {
+        const pList = Object.values(players);
+        const total = pList.length;
+        const ready = pList.filter(p => p.isReady).length;
+        const countDiv = document.getElementById('playerStatusCount');
+        
+        if (serverGameState.status === 'lobby' || serverGameState.status === 'ready_to_start') {
+            countDiv.innerText = `اللاعبون: ${total} | الجاهزون: ${ready}`;
+            countDiv.style.display = 'block';
+        } else { countDiv.style.display = 'none'; }
 
-        // 8. منطق التصويت
-        function updateRealNamesList() {
-            const ul = document.getElementById('realNamesList');
-            ul.innerHTML = '';
-            Object.keys(players).forEach(id => {
-                if(players[id].isAlive) ul.innerHTML += `<li>${players[id].realName}</li>`;
-                else ul.innerHTML += `<li style="text-decoration:line-through; color:#ef4444;">${players[id].realName} (مقصى)</li>`;
-            });
+        if (isHost && total > 1 && ready === total && serverGameState.status === 'lobby') {
+            update(stateRef, { status: 'ready_to_start' });
         }
+    }
 
-        function populateVotingSelects() {
-            const realSelect = document.getElementById('voteRealSelect');
-            const fakeSelect = document.getElementById('voteFakeSelect');
-            realSelect.innerHTML = '<option value="">-- من هو اللاعب الحقيقي؟ --</option>';
-            fakeSelect.innerHTML = '<option value="">-- ما هي شخصيته الوهمية؟ --</option>';
-            
-            Object.keys(players).forEach(id => {
-                if(players[id].isAlive && id !== myId) realSelect.innerHTML += `<option value="${id}">${players[id].realName}</option>`;
-            });
-            Object.keys(profiles).forEach(id => {
-                if(players[id].isAlive && id !== myId) fakeSelect.innerHTML += `<option value="${id}">${profiles[id].fakeName} (${profiles[id].job})</option>`;
-            });
+    // 6. التحكم باللعبة والوقت (3 دقائق)
+    window.hostStartGame = async () => {
+        if(!isHost) return;
+        await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 }); // 3 دقائق
+    };
+
+    function updateGameUI() {
+        const statusText = document.getElementById('statusText');
+        const timerBox = document.getElementById('timerBox');
+        const hostControls = document.getElementById('hostControls');
+        const screenEl = document.getElementById('screen');
+
+        if (serverGameState.status === 'lobby') {
+            statusText.innerText = "بانتظار تجهيز الشخصيات الوهمية...";
+            statusText.style.display = 'block';
+            hostControls.style.display = 'none';
         }
-
-        window.ignoreVoting = () => {
-            localSkipVoting = true;
-            document.getElementById('votingOverlay').style.display = 'none';
-        };
-
-        window.submitVote = async () => {
-            const targetRealId = document.getElementById('voteRealSelect').value;
-            const targetFakeId = document.getElementById('voteFakeSelect').value; 
-            if(!targetRealId || !targetFakeId) return alert("اختر البيانات أولاً أو اضغط تراجع!");
-
-            document.getElementById('votingOverlay').style.display = 'none';
-            let isCorrect = (targetRealId === targetFakeId);
-            let announcementMsg = '';
-
-            if (isCorrect) {
-                await update(ref(db, `alterego/${pin}/players/${targetRealId}`), { isAlive: false });
-                announcementMsg = `اللاعب 🎯 [${players[myId].realName}] كشف أن [${players[targetRealId].realName}] يتخفى بشخصية "${profiles[targetRealId].fakeName}"! تم إقصاء ${players[targetRealId].realName}.`;
+        else if (serverGameState.status === 'ready_to_start') {
+            if (isHost) {
+                statusText.style.display = 'none';
+                hostControls.style.display = 'block';
             } else {
-                await update(ref(db, `alterego/${pin}/players/${myId}`), { isAlive: false });
-                announcementMsg = `اللاعب 💀 [${players[myId].realName}] أخطأ التخمين ودفع الثمن! تم إقصاؤه. (كان يتخفى بشخصية "${profiles[myId].fakeName}").`;
+                statusText.innerHTML = "الجميع جاهز! 🟢<br>بانتظار الهوست لبدء اللعبة...";
+                statusText.style.color = "#10b981";
+                statusText.style.display = 'block';
             }
-            await set(announcementsRef, { text: announcementMsg, isCorrect: isCorrect, time: Date.now() });
-        };
+        }
+        else if (serverGameState.status === 'chatting' || serverGameState.status === 'voting') {
+            statusText.style.display = 'none';
+            hostControls.style.display = 'none';
+            timerBox.style.display = 'block';
+            
+            // اللحظة السينمائية (تنبيه الهاتف للجميع)
+            if (!phoneWokeUp) {
+                screenEl.classList.remove('off');
+                showIphoneView('lock');
+                phoneWokeUp = true;
+            }
+            if(serverGameState.status === 'chatting') localSkipVoting = false;
+        }
 
-        // تحديث ساعة الآيفون
-        setInterval(() => {
-            let d = new Date();
-            let timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
-            document.getElementById('current-time').innerText = timeStr;
-            document.getElementById('lock-time').innerText = timeStr;
-            if(document.getElementById('batt-fill')) document.getElementById('batt-fill').style.width = '100%';
+        // نافذة التصويت
+        if (serverGameState.status === 'voting' && players[myId]?.isAlive && !localSkipVoting) {
+            populateVotingSelects();
+            document.getElementById('votingOverlay').style.display = 'flex';
+        } else {
+            document.getElementById('votingOverlay').style.display = 'none';
+        }
+
+        // المؤقت
+        clearInterval(gameTimerInterval);
+        if (serverGameState.status === 'chatting' && serverGameState.deadline) {
+            gameTimerInterval = setInterval(() => {
+                let left = Math.max(0, Math.floor((serverGameState.deadline - Date.now()) / 1000));
+                let m = String(Math.floor(left/60)).padStart(2, '0');
+                let s = String(left%60).padStart(2, '0');
+                timerBox.innerText = `${m}:${s}`;
+                if(left <= 10) timerBox.classList.add('timer-warning');
+                else timerBox.classList.remove('timer-warning');
+
+                if(left === 0 && isHost) {
+                    clearInterval(gameTimerInterval);
+                    update(stateRef, { status: 'voting' });
+                }
+            }, 1000);
+        }
+    }
+
+    // =========================================
+    // نظام الآيفون المعقد (The Best YZ Logic)
+    // =========================================
+
+    function showIphoneView(viewName) {
+        document.getElementById('lock-screen').classList.remove('show');
+        document.getElementById('home-screen').classList.remove('show');
+        document.getElementById('chat-app-view').classList.remove('show');
+        document.getElementById('control-center').classList.remove('show');
+        document.getElementById('notification-center').classList.remove('show');
+        document.getElementById('app-switcher').classList.remove('show');
+        document.getElementById('profileModal').classList.remove('show');
+        document.getElementById('groupInfoModal').classList.remove('show');
+        
+        iphoneState.currentView = viewName;
+        
+        if(viewName === 'lock') document.getElementById('lock-screen').classList.add('show');
+        else if(viewName === 'home') document.getElementById('home-screen').classList.add('show');
+        else if(viewName === 'chat') document.getElementById('chat-app-view').classList.add('show');
+        else if(viewName === 'control') document.getElementById('control-center').classList.add('show');
+        else if(viewName === 'notify') document.getElementById('notification-center').classList.add('show');
+        else if(viewName === 'switcher') document.getElementById('app-switcher').classList.add('show');
+    }
+
+    // زر الطاقة (القفل)
+    document.getElementById('power-button').addEventListener('click', () => {
+        if(!phoneWokeUp) return;
+        const screen = document.getElementById('screen');
+        if(screen.classList.contains('off')) {
+            screen.classList.remove('off');
+            showIphoneView('lock');
+        } else {
+            screen.classList.add('off');
+        }
+    });
+
+    // أزرار الصوت
+    document.getElementById('volume-up').addEventListener('click', () => adjustVolume(10));
+    document.getElementById('volume-down').addEventListener('click', () => adjustVolume(-10));
+    function adjustVolume(change) {
+        iphoneState.volume = Math.max(0, Math.min(100, iphoneState.volume + change));
+        document.getElementById('volume-fill').style.height = `${iphoneState.volume}%`;
+        const ind = document.getElementById('volume-indicator');
+        ind.classList.add('show');
+        clearTimeout(ind.timeout);
+        ind.timeout = setTimeout(() => ind.classList.remove('show'), 1500);
+    }
+
+    // فتح التطبيقات
+    window.openChatApp = () => { if(phoneWokeUp) showIphoneView('chat'); };
+
+    // فتح البروفايلات
+    window.openProfile = (targetId) => {
+        const p = profiles[targetId];
+        if(!p) return;
+        document.getElementById('cvAvatar').innerHTML = `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${p.avatarId*15}&backgroundColor=b6e3f4" style="width:100%; border-radius:50%;">`;
+        document.getElementById('cvName').innerText = p.fakeName;
+        document.getElementById('cvAge').innerText = p.age;
+        document.getElementById('cvStatus').innerText = p.status;
+        document.getElementById('cvJob').innerText = p.job;
+        document.getElementById('cvBio').innerText = p.bio;
+        document.getElementById('profileModal').classList.add('show');
+    };
+
+    window.openGroupInfo = () => {
+        const list = document.getElementById('groupMembersList');
+        list.innerHTML = '';
+        Object.entries(profiles).forEach(([id, p]) => {
+            if(!players[id]?.isAlive) return;
+            let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.avatarId*15}&backgroundColor=b6e3f4`;
+            list.innerHTML += `
+                <div class="group-member" onclick="openProfile('${id}')">
+                    <img src="${avatarUrl}" class="gm-avatar">
+                    <div class="gm-info">
+                        <div class="gm-name">${p.fakeName}</div>
+                        <div class="gm-job">${p.job}</div>
+                    </div>
+                </div>
+            `;
+        });
+        document.getElementById('groupInfoModal').classList.add('show');
+    };
+
+    // =========================================
+    // نظام اللمس المتقدم (TouchManager)
+    // (السحب للأعلى والأسفل وللرد)
+    // =========================================
+    const screenContent = document.getElementById('screen-content');
+    const homeIndicator = document.getElementById('home-indicator');
+    let startX = 0, startY = 0;
+
+    // سحب شريط الهوم من الأسفل
+    homeIndicator.addEventListener('pointerdown', e => { startY = e.clientY; });
+    homeIndicator.addEventListener('pointerup', e => {
+        let deltaY = startY - e.clientY;
+        if(deltaY > 50) { // سحب قوي (هوم أو مبدل)
+            if(deltaY > 150) showIphoneView('switcher');
+            else showIphoneView('home');
+        }
+    });
+
+    // السحب على الشاشة (للقفل ومراكز التحكم)
+    screenContent.addEventListener('pointerdown', e => {
+        if(e.target.closest('.chat-messages')) return; // تجاهل لمس الشات هنا لتجنب التعارض
+        startX = e.clientX;
+        startY = e.clientY;
+    });
+
+    screenContent.addEventListener('pointerup', e => {
+        if(e.target.closest('.chat-messages')) return;
+        let deltaY = e.clientY - startY;
+        let deltaX = startX - e.clientX;
+
+        // من شاشة القفل -> سحب للأعلى لفتح الجهاز
+        if(iphoneState.currentView === 'lock' && deltaY < -50) showIphoneView('home');
+        
+        // من الأعلى للأسفل -> مراكز التحكم
+        if(iphoneState.currentView === 'home' && startY < 100 && deltaY > 100) {
+            if(startX > window.innerWidth / 2) showIphoneView('control');
+            else showIphoneView('notify');
+        }
+
+        // إغلاق المراكز
+        if((iphoneState.currentView === 'control' || iphoneState.currentView === 'notify' || iphoneState.currentView === 'switcher') && (deltaY < -50 || Math.abs(deltaY) < 10)) {
+            showIphoneView('home');
+        }
+    });
+
+    // السحب للرد (خاص بـ ChatBox فقط، يمين لليسار)
+    const chatBox = document.getElementById('chatBox');
+    let chatStartX = 0, chatStartY = 0, currentBubble = null;
+
+    chatBox.addEventListener('pointerdown', (e) => {
+        if(e.target.closest('.reply-snippet') || e.target.closest('.msg-avatar')) return;
+        currentBubble = e.target.closest('.msg-bubble');
+        if(currentBubble) {
+            chatStartX = e.clientX;
+            chatStartY = e.clientY;
+            currentBubble.style.transition = 'none';
+        }
+    });
+
+    chatBox.addEventListener('pointermove', (e) => {
+        if(!currentBubble) return;
+        let deltaX = e.clientX - chatStartX; // موجب يعني من اليمين لليسار (RTL)
+        let deltaY = Math.abs(chatStartY - e.clientY);
+        
+        if (deltaX > 10 && deltaX > deltaY) {
+            currentBubble.style.transform = `translateX(-${Math.min(deltaX, 60)}px)`;
+        }
+    });
+
+    const resetBubble = (e) => {
+        if(!currentBubble) return;
+        let deltaX = e.clientX - chatStartX;
+        currentBubble.style.transition = 'transform 0.2s';
+        
+        if (deltaX > 40) {
+            const msgId = currentBubble.dataset.id;
+            const text = currentBubble.dataset.text;
+            const name = currentBubble.dataset.name;
+            prepareReply(msgId, text, name);
+        }
+        currentBubble.style.transform = 'translateX(0)';
+        currentBubble = null;
+    };
+    chatBox.addEventListener('pointerup', resetBubble);
+    chatBox.addEventListener('pointercancel', () => { if(currentBubble) { currentBubble.style.transform='translateX(0)'; currentBubble=null;} });
+
+    function prepareReply(msgId, text, name) {
+        replyingToMsgId = msgId;
+        document.getElementById('replyName').innerText = name;
+        document.getElementById('replyText').innerText = text;
+        document.getElementById('replyPreviewBar').style.display = 'flex';
+        document.getElementById('msgInput').focus();
+    }
+    window.cancelReply = () => {
+        replyingToMsgId = null;
+        document.getElementById('replyPreviewBar').style.display = 'none';
+    };
+
+    window.sendMessage = async () => {
+        if(!players[myId]?.isAlive) return alert("اللاعبون المقصيون لا يكتبون!");
+        const input = document.getElementById('msgInput');
+        const text = input.value.trim();
+        if(text) {
+            let msgData = { senderId: myId, text: text, time: Date.now() };
+            if (replyingToMsgId) msgData.replyTo = replyingToMsgId;
+            await push(chatRef, msgData);
+            input.value = '';
+            cancelReply();
+        }
+    };
+    document.getElementById('msgInput').addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+    // =========================================
+    // منطق التصويت والإقصاء وإنهاء اللعبة
+    // =========================================
+    function updateRealNamesList() {
+        const ul = document.getElementById('realNamesList');
+        ul.innerHTML = '';
+        Object.keys(players).forEach(id => {
+            let kickBtn = (isHost && id !== myId) ? `<span style="cursor:pointer;" onclick="kickPlayer('${id}')">❌</span>` : '';
+            if(players[id].isAlive) ul.innerHTML += `<li>${players[id].realName} ${kickBtn}</li>`;
+            else ul.innerHTML += `<li style="text-decoration:line-through; color:#ef4444;">${players[id].realName} (مقصى) ${kickBtn}</li>`;
+        });
+    }
+
+    window.ignoreVoting = async () => {
+        localSkipVoting = true;
+        document.getElementById('votingOverlay').style.display = 'none';
+        checkPostVotingState();
+    };
+
+    window.submitVote = async () => {
+        const targetRealId = document.getElementById('voteRealSelect').value;
+        const targetFakeId = document.getElementById('voteFakeSelect').value; 
+        if(!targetRealId || !targetFakeId) return alert("اختر البيانات أولاً أو اضغط תراجع!");
+
+        document.getElementById('votingOverlay').style.display = 'none';
+        let isCorrect = (targetRealId === targetFakeId);
+        let announcementMsg = '';
+
+        if (isCorrect) {
+            await update(ref(db, `alterego/${pin}/players/${targetRealId}`), { isAlive: false });
+            announcementMsg = `اللاعب 🎯 [${players[myId].realName}] كشف أن [${players[targetRealId].realName}] يتخفى بشخصية "${profiles[targetRealId].fakeName}"! تم إقصاء ${players[targetRealId].realName}.`;
+        } else {
+            await update(ref(db, `alterego/${pin}/players/${myId}`), { isAlive: false });
+            announcementMsg = `اللاعب 💀 [${players[myId].realName}] أخطأ التخمين ودفع الثمن! تم إقصاؤه. (كان يتخفى بشخصية "${profiles[myId].fakeName}").`;
+        }
+        await set(announcementsRef, { text: announcementMsg, isCorrect: isCorrect, time: Date.now() });
+        
+        checkPostVotingState();
+    };
+
+    async function checkPostVotingState() {
+        if(!isHost) return;
+        setTimeout(async () => {
+            const snap = await get(playersRef);
+            const currentPlayers = snap.val();
+            let aliveCount = Object.values(currentPlayers).filter(p => p.isAlive).length;
+            let totalCount = Object.values(currentPlayers).length;
+
+            if (aliveCount <= 2 && totalCount > 2) {
+                // بقاء لاعبين اثنين فقط (النهاية)
+                await set(announcementsRef, { text: "🏁 تبقى لاعبان فقط! اللعبة انتهت، الهويات أصبحت مكشوفة!", isCorrect: true, time: Date.now() });
+            } else {
+                // العودة للشات مع مؤقت جديد
+                await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+            }
         }, 1000);
+    }
 
-    </script>
+    // تحديث ساعة الآيفون
+    setInterval(() => {
+        let d = new Date();
+        let timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+        document.getElementById('current-time').innerText = timeStr;
+        document.getElementById('lock-time').innerText = timeStr;
+        if(document.getElementById('batt-fill')) document.getElementById('batt-fill').style.width = '100%';
+    }, 1000);
+
+</script>
 </body>
 </html>

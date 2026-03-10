@@ -63,34 +63,51 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .avatar-carousel-track { display: block; }
 .carousel-page { display: flex; gap: 10px; align-items: center; justify-content: center; padding: 4px 0; }
 .carousel-page .avatar-option {
-  flex: 0 0 60px;
-  width: 60px;
-  height: 60px;
+  flex: 0 0 clamp(36px, 10vw, 60px);
+  width: clamp(36px, 10vw, 60px);
+  height: clamp(36px, 10vw, 60px);
   border-radius: 50%;
 }
 
 /* جوال صغير */
 @media (max-width: 480px) {
-  .carousel-page { gap: 6px; }
-  .carousel-page .avatar-option { flex: 0 0 44px; width: 44px; height: 44px; }
+  .carousel-page { gap: clamp(4px, 2vw, 10px); }
+  .carousel-page .avatar-option {
+    flex: 0 0 clamp(36px, 11vw, 52px);
+    width: clamp(36px, 11vw, 52px);
+    height: clamp(36px, 11vw, 52px);
+  }
 }
 
 /* جوال متوسط */
 @media (min-width: 481px) and (max-width: 767px) {
-  .carousel-page { gap: 8px; }
-  .carousel-page .avatar-option { flex: 0 0 52px; width: 52px; height: 52px; }
+  .carousel-page { gap: clamp(6px, 2.5vw, 16px); }
+  .carousel-page .avatar-option {
+    flex: 0 0 clamp(40px, 10vw, 58px);
+    width: clamp(40px, 10vw, 58px);
+    height: clamp(40px, 10vw, 58px);
+  }
 }
 
 /* آيباد */
 @media (min-width: 768px) and (max-width: 1024px) {
-  .carousel-page { gap: 12px; }
-  .carousel-page .avatar-option { flex: 0 0 58px; width: 58px; height: 58px; }
+  .carousel-page { gap: clamp(8px, 2vw, 20px); }
+  .carousel-page .avatar-option {
+    flex: 0 0 clamp(44px, 8vw, 68px);
+    width: clamp(44px, 8vw, 68px);
+    height: clamp(44px, 8vw, 68px);
+  }
 }
 
 /* كمبيوتر */
 @media (min-width: 1025px) {
-  .carousel-page { gap: 18px; }
-  .carousel-page .avatar-option { flex: 0 0 64px; width: 64px; height: 64px; }
+  .carousel-page { gap: 50px; }
+  .carousel-page .avatar-option {
+    flex: 0 0 clamp(42px, 13%, 80px);
+    width: clamp(42px, 13%, 60px);
+    height: clamp(42px, 13%, 60px);
+    border-radius: 50%;
+  }
 }
 .carousel-arrow { width: 32px; height: 32px; min-width: 32px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
 .carousel-arrow:hover { background: rgba(135,116,225,0.45); }

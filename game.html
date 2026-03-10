@@ -61,7 +61,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; user-select: none; }
 .avatar-carousel-track-outer { flex: 1; overflow: hidden; border-radius: 12px; }
 .avatar-carousel-track { display: flex; gap: 10px; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform; }
-.avatar-carousel-track .avatar-option { flex-shrink: 0; width: 62px; height: 62px; }
+.avatar-carousel-track .avatar-option { flex: 0 0 calc((100% - 50px) / 6); width: calc((100% - 50px) / 6); height: 62px; aspect-ratio: 1; }
 .carousel-arrow { width: 34px; height: 34px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
 .carousel-arrow:hover { background: rgba(135,116,225,0.45); }
 .carousel-arrow:active { transform: scale(0.88); }
@@ -552,11 +552,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
       <div class="form-group">
         <label>اختر صورة لحسابك:</label>
         <div class="avatar-carousel-wrapper" id="avatarCarouselWrapper">
-          <button class="carousel-arrow" id="carouselPrev" onclick="carouselMove(-1)">&#8250;</button>
-          <div class="avatar-carousel-track-outer">
+          <button class="carousel-arrow" id="carouselPrev" onclick="carouselMove(-1)">&#8249;</button>
+          <div class="avatar-carousel-track-outer" id="carouselOuter">
             <div class="avatar-carousel-track" id="avatarCarouselTrack"></div>
           </div>
-          <button class="carousel-arrow" id="carouselNext" onclick="carouselMove(1)">&#8249;</button>
+          <button class="carousel-arrow" id="carouselNext" onclick="carouselMove(1)">&#8250;</button>
         </div>
         <div class="carousel-dots" id="carouselDots"></div>
         <div class="avatars-grid" id="avatarsGrid"></div>
@@ -960,17 +960,24 @@ for (let p = 0; p < totalPages; p++) {
 
 function goToCarouselPage(page) {
   carouselPage = Math.max(0, Math.min(page, totalPages - 1));
-  // احسب عرض الأفاتار + gap
-  const avatarW = 62 + 10; // width + gap
-  carouselTrack.style.transform = `translateX(${carouselPage * AVATARS_PER_PAGE * avatarW}px)`;
+  // احسب عرض الـ outer ديناميكياً لضمان عرض 6 صور بالضبط
+  const outer = document.getElementById('carouselOuter');
+  const outerW = outer ? outer.offsetWidth : 0;
+  const gap = 10;
+  const avatarW = Math.floor((outerW - gap * 5) / 6); // 6 صور مع 5 فجوات
+  const pageW = (avatarW + gap) * AVATARS_PER_PAGE;
+  // تحريك الـ track
+  carouselTrack.style.transform = `translateX(${carouselPage * pageW}px)`;
   // تحديث النقاط
   document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
-  // تحديث الأسهم
-  document.getElementById('carouselPrev').disabled = carouselPage >= totalPages - 1;
-  document.getElementById('carouselNext').disabled = carouselPage <= 0;
+  // السهم الأيسر (‹) يعود للخلف → يُفعَّل إذا كنا في صفحة > 0
+  document.getElementById('carouselPrev').disabled = carouselPage <= 0;
+  // السهم الأيمن (›) يذهب للأمام → يُفعَّل إذا كنا في آخر صفحة
+  document.getElementById('carouselNext').disabled = carouselPage >= totalPages - 1;
 }
 
-window.carouselMove = (dir) => goToCarouselPage(carouselPage - dir);
+// السهم الأيمن (›) = الصفحة التالية (+1)، السهم الأيسر (‹) = الصفحة السابقة (-1)
+window.carouselMove = (dir) => goToCarouselPage(carouselPage + dir);
 
 // السحب باللمس
 (function setupCarouselSwipe() {
@@ -980,6 +987,7 @@ window.carouselMove = (dir) => goToCarouselPage(carouselPage - dir);
   outer.addEventListener('touchend', e => {
     if (!isDragging) return;
     const dx = e.changedTouches[0].clientX - startX;
+    // سحب لليسار = الصفحة التالية، سحب لليمين = الصفحة السابقة
     if (Math.abs(dx) > 40) goToCarouselPage(carouselPage + (dx < 0 ? 1 : -1));
     isDragging = false;
   });
@@ -993,8 +1001,12 @@ window.carouselMove = (dir) => goToCarouselPage(carouselPage - dir);
   });
 })();
 
-// تهيئة الكاروسيل
-goToCarouselPage(0);
+// تهيئة الكاروسيل بعد اكتمال الـ layout
+requestAnimationFrame(() => {
+  goToCarouselPage(0);
+  // إعادة الحساب عند تغيير حجم الشاشة
+  window.addEventListener('resize', () => goToCarouselPage(carouselPage));
+});
 
 window.selectAvatar = (num, el) => {
   selectedAvatar = num;

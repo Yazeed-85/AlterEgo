@@ -370,6 +370,52 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .chat-sticker-btn:active { transform: scale(0.9); background: rgba(135,116,225,0.3); }
 /* بانيل الستيكرات */
 .sticker-panel { position: absolute; bottom: 100%; left: 0; right: 0; background: #1c1c1e; border-top: 1px solid #3a3a3c; border-radius: 18px 18px 0 0; z-index: 60; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94); padding: 10px 12px 16px; max-height: 220px; overflow-y: auto; pointer-events: none; opacity: 0; }
+
+/* ===== كيبورد وهمي داخل الأيفون (جوال فقط) ===== */
+#fake-keyboard {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 80;
+  background: #1c1c1e; border-top: 1px solid #3a3a3c;
+  transform: translateY(100%); transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding: 6px 4px 10px; display: none;
+  user-select: none; -webkit-user-select: none;
+}
+#fake-keyboard.open { transform: translateY(0); display: block; }
+.fk-input-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 8px 8px; direction: rtl;
+}
+.fk-text-display {
+  flex: 1; background: #2c2c2e; border-radius: 20px;
+  padding: 9px 14px; color: white; font-size: 0.95rem;
+  font-family: 'Cairo', sans-serif; min-height: 38px;
+  text-align: right; direction: rtl; word-break: break-all;
+  position: relative;
+}
+.fk-text-display:empty::before { content: 'رسالة...'; color: #666; }
+.fk-cursor { display: inline-block; width: 1.5px; height: 1em; background: white; animation: blink 1s infinite; vertical-align: text-bottom; margin-right: 1px; }
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+.fk-send { background: var(--game-purple); color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: none; flex-shrink: 0; align-items: center; justify-content: center; }
+.fk-send.visible { display: flex; }
+.fk-sticker { background: rgba(135,116,225,0.15); border: 1.5px solid rgba(135,116,225,0.35); color: white; width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; flex-shrink: 0; align-items: center; justify-content: center; }
+.fk-rows { padding: 0 3px; }
+.fk-row { display: flex; gap: 5px; margin-bottom: 5px; justify-content: center; }
+.fk-key {
+  flex: 1; max-width: 36px; height: 42px; background: #3a3a3c; border-radius: 6px;
+  color: white; font-size: 1rem; font-family: 'Cairo', sans-serif;
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 0 #111; transition: background 0.08s; -webkit-tap-highlight-color: transparent;
+}
+.fk-key:active { background: #555; transform: scale(0.93); }
+.fk-key.wide { max-width: 60px; flex: 1.6; font-size: 0.75rem; }
+.fk-key.space { max-width: 160px; flex: 4; }
+.fk-key.dark { background: #1c1c1e; }
+.fk-key.blue { background: var(--game-purple); }
+.fk-bottom-row { display: flex; gap: 5px; padding: 0 3px; justify-content: center; }
+.fk-pages { display: none; }
+.fk-pages.active { display: block; }
+/* أرقام */
+.fk-num-key { flex:1; max-width:38px; height:44px; background:#3a3a3c; border-radius:6px; color:white; font-size:1.1rem; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 0 #111; -webkit-tap-highlight-color:transparent; }
+.fk-num-key:active { background:#555; }
 .sticker-panel.open { transform: translateY(0); pointer-events: all; opacity: 1; }
 .sticker-panel-handle { width: 36px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 10px; }
 .sticker-panel-title { color: #a1a1aa; font-size: 0.78rem; font-weight: 700; text-align: center; margin-bottom: 10px; letter-spacing: 0.5px; }
@@ -917,6 +963,57 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
           <div class="speaker-hole"></div><div class="speaker-hole"></div>
         </div>
       </div><!-- /iphone-body -->
+      <!-- كيبورد وهمي - يظهر على الجوال فقط -->
+      <div id="fake-keyboard">
+        <div class="fk-input-row">
+          <button class="fk-send" id="fkSendBtn" onclick="fkSend()">➤</button>
+          <div class="fk-text-display" id="fkDisplay"><span class="fk-cursor"></span></div>
+          <button class="fk-sticker" onclick="fkOpenSticker()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg></button>
+        </div>
+        <!-- صفحة الحروف -->
+        <div class="fk-pages active" id="fkPageAr">
+          <div class="fk-rows">
+            <div class="fk-row">
+              <button class="fk-key" onclick="fkType('ج')">ج</button><button class="fk-key" onclick="fkType('ح')">ح</button><button class="fk-key" onclick="fkType('خ')">خ</button><button class="fk-key" onclick="fkType('ه')">ه</button><button class="fk-key" onclick="fkType('ع')">ع</button><button class="fk-key" onclick="fkType('غ')">غ</button><button class="fk-key" onclick="fkType('ف')">ف</button><button class="fk-key" onclick="fkType('ق')">ق</button><button class="fk-key" onclick="fkType('ث')">ث</button><button class="fk-key" onclick="fkType('ص')">ص</button><button class="fk-key" onclick="fkType('ض')">ض</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-key" onclick="fkType('ة')">ة</button><button class="fk-key" onclick="fkType('ك')">ك</button><button class="fk-key" onclick="fkType('م')">م</button><button class="fk-key" onclick="fkType('ن')">ن</button><button class="fk-key" onclick="fkType('ت')">ت</button><button class="fk-key" onclick="fkType('ا')">ا</button><button class="fk-key" onclick="fkType('ل')">ل</button><button class="fk-key" onclick="fkType('ب')">ب</button><button class="fk-key" onclick="fkType('ي')">ي</button><button class="fk-key" onclick="fkType('س')">س</button><button class="fk-key" onclick="fkType('ش')">ش</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-key dark wide" onclick="fkDelete()">⌫</button>
+              <button class="fk-key" onclick="fkType('ء')">ء</button><button class="fk-key" onclick="fkType('ظ')">ظ</button><button class="fk-key" onclick="fkType('ط')">ط</button><button class="fk-key" onclick="fkType('ذ')">ذ</button><button class="fk-key" onclick="fkType('د')">د</button><button class="fk-key" onclick="fkType('ز')">ز</button><button class="fk-key" onclick="fkType('ر')">ر</button><button class="fk-key" onclick="fkType('و')">و</button><button class="fk-key" onclick="fkType('ى')">ى</button>
+              <button class="fk-key dark wide" onclick="fkDelete()">⌫</button>
+            </div>
+          </div>
+          <div class="fk-bottom-row">
+            <button class="fk-key dark wide" onclick="fkTogglePage()">١٢٣</button>
+            <button class="fk-key space" onclick="fkType(' ')">مسافة</button>
+            <button class="fk-key dark wide" onclick="fkType('،')">،</button>
+            <button class="fk-key dark wide" onclick="fkType('.')">.</button>
+            <button class="fk-key blue wide" onclick="fkSend()">إرسال</button>
+          </div>
+        </div>
+        <!-- صفحة الأرقام -->
+        <div class="fk-pages" id="fkPageNum">
+          <div class="fk-rows">
+            <div class="fk-row">
+              <button class="fk-num-key" onclick="fkType('1')">1</button><button class="fk-num-key" onclick="fkType('2')">2</button><button class="fk-num-key" onclick="fkType('3')">3</button><button class="fk-num-key" onclick="fkType('4')">4</button><button class="fk-num-key" onclick="fkType('5')">5</button><button class="fk-num-key" onclick="fkType('6')">6</button><button class="fk-num-key" onclick="fkType('7')">7</button><button class="fk-num-key" onclick="fkType('8')">8</button><button class="fk-num-key" onclick="fkType('9')">9</button><button class="fk-num-key" onclick="fkType('0')">0</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-num-key" onclick="fkType('-')">-</button><button class="fk-num-key" onclick="fkType('/')">/ </button><button class="fk-num-key" onclick="fkType(':')">:</button><button class="fk-num-key" onclick="fkType(';')">;</button><button class="fk-num-key" onclick="fkType('(')"> (</button><button class="fk-num-key" onclick="fkType(')')">)</button><button class="fk-num-key" onclick="fkType('$')">$</button><button class="fk-num-key" onclick="fkType('&')">&</button><button class="fk-num-key" onclick="fkType('@')">@</button><button class="fk-num-key" onclick="fkDelete()">⌫</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-num-key" onclick="fkType('.')">.</button><button class="fk-num-key" onclick="fkType(',')"> ,</button><button class="fk-num-key" onclick="fkType('?')">?</button><button class="fk-num-key" onclick="fkType('!')">!</button><button class="fk-num-key" onclick="fkType('\'')">\'</button><button class="fk-num-key" onclick="fkType('\"')">\"</button><button class="fk-num-key" onclick="fkType('_')">_</button><button class="fk-num-key" onclick="fkType('%')">%</button><button class="fk-num-key" onclick="fkType('+')">+</button><button class="fk-num-key" onclick="fkType('=')">= </button>
+            </div>
+          </div>
+          <div class="fk-bottom-row">
+            <button class="fk-key dark wide" onclick="fkTogglePage()">ع</button>
+            <button class="fk-key space" onclick="fkType(' ')">مسافة</button>
+            <button class="fk-key dark wide" onclick="fkDelete()">⌫</button>
+            <button class="fk-key blue wide" onclick="fkSend()">إرسال</button>
+          </div>
+        </div>
+      </div>
     </div><!-- /iphone-container -->
 
     <div id="volume-indicator"><div id="volume-bar"><div id="volume-fill" style="height:50%;"></div></div></div>
@@ -1987,6 +2084,32 @@ screenContent.addEventListener('pointerup', e => {
   if(cv === 'lock' && dy < -45) { showIphoneView('home'); return; }
 }, { passive: true });
 
+// ── نفس المنطق على touchend للجوال (pointerup لا يعمل بعد preventDefault)
+screenContent.addEventListener('touchend', e => {
+  const t = e.changedTouches[0];
+  const dx = t.clientX - sgStartX;
+  const dy = t.clientY - sgStartY;
+  const rect = screenContent.getBoundingClientRect();
+  const relX = sgStartX - rect.left;
+  const relY = sgStartY - rect.top;
+  const cv   = iphoneState.currentView;
+
+  if(dy > 50 && relY < 85) {
+    if((sgStartX - rect.left) > rect.width * 0.5) openControlCenter();
+    else openNotifyCenter();
+    return;
+  }
+
+  const isTapCC = cv === 'control' && relY > rect.height * 0.35 && Math.abs(dx) < 18 && Math.abs(dy) < 18;
+  const isTapNC = cv === 'notify'  && relY > rect.height * 0.35 && Math.abs(dx) < 18 && Math.abs(dy) < 18;
+  const isTapSW = cv === 'switcher'&& relY > rect.height * 0.35 && Math.abs(dx) < 18 && Math.abs(dy) < 18;
+
+  if(isTapCC || isTapNC) { closePanelReturnToPrev(); return; }
+  if(isTapSW) { closeSwitcherReturnToPrev(); return; }
+  if(dy < -45 && (cv === 'control' || cv === 'notify')) { closePanelReturnToPrev(); return; }
+  if(cv === 'lock' && dy < -45) { showIphoneView('home'); return; }
+}, { passive: true });
+
 // ── فتح CC/NC مع حفظ المشهد السابق
 function openControlCenter() {
   prevViewBeforePanel = iphoneState.currentView;
@@ -2272,6 +2395,71 @@ function showToast(msg) {
     }
   }
 
+})();
+
+// ===== كيبورد وهمي (جوال فقط) =====
+(function setupFakeKeyboard() {
+  if (window.innerWidth > 900) return;
+
+  let fkText = '';
+  const display   = document.getElementById('fkDisplay');
+  const fkKeyboard= document.getElementById('fake-keyboard');
+  const realInput = document.getElementById('msgInput');
+
+  // عند الضغط على مربع الكتابة → افتح الكيبورد الوهمي بدل كيبورد الجهاز
+  realInput.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    openFakeKeyboard();
+  }, { passive: false });
+
+  document.querySelector('.chat-input-row').addEventListener('click', (e) => {
+    if (!e.target.closest('button') && window.innerWidth <= 900) openFakeKeyboard();
+  });
+
+  function openFakeKeyboard() {
+    fkKeyboard.style.display = 'block';
+    setTimeout(() => fkKeyboard.classList.add('open'), 10);
+    renderDisplay();
+  }
+
+  window.closeFakeKeyboard = () => {
+    fkKeyboard.classList.remove('open');
+  };
+
+  function renderDisplay() {
+    const cursor = '<span class="fk-cursor"></span>';
+    display.innerHTML = (fkText ? fkText.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) : '') + cursor;
+    const hasText = fkText.trim().length > 0;
+    document.getElementById('fkSendBtn').classList.toggle('visible', hasText);
+    realInput.value = fkText;
+    updateChatInputBtns();
+  }
+
+  window.fkType = (char) => { fkText += char; renderDisplay(); };
+  window.fkDelete = () => { fkText = [...fkText].slice(0,-1).join(''); renderDisplay(); };
+  window.fkTogglePage = () => {
+    const toNum = document.getElementById('fkPageAr').classList.contains('active');
+    document.getElementById('fkPageAr').classList.toggle('active', !toNum);
+    document.getElementById('fkPageNum').classList.toggle('active', toNum);
+  };
+  window.fkSend = () => {
+    if (!fkText.trim()) return;
+    realInput.value = fkText;
+    fkText = '';
+    window.closeFakeKeyboard();
+    renderDisplay();
+    sendMessage();
+  };
+  window.fkOpenSticker = () => {
+    window.closeFakeKeyboard();
+    toggleStickerPanel();
+  };
+  // إغلاق الكيبورد عند إرسال ستيكر
+  const _origSendSticker = window.sendSticker;
+  window.sendSticker = async (s) => {
+    window.closeFakeKeyboard();
+    await _origSendSticker(s);
+  };
 })();
 
 // === PHOTOS APP ===

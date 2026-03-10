@@ -355,13 +355,13 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; position: relative; }
 @media (max-width: 900px) { .chat-bottom-wrapper { display: none !important; } }
 
-/* زر فتح الكيبورد على الجوال */
+/* شريط الإدخال الوحيد على الجوال */
 #mobile-chat-trigger {
   display: none;
   align-items: center; gap: 8px;
   padding: 8px 12px 16px; background: #1c1c1e;
   border-top: 1px solid #2c2c2e;
-  direction: rtl; cursor: pointer;
+  direction: rtl;
 }
 @media (max-width: 900px) {
   #mobile-chat-trigger { display: flex; }
@@ -370,14 +370,23 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   background: rgba(135,116,225,0.15); border: 1.5px solid rgba(135,116,225,0.35);
   color: white; width: 38px; height: 38px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0;
+  cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent;
 }
 #mob-input-display {
   flex: 1; background: #2c2c2e; border-radius: 20px;
   padding: 9px 14px; color: #555; font-size: 0.95rem;
   font-family: 'Cairo', sans-serif; text-align: right;
-  pointer-events: none;
+  cursor: pointer; min-height: 38px; display: flex; align-items: center;
+  word-break: break-all; direction: rtl;
 }
+#mob-send-btn {
+  background: #0a84ff; color: white; border: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: none; align-items: center; justify-content: center;
+  font-size: 1.1rem; cursor: pointer; flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+#mob-send-btn.show { display: flex; }
 .reply-preview-bar { display: none; background: #1a1a1c; padding: 10px 14px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between; gap: 10px; }
 .reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right; flex: 1; }
 .reply-preview-name { color: var(--game-purple); font-size: 0.82rem; font-weight: 700; }
@@ -824,12 +833,13 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
               <div class="chat-messages" id="chatBox"></div>
 
-              <!-- زر فتح الكيبورد - جوال فقط -->
-              <div id="mobile-chat-trigger" onclick="window.openFakeKeyboard && window.openFakeKeyboard()">
-                <button id="mob-sticker-btn" onclick="event.stopPropagation(); window.openFakeKeyboard && window.openFakeKeyboard(); window.fkOpenSticker && window.fkOpenSticker()">
+              <!-- شريط الإدخال الوحيد - جوال فقط -->
+              <div id="mobile-chat-trigger">
+                <button id="mob-sticker-btn" onclick="event.stopPropagation(); if(window.openFakeKeyboard) window.openFakeKeyboard(); if(window.fkOpenSticker) window.fkOpenSticker();">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
                 </button>
-                <span id="mob-input-display">رسالة...</span>
+                <span id="mob-input-display" onclick="if(window.openFakeKeyboard) window.openFakeKeyboard()">رسالة...</span>
+                <button id="mob-send-btn" onclick="event.stopPropagation(); if(window.fkSend) window.fkSend();">↑</button>
               </div>
 
               <div class="chat-bottom-wrapper">
@@ -1040,14 +1050,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
               </div>
               <button onclick="cancelReply()" style="background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>
             </div>
-          </div>
-          <!-- صف الإدخال -->
-          <div class="fk-input-row">
-            <button class="fk-sticker-btn" id="fkStickerBtn" onclick="fkOpenSticker()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
-            </button>
-            <div class="fk-text-display" id="fkDisplay"><span class="fk-placeholder">رسالة...</span></div>
-            <button class="fk-send-btn" id="fkSendBtn" onclick="fkSend()">↑</button>
           </div>
           <!-- حروف عربية -->
           <div class="fk-page active" id="fkPageAr">
@@ -2545,19 +2547,17 @@ function showToast(msg) {
   }
 
   function renderDisplay() {
-    const d = document.getElementById('fkDisplay');
-    d.innerHTML = fkText.length > 0
-      ? escape(fkText) + '<span class="fk-cursor"></span>'
-      : '<span class="fk-placeholder">رسالة...</span><span class="fk-cursor"></span>';
-    document.getElementById('fkSendBtn').classList.toggle('show', fkText.trim().length > 0);
-    realInput.value = fkText;
-    updateChatInputBtns();
-    // تحديث الزر الخارجي أيضاً
+    // تحديث الشريط الخارجي (المربع الوحيد الظاهر)
     const mob = document.getElementById('mob-input-display');
+    const mobSend = document.getElementById('mob-send-btn');
     if (mob) {
       mob.textContent = fkText.length > 0 ? fkText : 'رسالة...';
       mob.style.color = fkText.length > 0 ? 'white' : '#555';
     }
+    if (mobSend) mobSend.classList.toggle('show', fkText.trim().length > 0);
+    // مزامنة الـ input الحقيقي
+    realInput.value = fkText;
+    updateChatInputBtns();
   }
 
   window.fkType = (char) => { fkText += char; renderDisplay(); };
@@ -2571,10 +2571,12 @@ function showToast(msg) {
   window.fkSend = async () => {
     const text = fkText.trim();
     if (!text) return;
-    realInput.value = text;
+    // امسح الواجهة أولاً
     fkText = '';
     renderDisplay();
     window.closeFakeKeyboard();
+    // ثم ضع النص وأرسل
+    realInput.value = text;
     await sendMessage();
     setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
   };

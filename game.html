@@ -60,8 +60,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 /* ===== AVATAR CAROUSEL ===== */
 .avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; user-select: none; }
 .avatar-carousel-track-outer { flex: 1; overflow: hidden; }
-.avatar-carousel-track { display: flex; gap: 8px; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform; align-items: center; padding: 4px 0; }
-.avatar-carousel-track .avatar-option { flex: 0 0 54px; width: 54px; height: 54px; min-width: 54px; min-height: 54px; max-width: 54px; max-height: 54px; border-radius: 50%; }
+.avatar-carousel-track { display: block; }
+.carousel-page { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 4px 0; }
+.carousel-page .avatar-option { flex: 0 0 54px; width: 54px; height: 54px; min-width: 54px; min-height: 54px; max-width: 54px; max-height: 54px; border-radius: 50%; }
 .carousel-arrow { width: 34px; height: 34px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
 .carousel-arrow:hover { background: rgba(135,116,225,0.45); }
 .carousel-arrow:active { transform: scale(0.88); }
@@ -879,42 +880,44 @@ let iphoneState = { currentView: 'none', volume: 50, brightness: 80, isSilent: f
 let prevViewBeforePanel    = null;   // المشهد السابق قبل فتح CC/NC
 let prevViewBeforeSwitcher = null;   // المشهد السابق قبل مبدّل التطبيقات
 
-// === AVATARS CAROUSEL ===
-// الصف الأول (6 صور ثابتة في البداية)
-const AVATAR_FIRST_6 = [
+// === AVATARS CAROUSEL — صفحات ثابتة، 6 صور لكل صفحة ===
+const AVATAR_LIST = [
+  // صفحة 1
   'https://i.postimg.cc/qhqhCNPX/22download.jpg',
   'https://i.postimg.cc/1ndg09Sg/download.jpg',
   'https://i.postimg.cc/TL1LWKzj/download1.jpg',
   'https://i.postimg.cc/47y7hYD6/download22.jpg',
   'https://i.postimg.cc/5YyYFXhS/download35.jpg',
   'https://i.postimg.cc/R6Y31Mm6/slman-khwshrw-Page-2.jpg',
-];
-// الصور الباقية تُوزَّع عشوائياً على الصفحات التالية
-const AVATAR_REST_RAW = [
+  // صفحة 2
   'https://i.postimg.cc/hf6r4B7r/Images-et-photos-insolites-et-droles-659.jpg',
   'https://i.postimg.cc/KRwNc2g0/lilies.jpg',
   'https://i.postimg.cc/rK3JyktQ/M-O-T-H-E-R.jpg',
   'https://i.postimg.cc/GHVQ3Csx/nexxcanflyyyyy.jpg',
   'https://i.postimg.cc/svqcfrZY/on-Tik-Tok.jpg',
   'https://i.postimg.cc/QHwbN3Wz/Pin-by-abid-on-%CA%BFbady-aljwhr-People-Attack-on-titan-season-Cartoon-wallpaper-iphone.jpg',
+  // صفحة 3
   'https://i.postimg.cc/SJ3rQhzG/Rustin-Cohle.jpg',
   'https://i.postimg.cc/rK3Jykt5/sasha-on-Tik-Tok.jpg',
   'https://i.postimg.cc/hXm0f591/saudi-arabic-explore-bedouin-als%CA%BFwdyt.jpg',
   'https://i.postimg.cc/0bFf5sJX/Troubled-man.jpg',
   'https://i.postimg.cc/yktP6HSX/aftar.jpg',
   'https://i.postimg.cc/NKXx5z17/khald-%CA%BFbdalrhmn.jpg',
+  // صفحة 4
   'https://i.postimg.cc/WhCnpvJW/slman-khwshrw-Page-2.jpg',
   'https://i.postimg.cc/Zv9bJ31f/138133913566163230.jpg',
   'https://i.postimg.cc/Fkfrhc2T/291115563424531954.jpg',
   'https://i.postimg.cc/xNkf9HWZ/579697783327814801.jpg',
   'https://i.postimg.cc/jnWxRNG3/580964420720114298.jpg',
   'https://i.postimg.cc/y3J179wr/693061830187225168.jpg',
+  // صفحة 5
   'https://i.postimg.cc/T5ydTmZJ/822681056955009207.jpg',
   'https://i.postimg.cc/Mfc6zRhD/868913321871524282.jpg',
   'https://i.postimg.cc/8fFpTWqt/899312619346483833.jpg',
   'https://i.postimg.cc/N2ysQTW6/959055683138108143.jpg',
   'https://i.postimg.cc/5QH4fvZp/969610994750793765.jpg',
   'https://i.postimg.cc/GTBLbYZ5/981925525011364139.jpg',
+  // صفحة 6
   'https://i.postimg.cc/5QH4fvZg/A-%CA%BFly-Tik-Tok.jpg',
   'https://i.postimg.cc/N2ysQTWZ/saudi-arabic-explore-bedouin-als%CA%BFwdyt.jpg',
   'https://i.postimg.cc/RJ3SvfjK/aftar.jpg',
@@ -923,82 +926,72 @@ const AVATAR_REST_RAW = [
   'https://i.postimg.cc/PvLXdZBb/khraaaaa.jpg',
 ];
 
-// خلط عشوائي للصور الباقية
-const AVATAR_REST = [...AVATAR_REST_RAW].sort(() => Math.random() - 0.5);
-
-// تجميع القائمة الكاملة: الـ 6 الأولى ثابتة ثم الباقي عشوائي
-const AVATAR_LIST = [...AVATAR_FIRST_6, ...AVATAR_REST];
-
 window.getAvatarUrl = (id) => AVATAR_LIST[(id - 1) % AVATAR_LIST.length] || AVATAR_LIST[0];
 
-// ── بناء الكاروسيل ──
 const AVATARS_PER_PAGE = 6;
+const totalPages = Math.ceil(AVATAR_LIST.length / AVATARS_PER_PAGE); // 6 صفحات
 let carouselPage = 0;
-const totalPages = Math.ceil(AVATAR_LIST.length / AVATARS_PER_PAGE);
 
-const carouselTrack = document.getElementById('avatarCarouselTrack');
-const dotsContainer = document.getElementById('carouselDots');
+const carouselTrack  = document.getElementById('avatarCarouselTrack');
+const dotsContainer  = document.getElementById('carouselDots');
 
-// إنشاء جميع الأفاتارات في الـ track
-AVATAR_LIST.forEach((url, idx) => {
-  const i = idx + 1;
-  const div = document.createElement('div');
-  div.className = 'avatar-option' + (i === 1 ? ' selected' : '');
-  div.onclick = () => window.selectAvatar(i, div);
-  div.innerHTML = `<img src="${url}" loading="lazy">`;
-  carouselTrack.appendChild(div);
-});
+// بناء صفحة واحدة = div مستقل يحوي 6 أفاتارات
+for (let p = 0; p < totalPages; p++) {
+  const pageDiv = document.createElement('div');
+  pageDiv.className = 'carousel-page';
+  pageDiv.style.display = p === 0 ? 'flex' : 'none';
 
-// إنشاء النقاط
+  const start = p * AVATARS_PER_PAGE;
+  const end   = Math.min(start + AVATARS_PER_PAGE, AVATAR_LIST.length);
+  for (let idx = start; idx < end; idx++) {
+    const num = idx + 1;
+    const av  = document.createElement('div');
+    av.className = 'avatar-option' + (num === 1 ? ' selected' : '');
+    av.onclick   = () => window.selectAvatar(num, av);
+    av.innerHTML = `<img src="${AVATAR_LIST[idx]}" loading="lazy">`;
+    pageDiv.appendChild(av);
+  }
+  carouselTrack.appendChild(pageDiv);
+}
+
+// النقاط
 for (let p = 0; p < totalPages; p++) {
   const dot = document.createElement('div');
   dot.className = 'carousel-dot' + (p === 0 ? ' active' : '');
-  dot.onclick = () => goToCarouselPage(p);
+  dot.onclick   = () => goToCarouselPage(p);
   dotsContainer.appendChild(dot);
 }
 
 function goToCarouselPage(page) {
   carouselPage = Math.max(0, Math.min(page, totalPages - 1));
-  // حجم ثابت: 54px + 8px gap = 62px لكل أفاتار
-  const avatarW = 54 + 8;
-  const pageW = avatarW * AVATARS_PER_PAGE;
-  carouselTrack.style.transform = `translateX(${carouselPage * pageW}px)`;
+  document.querySelectorAll('.carousel-page').forEach((pg, i) => {
+    pg.style.display = i === carouselPage ? 'flex' : 'none';
+  });
   document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
   document.getElementById('carouselPrev').disabled = carouselPage <= 0;
   document.getElementById('carouselNext').disabled = carouselPage >= totalPages - 1;
 }
 
-// السهم الأيمن (›) = الصفحة التالية (+1)، السهم الأيسر (‹) = الصفحة السابقة (-1)
 window.carouselMove = (dir) => goToCarouselPage(carouselPage + dir);
 
-// السحب باللمس
-(function setupCarouselSwipe() {
+(function setupSwipe() {
   const outer = document.querySelector('.avatar-carousel-track-outer');
-  let startX = 0, isDragging = false;
-  outer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
-  outer.addEventListener('touchend', e => {
-    if (!isDragging) return;
+  let startX = 0, active = false;
+  outer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; active = true; }, { passive: true });
+  outer.addEventListener('touchend',   e => {
+    if (!active) return;
     const dx = e.changedTouches[0].clientX - startX;
-    // سحب لليسار = الصفحة التالية، سحب لليمين = الصفحة السابقة
     if (Math.abs(dx) > 40) goToCarouselPage(carouselPage + (dx < 0 ? 1 : -1));
-    isDragging = false;
+    active = false;
   });
-  // سحب الماوس
-  outer.addEventListener('mousedown', e => { startX = e.clientX; isDragging = true; });
-  window.addEventListener('mouseup', e => {
-    if (!isDragging) return;
+  outer.addEventListener('mousedown',  e => { startX = e.clientX; active = true; });
+  window.addEventListener('mouseup',   e => {
+    if (!active) return;
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 40) goToCarouselPage(carouselPage + (dx < 0 ? 1 : -1));
-    isDragging = false;
+    active = false;
   });
 })();
-
-// تهيئة الكاروسيل بعد اكتمال الـ layout
-requestAnimationFrame(() => {
-  goToCarouselPage(0);
-  // إعادة الحساب عند تغيير حجم الشاشة
-  window.addEventListener('resize', () => goToCarouselPage(carouselPage));
-});
 
 window.selectAvatar = (num, el) => {
   selectedAvatar = num;

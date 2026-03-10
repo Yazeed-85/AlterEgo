@@ -61,14 +61,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; user-select: none; }
 .avatar-carousel-track-outer { flex: 1; overflow: hidden; min-width: 0; }
 .avatar-carousel-track { display: block; }
-.carousel-page { display: flex; gap: 6px; align-items: center; justify-content: space-between; padding: 4px 0; }
+.carousel-page { display: flex; gap: 50px; align-items: center; justify-content: center; padding: 4px 0; }
 .carousel-page .avatar-option {
-  flex: 1 1 0;          /* يتمدد بالتساوي ليملأ الصف */
-  width: 0;             /* يُعاد تحديده بالـ flex */
-  min-width: 0;
-  aspect-ratio: 1 / 1;  /* مستدير دائماً */
-  height: auto;
-  max-width: 68px;       /* حد أقصى للكمبيوتر */
+  flex: 0 0 clamp(42px, 13%, 80px);
+  width: clamp(42px, 13%, 60px);
+  height: clamp(42px, 13%, 60px);
   border-radius: 50%;
 }
 .carousel-arrow { width: 32px; height: 32px; min-width: 32px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }

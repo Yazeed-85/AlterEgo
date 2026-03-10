@@ -508,7 +508,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* الصف السفلي */
 .fk-bottom-row {
-  padding-bottom: max(env(safe-area-inset-bottom, 12px), 24px) !important;
+  padding-bottom: max(env(safe-area-inset-bottom, 12px), 18px) !important;
   margin-bottom: 0 !important;
 }
 
@@ -735,6 +735,50 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     position: absolute;
     top: 20px;
     /* الـ scale يُضبط ديناميكياً بـ JS */
+  }
+}
+
+/* ===== آيباد (901px - 1200px) ===== */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .main-layout {
+    flex-direction: column;
+    overflow: visible;
+    align-items: center;
+    padding: 20px 20px 40px;
+    gap: 24px;
+  }
+
+  .right-dashboard {
+    flex: none;
+    width: 100%;
+    max-width: 680px;
+    border-left: none;
+    border-top: 2px solid var(--game-border);
+    padding: 24px 20px;
+    overflow: visible;
+    order: 1;
+  }
+
+  .left-phone-section {
+    flex: none;
+    width: 100%;
+    order: 2;
+    background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
+    border-radius: 20px;
+    padding: 20px 0 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+    position: relative;
+    height: 620px;
+  }
+
+  #iphone-container {
+    transform: scale(0.62) !important;
+    transform-origin: top center;
+    position: absolute;
+    top: 10px;
   }
 }
 </style>
@@ -2786,4 +2830,3 @@ setInterval(() => {
 </script>
 </body>
 </html>
-

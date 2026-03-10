@@ -58,12 +58,20 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 20px rgba(135,116,225,0.4); }
 
 /* ===== AVATAR CAROUSEL ===== */
-.avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; user-select: none; }
-.avatar-carousel-track-outer { flex: 1; overflow: hidden; }
+.avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; user-select: none; }
+.avatar-carousel-track-outer { flex: 1; overflow: hidden; min-width: 0; }
 .avatar-carousel-track { display: block; }
-.carousel-page { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 4px 0; }
-.carousel-page .avatar-option { flex: 0 0 54px; width: 54px; height: 54px; min-width: 54px; min-height: 54px; max-width: 54px; max-height: 54px; border-radius: 50%; }
-.carousel-arrow { width: 34px; height: 34px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+.carousel-page { display: flex; gap: 6px; align-items: center; justify-content: space-between; padding: 4px 0; }
+.carousel-page .avatar-option {
+  flex: 1 1 0;          /* يتمدد بالتساوي ليملأ الصف */
+  width: 0;             /* يُعاد تحديده بالـ flex */
+  min-width: 0;
+  aspect-ratio: 1 / 1;  /* مستدير دائماً */
+  height: auto;
+  max-width: 68px;       /* حد أقصى للكمبيوتر */
+  border-radius: 50%;
+}
+.carousel-arrow { width: 32px; height: 32px; min-width: 32px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
 .carousel-arrow:hover { background: rgba(135,116,225,0.45); }
 .carousel-arrow:active { transform: scale(0.88); }
 .carousel-arrow:disabled { opacity: 0.25; cursor: default; }
@@ -497,7 +505,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
   .btn-save { font-size: 1rem; padding: 13px; }
-  .carousel-arrow { width: 30px; height: 30px; font-size: 0.9rem; }
+  /* carousel arrows same size on mobile - avatars auto-scale */
   #playerListArea { margin-top: 18px; padding: 16px 12px; }
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }

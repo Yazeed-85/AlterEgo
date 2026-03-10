@@ -354,6 +354,30 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 /* ===== CHAT BOTTOM ===== */
 .chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; position: relative; }
 @media (max-width: 900px) { .chat-bottom-wrapper { display: none !important; } }
+
+/* زر فتح الكيبورد على الجوال */
+#mobile-chat-trigger {
+  display: none;
+  align-items: center; gap: 8px;
+  padding: 8px 12px 16px; background: #1c1c1e;
+  border-top: 1px solid #2c2c2e;
+  direction: rtl; cursor: pointer;
+}
+@media (max-width: 900px) {
+  #mobile-chat-trigger { display: flex; }
+}
+#mob-sticker-btn {
+  background: rgba(135,116,225,0.15); border: 1.5px solid rgba(135,116,225,0.35);
+  color: white; width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+#mob-input-display {
+  flex: 1; background: #2c2c2e; border-radius: 20px;
+  padding: 9px 14px; color: #555; font-size: 0.95rem;
+  font-family: 'Cairo', sans-serif; text-align: right;
+  pointer-events: none;
+}
 .reply-preview-bar { display: none; background: #1a1a1c; padding: 10px 14px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between; gap: 10px; }
 .reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right; flex: 1; }
 .reply-preview-name { color: var(--game-purple); font-size: 0.82rem; font-weight: 700; }
@@ -799,6 +823,14 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
               <div class="offline-bar" id="offlineBar">📵 لا يوجد اتصال — الرسائل معلقة</div>
 
               <div class="chat-messages" id="chatBox"></div>
+
+              <!-- زر فتح الكيبورد - جوال فقط -->
+              <div id="mobile-chat-trigger" onclick="window.openFakeKeyboard && window.openFakeKeyboard()">
+                <button id="mob-sticker-btn" onclick="event.stopPropagation(); window.openFakeKeyboard && window.openFakeKeyboard(); window.fkOpenSticker && window.fkOpenSticker()">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
+                </button>
+                <span id="mob-input-display">رسالة...</span>
+              </div>
 
               <div class="chat-bottom-wrapper">
                 <div class="reply-preview-bar" id="replyPreviewBar">
@@ -2520,6 +2552,12 @@ function showToast(msg) {
     document.getElementById('fkSendBtn').classList.toggle('show', fkText.trim().length > 0);
     realInput.value = fkText;
     updateChatInputBtns();
+    // تحديث الزر الخارجي أيضاً
+    const mob = document.getElementById('mob-input-display');
+    if (mob) {
+      mob.textContent = fkText.length > 0 ? fkText : 'رسالة...';
+      mob.style.color = fkText.length > 0 ? 'white' : '#555';
+    }
   }
 
   window.fkType = (char) => { fkText += char; renderDisplay(); };

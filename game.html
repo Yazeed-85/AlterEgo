@@ -52,9 +52,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.95rem; font-weight: bold; }
 .form-input { width: 100%; padding: 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 12px; color: white; font-size: 1.1rem; outline: none; transition: 0.2s; }
 .form-input:focus { border-color: var(--game-purple); box-shadow: 0 0 0 3px rgba(135,116,225,0.2); }
-.avatars-grid { display: flex; gap: 12px; margin-bottom: 20px; justify-content: center; flex-wrap: wrap; }
-.avatar-option { width: 65px; height: 65px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s; }
-.avatar-option img { width: 90%; height: 90%; border-radius: 50%; }
+.avatars-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px; justify-items: center; }
+.avatar-option { width: 65px; height: 65px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s; overflow: hidden; flex-shrink: 0; }
+.avatar-option img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top center; display: block; }
 .avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 20px rgba(135,116,225,0.4); }
 .btn-save { background: linear-gradient(135deg, #10b981, #047857); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3); transition: 0.2s; }
 .btn-save:active { transform: scale(0.96); }
@@ -483,8 +483,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
   .btn-save { font-size: 1rem; padding: 13px; }
-  .avatars-grid { gap: 8px; }
-  .avatar-option { width: 52px; height: 52px; }
+  .avatars-grid { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .avatar-option { width: 46px; height: 46px; }
   #playerListArea { margin-top: 18px; padding: 16px 12px; }
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }
@@ -547,7 +547,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
       <div style="display:flex;gap:15px;">
         <div class="form-group" style="flex:1;">
           <label>العمر:</label>
-          <input type="number" class="form-input" id="fakeAge" placeholder="مثال: 39" autocomplete="off">
+          <input type="number" class="form-input" id="fakeAge" placeholder="مثال: 39" autocomplete="off" min="1" max="99" maxlength="2" oninput="if(this.value.length>2)this.value=this.value.slice(0,2); if(this.value>99)this.value=99; if(this.value<1&&this.value!='')this.value=1;">
         </div>
         <div class="form-group" style="flex:1;">
           <label>الحالة:</label>
@@ -854,16 +854,41 @@ let gameTimerInterval;
 let replyingToMsgId = null;
 let localSkipVoting = false;
 let phoneWokeUp = false;
+let currentRound = 0; // رقم الجولة الحالية
 let iphoneState = { currentView: 'none', volume: 50, brightness: 80, isSilent: false, isFlashlight: false, batteryLevel: 100 };
 let prevViewBeforePanel    = null;   // المشهد السابق قبل فتح CC/NC
 let prevViewBeforeSwitcher = null;   // المشهد السابق قبل مبدّل التطبيقات
 
 // === AVATARS ===
+// 18 أفاتار حقيقي مرفوع من المستخدم
+const AVATAR_LIST = [
+  'https://i.postimg.cc/Zv9bJ31f/138133913566163230.jpg',
+  'https://i.postimg.cc/Fkfrhc2T/291115563424531954.jpg',
+  'https://i.postimg.cc/xNkf9HWZ/579697783327814801.jpg',
+  'https://i.postimg.cc/jnWxRNG3/580964420720114298.jpg',
+  'https://i.postimg.cc/QKB8j5Rw/693061830184852546.jpg',
+  'https://i.postimg.cc/y3J179wr/693061830187225168.jpg',
+  'https://i.postimg.cc/T5ydTmZJ/822681056955009207.jpg',
+  'https://i.postimg.cc/Mfc6zRhD/868913321871524282.jpg',
+  'https://i.postimg.cc/8fFpTWqt/899312619346483833.jpg',
+  'https://i.postimg.cc/N2ysQTW6/959055683138108143.jpg',
+  'https://i.postimg.cc/5QH4fvZp/969610994750793765.jpg',
+  'https://i.postimg.cc/GTBLbYZ5/981925525011364139.jpg',
+  'https://i.postimg.cc/5QH4fvZg/A-%CA%BFly-Tik-Tok.jpg',
+  'https://i.postimg.cc/N2ysQTWZ/saudi-arabic-explore-bedouin-als%CA%BFwdyt.jpg',
+  'https://i.postimg.cc/RJ3SvfjK/aftar.jpg',
+  'https://i.postimg.cc/y3J179w5/almksyky.jpg',
+  'https://i.postimg.cc/gLwzGRfq/almlfat-almhmh-bamnn-m%CA%BFa-abw-dahm-lhmayh-almlfat.jpg',
+  'https://i.postimg.cc/PvLXdZBb/khraaaaa.jpg',
+];
+
+window.getAvatarUrl = (id) => AVATAR_LIST[(id - 1) % AVATAR_LIST.length] || AVATAR_LIST[0];
+
 const avatarsGrid = document.getElementById('avatarsGrid');
-for(let i=1; i<=8; i++) {
-  let url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${i*15}&backgroundColor=b6e3f4`;
-  avatarsGrid.innerHTML += `<div class="avatar-option ${i===1?'selected':''}" onclick="selectAvatar(${i}, this)"><img src="${url}"></div>`;
-}
+AVATAR_LIST.forEach((url, idx) => {
+  const i = idx + 1;
+  avatarsGrid.innerHTML += `<div class="avatar-option ${i===1?'selected':''}" onclick="selectAvatar(${i}, this)"><img src="${url}" loading="lazy"></div>`;
+});
 window.selectAvatar = (num, el) => {
   selectedAvatar = num;
   document.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
@@ -915,7 +940,7 @@ onValue(chatRef, snap => {
 
     let d = new Date(msg.time);
     let timeStr = d.getHours() + ':' + String(d.getMinutes()).padStart(2,'0');
-    let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${pInfo.avatarId*15}&backgroundColor=b6e3f4`;
+    let avatarUrl = getAvatarUrl(pInfo.avatarId);
 
     let replyHtml = '';
     if(msg.replyTo && msgs[msg.replyTo]) {
@@ -1031,7 +1056,8 @@ function updatePlayerStatusCounts() {
 
 window.hostStartGame = async () => {
   if(!isHost) return;
-  await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+  currentRound = 1;
+  await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000, round: 1 });
 };
 
 function updateGameUI() {
@@ -1076,6 +1102,9 @@ function updateGameUI() {
 
   clearInterval(gameTimerInterval);
   if(serverGameState.status === 'chatting' && serverGameState.deadline) {
+    const roundNum = serverGameState.round || 1;
+    const playerStatusCount = document.getElementById('playerStatusCount');
+    if(playerStatusCount) { playerStatusCount.style.display = 'block'; playerStatusCount.innerText = `🔄 الجولة ${roundNum}`; }
     gameTimerInterval = setInterval(() => {
       let left = Math.max(0, Math.floor((serverGameState.deadline - Date.now()) / 1000));
       let m = String(Math.floor(left/60)).padStart(2,'0');
@@ -1090,8 +1119,11 @@ function updateGameUI() {
       }
     }, 1000);
   } else if(serverGameState.status === 'voting') {
+    const roundNum = serverGameState.round || 1;
     timerBox.innerText = "🗳️ تصويت";
     timerBox.classList.remove('timer-warning');
+    const playerStatusCount = document.getElementById('playerStatusCount');
+    if(playerStatusCount) { playerStatusCount.style.display = 'block'; playerStatusCount.innerText = `⚡ تصويت الجولة ${roundNum}`; }
   } else if(serverGameState.status === 'game_over') {
     timerBox.innerText = "🏁 انتهت";
   }
@@ -1155,7 +1187,7 @@ window.backToHome = () => showIphoneView('home');
 window.openProfile = (targetId) => {
   const p = profiles[targetId];
   if(!p) return;
-  document.getElementById('cvAvatar').innerHTML = `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${p.avatarId*15}&backgroundColor=b6e3f4" style="width:100%;border-radius:50%;">`;
+  document.getElementById('cvAvatar').innerHTML = `<img src="${getAvatarUrl(p.avatarId)}" style="width:100%;border-radius:50%;">`;
   document.getElementById('cvName').innerText = p.fakeName;
   document.getElementById('cvAge').innerText = p.age;
   document.getElementById('cvStatus').innerText = p.status;
@@ -1174,7 +1206,7 @@ window.openGroupInfo = () => {
   list.innerHTML = '';
   Object.entries(profiles).forEach(([id, p]) => {
     if(!players[id]?.isAlive) return;
-    let avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.avatarId*15}&backgroundColor=b6e3f4`;
+    let avatarUrl = getAvatarUrl(p.avatarId);
     list.innerHTML += `
       <div class="group-member" onclick="openProfile('${id}')">
         <div class="gm-avatar"><img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
@@ -1334,11 +1366,22 @@ window.ignoreVoting = async () => {
   localSkipVoting = true;
   document.getElementById('votingOverlay').style.display = 'none';
   await set(ref(db, `alterego/${pin}/skips/${myId}`), true);
+  // إذا كان الهوست، يبدأ جولة جديدة مباشرة
+  if(isHost) {
+    await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+    await remove(skipsRef);
+  }
 };
 
-window.backToChat = () => {
+window.backToChat = async () => {
   document.getElementById('votingOverlay').style.display = 'none';
   if(phoneWokeUp) showIphoneView('chat');
+  // إذا كان الهوست يختار "العودة للمحادثة" يبدأ عداد جديد 3 دقائق + جولة جديدة
+  if(isHost) {
+    const nextRound = (serverGameState.round || 1) + 1;
+    await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000, round: nextRound });
+    await remove(skipsRef);
+  }
 };
 
 window.submitVote = async () => {
@@ -1369,7 +1412,8 @@ async function checkPostVotingState() {
       await set(announcementsRef, { text: "🏁 تبقى لاعبان فقط! اللعبة انتهت، الهويات أصبحت مكشوفة!", isCorrect: true, time: Date.now() });
       await update(stateRef, { status: 'game_over' });
     } else {
-      await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000 });
+      const nextRound = (serverGameState.round || 1) + 1;
+      await update(stateRef, { status: 'chatting', deadline: Date.now() + 180000, round: nextRound });
       await remove(skipsRef);
     }
   }, 1500);

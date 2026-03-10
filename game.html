@@ -2207,6 +2207,22 @@ function showToast(msg) {
       iphoneState.currentView = 'control-center';
     }
   }
+
+  // ===== المنطق الصارم: أي تمرير فوق الأيفون = للأيفون فقط =====
+  // touchstart: passive (لا نمنعه أبداً حتى تعمل الضغطات)
+  // touchmove:  إذا بدأت اللمسة داخل الأيفون → نمنع scroll الصفحة
+  let _inIphone = false;
+  document.addEventListener('touchstart', (e) => {
+    const r = document.getElementById('iphone-container').getBoundingClientRect();
+    const t = e.touches[0];
+    _inIphone = t.clientX >= r.left && t.clientX <= r.right &&
+                t.clientY >= r.top  && t.clientY <= r.bottom;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (_inIphone) e.preventDefault();
+  }, { passive: false });
+
 })();
 
 // === PHOTOS APP ===

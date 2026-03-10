@@ -128,7 +128,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .left-phone-section { flex: 1; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #050508 100%); position: relative; }
 
 /* ===== iPHONE HARDWARE ===== */
-#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.75); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6)); z-index: 2; }
+#iphone-container { position: relative; width: 393px; height: 852px; transform: scale(0.85); transform-origin: center center; filter: drop-shadow(0 30px 60px rgba(0,0,0,0.6)); z-index: 2; }
 #iphone-body { position: relative; width: 100%; height: 100%; background: linear-gradient(145deg, #444, #111); border-radius: var(--radius-xl); border: 3px solid #555; overflow: hidden; box-shadow: 0 0 0 2px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.4); }
 #dynamic-island { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 126px; height: 37px; background: #000; border-radius: 19px; z-index: 200; cursor: pointer; transition: var(--transition-smooth); }
 #dynamic-island:hover { transform: translateX(-50%) scale(1.05); }
@@ -579,6 +579,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     height: 680px;
   }
 
+  /* الأيفون يأخذ كل اللمسات لنفسه - لا يُمرر للصفحة */
+  #iphone-body {
+    touch-action: none;
+  }
+
   #iphone-container {
     transform-origin: top center;
     position: absolute;
@@ -734,7 +739,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                 </div>
                 <div class="chat-input-row">
                   <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
-                  <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off">
+                  <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off" inputmode="text" enterkeyhint="send">
                   <button class="chat-sticker-btn" id="chatStickerBtn" onclick="toggleStickerPanel()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/><path d="M15 2.5 Q19 2.5 21.5 5 L21.5 9 Q18 9 15 12 L15 2.5Z" fill="currentColor" stroke="none" opacity="0.35"/></svg></button>
                 </div>
                 <!-- بانيل الستيكرات -->
@@ -2112,46 +2117,122 @@ function showToast(msg) {
 
 // ===== MOBILE: ضبط حجم الأيفون ديناميكياً =====
 (function setupMobileIphone() {
-  if (window.innerWidth > 900) return; // فقط على الجوال
+  if (window.innerWidth > 900) return;
 
-  const IPHONE_NATURAL_W = 393; // العرض الأصلي للأيفون بالـ px
-  const IPHONE_NATURAL_H = 852; // الارتفاع الأصلي
+  const IPHONE_NATURAL_W = 393;
+  const IPHONE_NATURAL_H = 852;
 
   function scaleIphone() {
     if (window.innerWidth > 900) return;
     const screenW = window.innerWidth;
-    const availW = screenW - 32; // مع هامش 16px من كل جانب
-    // نجعل الأيفون يأخذ 90% من عرض الشاشة كحد أقصى
+    const availW = screenW - 32;
     const targetW = Math.min(availW * 0.90, 370);
     const scale = targetW / IPHONE_NATURAL_W;
     const scaledH = IPHONE_NATURAL_H * scale;
-
     const container = document.getElementById('iphone-container');
     const section = document.querySelector('.left-phone-section');
     if (!container || !section) return;
-
     container.style.transform = `scale(${scale})`;
-    section.style.height = (scaledH + 60) + 'px'; // 60px هوامش علوية وسفلية
+    section.style.height = (scaledH + 60) + 'px';
   }
 
-  // تشغيل عند التحميل وعند تغيير الحجم
   scaleIphone();
   window.addEventListener('resize', scaleIphone);
 
-  // ===== إصلاح مشكلة الكيبورد =====
-  // عندما يظهر الكيبورد على iOS، الصفحة تتحرك لأعلى بشكل غريب
-  // نمنع هذا بتثبيت scroll position
-  const inputs = document.querySelectorAll('.form-input, input, textarea, select');
-  inputs.forEach(input => {
-    input.addEventListener('focus', () => {
-      // نأخذ الـ scroll الحالي ونحتفظ به
-      const scrollY = window.scrollY;
-      setTimeout(() => {
-        // نعيد الـ scroll لنفس المكان بعد ظهور الكيبورد
-        window.scrollTo(0, scrollY);
-      }, 100);
-    });
+  // ===== إصلاح مشكلة الكيبورد على الجوال =====
+  // نمنع الصفحة من التمرير عند فتح الكيبورد
+  // ونجعل مربع الكتابة يُركّز على الأيفون بدلاً من تحريك الصفحة
+  document.addEventListener('focusin', (e) => {
+    if (window.innerWidth > 900) return;
+    const el = e.target;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      // إذا كان داخل الأيفون، نمنع scroll الصفحة
+      if (el.closest('#iphone-body') || el.closest('.chat-bottom-wrapper')) {
+        const scrollY = window.scrollY;
+        setTimeout(() => {
+          window.scrollTo(0, scrollY);
+          // نُمرر الأيفون فقط لإظهار مربع الكتابة
+          el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 150);
+      }
+    }
   });
+
+  document.addEventListener('focusout', (e) => {
+    if (window.innerWidth > 900) return;
+    // عند إغلاق الكيبورد نعيد الـ scroll
+    setTimeout(() => window.scrollTo(0, window.scrollY), 100);
+  });
+
+  // ===== السحب داخل الأيفون لمركز الإشعارات / التحكم =====
+  const iphoneBody = document.getElementById('iphone-body');
+  if (!iphoneBody) return;
+
+  let touchStartY = 0;
+  let touchStartX = 0;
+
+  iphoneBody.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  iphoneBody.addEventListener('touchmove', (e) => {
+    // نمنع الصفحة من التمرير عند اللمس داخل الأيفون
+    e.preventDefault();
+  }, { passive: false });
+
+  iphoneBody.addEventListener('touchend', (e) => {
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const absDy = Math.abs(dy);
+    const absDx = Math.abs(dx);
+
+    // سحب رأسي فقط (وليس أفقي)
+    if (absDy < 50 || absDx > absDy * 0.8) return;
+
+    const iphone = document.getElementById('iphone-container');
+    const iphoneRect = iphone.getBoundingClientRect();
+    const relY = touchStartY - iphoneRect.top;
+    const iphoneH = iphoneRect.height;
+
+    if (dy > 50) {
+      // سحب للأسفل
+      if (relY < iphoneH * 0.15) {
+        // من الأعلى → مركز الإشعارات
+        openNotifCenter();
+      } else if (relY > iphoneH * 0.85) {
+        // من الأسفل للأعلى → تجاهل (home indicator)
+      }
+    } else if (dy < -50) {
+      // سحب للأعلى
+      if (relY > iphoneH * 0.85) {
+        // من الأسفل → الشاشة الرئيسية
+        if (iphoneState.currentView === 'lock') unlockPhone();
+        else if (iphoneState.currentView !== 'home') showView('home');
+      } else if (relY < iphoneH * 0.15) {
+        // من الأعلى للأسفل → مركز التحكم
+        openControlCenter();
+      }
+    }
+  }, { passive: true });
+
+  function openNotifCenter() {
+    const nc = document.getElementById('notification-center');
+    if (nc) {
+      nc.classList.add('show');
+      iphoneState.prevView = iphoneState.currentView;
+      iphoneState.currentView = 'notif-center';
+    }
+  }
+
+  function openControlCenter() {
+    const cc = document.getElementById('control-center');
+    if (cc) {
+      cc.classList.add('show');
+      iphoneState.prevView = iphoneState.currentView;
+      iphoneState.currentView = 'control-center';
+    }
+  }
 })();
 
 // === PHOTOS APP ===

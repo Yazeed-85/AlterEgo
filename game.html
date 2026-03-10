@@ -1531,14 +1531,13 @@ window.sendMessage = async () => {
 
   const online = getNetworkOnline();
   if(!online) {
-    // إضافة للقائمة المعلقة وإظهار مؤشر
     const msgData = { senderId: myId, text, time: Date.now(), replyTo: replyingToMsgId || null };
     pendingMessages.push(msgData);
     input.value = '';
     cancelReply();
-    // إضافة رسالة معلقة بصرياً
     appendPendingMsg(msgData);
     showToast('📵 رسالتك معلقة — لا يوجد اتصال');
+    updateChatInputBtns();
     return;
   }
 
@@ -1547,6 +1546,7 @@ window.sendMessage = async () => {
   await push(chatRef, msgData);
   input.value = '';
   cancelReply();
+  updateChatInputBtns();
 };
 
 function appendPendingMsg(msgData) {
@@ -1567,12 +1567,14 @@ function appendPendingMsg(msgData) {
 
 document.getElementById('msgInput').addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
 
-// ===== إظهار/إخفاء زر الإرسال حسب المحتوى =====
-document.getElementById('msgInput').addEventListener('input', () => {
+// ===== دالة مركزية لتحديث أزرار الإرسال/الستيكر =====
+function updateChatInputBtns() {
   const hasText = document.getElementById('msgInput').value.trim().length > 0;
   document.getElementById('chatSendBtn').classList.toggle('visible', hasText);
   document.getElementById('chatStickerBtn').style.display = hasText ? 'none' : 'flex';
-});
+}
+// تشغيل عند الكتابة
+document.getElementById('msgInput').addEventListener('input', updateChatInputBtns);
 
 // ===== بانيل الستيكرات =====
 window.toggleStickerPanel = () => {
@@ -2209,12 +2211,14 @@ function showToast(msg) {
   }
 
   // ===== المنطق الصارم: أي تمرير فوق الأيفون = للأيفون فقط =====
-  // touchstart: passive (لا نمنعه أبداً حتى تعمل الضغطات)
-  // touchmove:  إذا بدأت اللمسة داخل الأيفون → نمنع scroll الصفحة
   let _inIphone = false;
+  let _tapStartX = 0, _tapStartY = 0;
+
   document.addEventListener('touchstart', (e) => {
     const r = document.getElementById('iphone-container').getBoundingClientRect();
     const t = e.touches[0];
+    _tapStartX = t.clientX;
+    _tapStartY = t.clientY;
     _inIphone = t.clientX >= r.left && t.clientX <= r.right &&
                 t.clientY >= r.top  && t.clientY <= r.bottom;
   }, { passive: true });
@@ -2222,6 +2226,51 @@ function showToast(msg) {
   document.addEventListener('touchmove', (e) => {
     if (_inIphone) e.preventDefault();
   }, { passive: false });
+
+  // ===== إغلاق CC/NC بالنقر في المنطقة الفارغة (جوال) =====
+  document.getElementById('iphone-body').addEventListener('touchend', (e) => {
+    const t = e.changedTouches[0];
+    const dx = Math.abs(t.clientX - _tapStartX);
+    const dy = Math.abs(t.clientY - _tapStartY);
+    // نقرة فقط (لا سحب)
+    if (dx > 12 || dy > 12) return;
+
+    const cv = iphoneState.currentView;
+    if (cv === 'control' || cv === 'notify') {
+      const r = document.getElementById('iphone-body').getBoundingClientRect();
+      const relY = t.clientY - r.top;
+      // النقر في أسفل 60% من الشاشة يُغلق
+      if (relY > r.height * 0.35) {
+        closePanelReturnToPrev();
+      }
+    }
+  }, { passive: true });
+
+  // ===== الكيبورد: يبقى ضمن حدود الأيفون بالجوال =====
+  const msgIn = document.getElementById('msgInput');
+  if (msgIn) {
+    msgIn.addEventListener('focus', () => {
+      // ننتظر قليلاً حتى يظهر الكيبورد ثم نحسب موضعه
+      setTimeout(() => {
+        const iphoneEl = document.getElementById('iphone-container');
+        if (!iphoneEl) return;
+        const rect = iphoneEl.getBoundingClientRect();
+        const viewH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        // إذا كان أسفل الأيفون خارج منطقة العرض (الكيبورد يغطيه)
+        if (rect.bottom > viewH) {
+          const overflow = rect.bottom - viewH + 20;
+          window.scrollBy({ top: overflow, behavior: 'smooth' });
+        }
+      }, 350);
+    });
+
+    // عند إغلاق الكيبورد، ارجع للوضع الطبيعي
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        // لا نتدخل - الصفحة تعود طبيعياً
+      });
+    }
+  }
 
 })();
 

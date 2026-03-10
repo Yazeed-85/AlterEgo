@@ -328,6 +328,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* الفقاعات */
 .msg-text { padding: 9px 13px; color: white; font-size: 1rem; line-height: 1.45; box-shadow: 0 1px 3px rgba(0,0,0,0.4); word-break: break-word; direction: rtl; }
+.msg-sticker { font-size: 3rem; line-height: 1; padding: 4px 2px; background: transparent; display: inline-block; }
 /* other: ذيل أعلى اليسار */
 .msg-wrapper.other         .msg-text { background: #262626; border-radius: 2px 16px 16px 16px; }
 .msg-wrapper.other.grouped .msg-text { background: #262626; border-radius: 16px 16px 16px 16px; }
@@ -351,7 +352,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .msg-wrapper.other .swipe-icon { right: -38px; }   /* ظهور على يمين فقاعة الآخر */
 
 /* ===== CHAT BOTTOM ===== */
-.chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; }
+.chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; position: relative; }
 .reply-preview-bar { display: none; background: #1a1a1c; padding: 10px 14px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between; gap: 10px; }
 .reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right; flex: 1; }
 .reply-preview-name { color: var(--game-purple); font-size: 0.82rem; font-weight: 700; }
@@ -360,8 +361,22 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .chat-input-row { padding: 9px 12px; display: flex; gap: 9px; align-items: center; }
 .chat-input { flex: 1; padding: 12px 16px; border-radius: 22px; border: none; background: #2c2c2e; color: white; outline: none; font-size: 1rem; font-family: 'Cairo', sans-serif; }
 .chat-input::placeholder { color: #666; }
-.chat-send-btn { background: var(--game-purple); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; transition: 0.2s; }
+/* زر الإرسال — مخفي افتراضياً، يظهر فقط عند الكتابة */
+.chat-send-btn { background: var(--game-purple); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; display: none; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; font-size: 1.1rem; transition: 0.2s; }
+.chat-send-btn.visible { display: flex; }
 .chat-send-btn:active { transform: scale(0.9); }
+/* زر الستيكر — يظهر عندما لا يوجد نص */
+.chat-sticker-btn { background: rgba(135,116,225,0.15); border: 1.5px solid rgba(135,116,225,0.35); color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; font-size: 1.25rem; transition: 0.2s; }
+.chat-sticker-btn:active { transform: scale(0.9); background: rgba(135,116,225,0.3); }
+/* بانيل الستيكرات */
+.sticker-panel { position: absolute; bottom: 100%; left: 0; right: 0; background: #1c1c1e; border-top: 1px solid #3a3a3c; border-radius: 18px 18px 0 0; z-index: 60; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94); padding: 10px 12px 16px; max-height: 220px; overflow-y: auto; pointer-events: none; opacity: 0; }
+.sticker-panel.open { transform: translateY(0); pointer-events: all; opacity: 1; }
+.sticker-panel-handle { width: 36px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 10px; }
+.sticker-panel-title { color: #a1a1aa; font-size: 0.78rem; font-weight: 700; text-align: center; margin-bottom: 10px; letter-spacing: 0.5px; }
+.sticker-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sticker-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; background: #27272a; display: flex; align-items: center; justify-content: center; font-size: 2rem; transition: 0.15s; border: 2px solid transparent; }
+.sticker-item:active { transform: scale(0.88); border-color: var(--game-purple); }
+.sticker-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== PROFILE MODAL ===== */
 .phone-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.97); z-index: 70; display: none; flex-direction: column; align-items: center; padding: 70px 20px 30px; overflow-y: auto; transform: translateY(100%); transition: 0.3s; }
@@ -718,8 +733,25 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                   </div>
                 </div>
                 <div class="chat-input-row">
-                  <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+                  <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">➤</button>
                   <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off">
+                  <button class="chat-sticker-btn" id="chatStickerBtn" onclick="toggleStickerPanel()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/><path d="M15 2.5 Q19 2.5 21.5 5 L21.5 9 Q18 9 15 12 L15 2.5Z" fill="currentColor" stroke="none" opacity="0.35"/></svg></button>
+                </div>
+                <!-- بانيل الستيكرات -->
+                <div class="sticker-panel" id="stickerPanel">
+                  <div class="sticker-panel-handle"></div>
+                  <div class="sticker-panel-title">الستيكرات</div>
+                  <div class="sticker-grid" id="stickerGrid">
+                    <!-- ستيكرات إيموجي مؤقتة - ستُستبدل بالصور لاحقاً -->
+                    <div class="sticker-item" onclick="sendSticker('😂')">😂</div>
+                    <div class="sticker-item" onclick="sendSticker('🔥')">🔥</div>
+                    <div class="sticker-item" onclick="sendSticker('😏')">😏</div>
+                    <div class="sticker-item" onclick="sendSticker('🤫')">🤫</div>
+                    <div class="sticker-item" onclick="sendSticker('👀')">👀</div>
+                    <div class="sticker-item" onclick="sendSticker('💀')">💀</div>
+                    <div class="sticker-item" onclick="sendSticker('😈')">😈</div>
+                    <div class="sticker-item" onclick="sendSticker('🎭')">🎭</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1132,11 +1164,14 @@ onValue(chatRef, snap => {
         ${!isMine ? `<div class="msg-avatar ${avatarClass}" onclick="openProfile('${msg.senderId}')"><img src="${avatarUrl}"></div>` : ''}
         <div class="msg-content-box">
           ${nameHtml}
-          <div class="msg-text">
-            ${groupLineHtml}
-            ${replyHtml}
-            ${msg.text}
-          </div>
+          ${msg.isSticker
+            ? `<div class="msg-sticker">${msg.text}</div>`
+            : `<div class="msg-text">
+                ${groupLineHtml}
+                ${replyHtml}
+                ${msg.text}
+              </div>`
+          }
           <div class="msg-time">${timeStr}</div>
         </div>
       </div>
@@ -1505,12 +1540,56 @@ function appendPendingMsg(msgData) {
   const div = document.createElement('div');
   div.className = 'msg-wrapper mine grouped msg-pending';
   div.id = 'pending_' + msgData.time;
-  div.innerHTML = `<div class="msg-bubble"><div class="msg-content-box" style="align-items:flex-end;"><div class="msg-text" style="background:var(--game-purple);border-radius:16px 4px 16px 16px;">${msgData.text}</div><div class="msg-time">${timeStr} ⏳</div></div></div>`;
+  const content = msgData.isSticker
+    ? `<div class="msg-sticker">${msgData.text}</div>`
+    : `<div class="msg-text" style="background:var(--game-purple);border-radius:16px 4px 16px 16px;">${msgData.text}</div>`;
+  div.innerHTML = `<div class="msg-bubble"><div class="msg-content-box" style="align-items:flex-end;">${content}<div class="msg-time">${timeStr} ⏳</div></div></div>`;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 document.getElementById('msgInput').addEventListener('keypress', e => { if(e.key==='Enter') sendMessage(); });
+
+// ===== إظهار/إخفاء زر الإرسال حسب المحتوى =====
+document.getElementById('msgInput').addEventListener('input', () => {
+  const hasText = document.getElementById('msgInput').value.trim().length > 0;
+  document.getElementById('chatSendBtn').classList.toggle('visible', hasText);
+  document.getElementById('chatStickerBtn').style.display = hasText ? 'none' : 'flex';
+});
+
+// ===== بانيل الستيكرات =====
+window.toggleStickerPanel = () => {
+  const panel = document.getElementById('stickerPanel');
+  panel.classList.toggle('open');
+};
+
+// إغلاق البانيل عند الضغط خارجه
+document.getElementById('chat-app-view')?.addEventListener('click', e => {
+  const panel = document.getElementById('stickerPanel');
+  if (panel.classList.contains('open') &&
+      !e.target.closest('#stickerPanel') &&
+      !e.target.closest('#chatStickerBtn')) {
+    panel.classList.remove('open');
+  }
+});
+
+window.sendSticker = async (stickerContent) => {
+  document.getElementById('stickerPanel').classList.remove('open');
+  const p = profiles[myId];
+  if (!p) return;
+  const msgData = {
+    senderId: myId,
+    text: stickerContent,
+    isSticker: true,
+    time: Date.now(),
+    fakeName: p.fakeName,
+    avatarId: p.avatarId,
+  };
+  if (replyingToMsgId) msgData.replyTo = replyingToMsgId;
+  appendPendingMsg(msgData);
+  await push(chatRef, msgData);
+  cancelReply();
+};
 
 // === VOTING LOGIC ===
 function populateVotingSelects() {

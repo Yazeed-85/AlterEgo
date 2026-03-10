@@ -2134,6 +2134,24 @@ function showToast(msg) {
   scaleIphone();
   window.addEventListener('resize', scaleIphone);
 
+  // ===== القاعدة الأساسية: أي لمسة فوق الأيفون = للأيفون فقط =====
+  // نستمع على document بـ capture=true لنكون أول من يرى الحدث
+  document.addEventListener('touchstart', (e) => {
+    const iphoneEl = document.getElementById('iphone-container');
+    if (!iphoneEl) return;
+    const rect = iphoneEl.getBoundingClientRect();
+    const t = e.touches[0];
+    // هل اللمسة داخل مساحة الأيفون؟
+    const insideIphone = (
+      t.clientX >= rect.left && t.clientX <= rect.right &&
+      t.clientY >= rect.top  && t.clientY <= rect.bottom
+    );
+    if (insideIphone) {
+      // امنع الصفحة من التمرير - اللمسة للأيفون فقط
+      e.preventDefault();
+    }
+  }, { passive: false, capture: true });
+
   // ===== إصلاح مشكلة الكيبورد على الجوال =====
   document.addEventListener('focusin', (e) => {
     if (window.innerWidth > 900) return;
@@ -2145,11 +2163,7 @@ function showToast(msg) {
     }
   });
 
-  // ===== السحب من status-bar فقط =====
-  // الفكرة: status-bar (أعلى الأيفون) يعترض السحب
-  // يمين → مركز التحكم ، يسار → مركز الإشعارات
-  // باقي الأيفون حر تماماً (سكرول شات، ضغطات، إلخ)
-
+  // ===== السحب من status-bar: يمين=مركز التحكم، يسار=مركز الإشعارات =====
   const statusBar = document.getElementById('status-bar');
   if (!statusBar) return;
 
@@ -2159,54 +2173,35 @@ function showToast(msg) {
     sbStartY = e.touches[0].clientY;
     sbStartX = e.touches[0].clientX;
     sbTracking = true;
-    // نمنع الصفحة من التمرير فقط عند البدء من status-bar
-    e.preventDefault();
-  }, { passive: false });
-
-  statusBar.addEventListener('touchmove', (e) => {
-    if (!sbTracking) return;
-    e.preventDefault(); // نمنع الصفحة من التمرير
-  }, { passive: false });
+  }, { passive: true });
 
   statusBar.addEventListener('touchend', (e) => {
     if (!sbTracking) return;
     sbTracking = false;
-
     const dy = e.changedTouches[0].clientY - sbStartY;
     const dx = e.changedTouches[0].clientX - sbStartX;
-
-    // يجب أن يكون سحب للأسفل وليس أفقي
+    // سحب للأسفل بزاوية رأسية
     if (dy < 40 || Math.abs(dx) > dy * 0.9) return;
-
-    // نحدد الجانب بناءً على موضع X داخل الأيفون
     const iphoneRect = document.getElementById('iphone-container').getBoundingClientRect();
     const relX = sbStartX - iphoneRect.left;
     const iphoneW = iphoneRect.width;
-
     if (relX > iphoneW * 0.55) {
-      // يمين → مركز التحكم
       openControlCenter();
     } else {
-      // يسار → مركز الإشعارات
       openNotifCenter();
     }
   }, { passive: true });
 
   function openNotifCenter() {
     const nc = document.getElementById('notification-center');
-    if (nc) {
-      nc.classList.add('show');
-      iphoneState.currentView = 'notif-center';
-    }
+    if (nc) { nc.classList.add('show'); iphoneState.currentView = 'notif-center'; }
   }
 
   function openControlCenter() {
     const cc = document.getElementById('control-center');
-    if (cc) {
-      cc.classList.add('show');
-      iphoneState.currentView = 'control-center';
-    }
+    if (cc) { cc.classList.add('show'); iphoneState.currentView = 'control-center'; }
   }
+})();
 })();
 
 // === PHOTOS APP ===

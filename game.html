@@ -353,6 +353,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== CHAT BOTTOM ===== */
 .chat-bottom-wrapper { background: #1c1c1e; border-top: 1px solid #2c2c2e; display: flex; flex-direction: column; z-index: 2; padding-bottom: 20px; position: relative; }
+@media (max-width: 900px) { .chat-bottom-wrapper { display: none !important; } }
 .reply-preview-bar { display: none; background: #1a1a1c; padding: 10px 14px; border-right: 3px solid var(--game-purple); align-items: center; justify-content: space-between; gap: 10px; }
 .reply-preview-info { display: flex; flex-direction: column; overflow: hidden; text-align: right; flex: 1; }
 .reply-preview-name { color: var(--game-purple); font-size: 0.82rem; font-weight: 700; }
@@ -994,6 +995,21 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
         <!-- كيبورد وهمي iOS - داخل الأيفون، جوال فقط -->
         <div id="fake-keyboard">
+          <!-- مقبض السحب للإغلاق -->
+          <div id="fk-drag-handle" style="width:100%;display:flex;justify-content:center;padding:6px 0 2px;cursor:grab;touch-action:none;">
+            <div style="width:36px;height:4px;background:#555;border-radius:2px;"></div>
+          </div>
+          <!-- بار الرد (يظهر عند الرد على رسالة) -->
+          <div id="fkReplyBar" style="display:none;background:#1c1c1e;border-right:3px solid var(--game-purple);padding:7px 12px;direction:rtl;font-size:0.8rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <span id="fkReplyName" style="color:var(--game-purple);font-weight:700;"></span>
+                <div id="fkReplyText" style="color:#aaa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;"></div>
+              </div>
+              <button onclick="cancelReply()" style="background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>
+            </div>
+          </div>
+          <!-- صف الإدخال -->
           <div class="fk-input-row">
             <button class="fk-sticker-btn" id="fkStickerBtn" onclick="fkOpenSticker()">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
@@ -1639,11 +1655,24 @@ function prepareReply(msgId, text, name) {
   document.getElementById('replyName').innerText = name;
   document.getElementById('replyText').innerText = text;
   document.getElementById('replyPreviewBar').style.display = 'flex';
-  document.getElementById('msgInput').focus();
+  // جوال: أظهر في الكيبورد الوهمي
+  if (window.innerWidth <= 900) {
+    const rb = document.getElementById('fkReplyBar');
+    if (rb) {
+      document.getElementById('fkReplyName').innerText = name;
+      document.getElementById('fkReplyText').innerText = text;
+      rb.style.display = 'block';
+    }
+    if (typeof openFakeKeyboard === 'function') openFakeKeyboard();
+  } else {
+    document.getElementById('msgInput').focus();
+  }
 }
 window.cancelReply = () => {
   replyingToMsgId = null;
   document.getElementById('replyPreviewBar').style.display = 'none';
+  const rb = document.getElementById('fkReplyBar');
+  if (rb) rb.style.display = 'none';
 };
 
 window.sendMessage = async () => {
@@ -2433,43 +2462,50 @@ function showToast(msg) {
   const chatView   = document.getElementById('chat-app-view');
   const chatBox    = document.getElementById('chatBox');
 
-  // احسب ارتفاع الكيبورد وخزّنه للـ CSS
+  // منع كيبورد الجهاز الحقيقي نهائياً
+  realInput.setAttribute('readonly', 'readonly');
+  realInput.setAttribute('inputmode', 'none');
+
   function updateHeight() {
     const h = fkKeyboard.offsetHeight;
     if (h > 0) chatView.style.setProperty('--fk-height', h + 'px');
   }
 
-  function openFakeKeyboard() {
+  window.openFakeKeyboard = function() {
     fkKeyboard.classList.add('open');
     chatView.classList.add('kb-open');
     requestAnimationFrame(() => {
       updateHeight();
-      // اسكرول الرسائل للأسفل بعد الانتقال
       setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 320);
     });
     renderDisplay();
-  }
-
-  window.closeFakeKeyboard = () => {
-    fkKeyboard.classList.remove('open');
-    chatView.classList.remove('kb-open');
   };
 
-  // الضغط على مربع الكتابة → كيبورد وهمي
-  realInput.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    openFakeKeyboard();
-  }, { passive: false });
+  window.closeFakeKeyboard = function() {
+    fkKeyboard.classList.remove('open');
+    chatView.classList.remove('kb-open');
+    fkKeyboard.style.transform = '';
+  };
 
-  // الضغط على صف الإدخال (خارج الأزرار)
-  const inputRow = document.querySelector('.chat-input-row');
-  if (inputRow) {
-    inputRow.addEventListener('touchstart', (e) => {
-      if (!e.target.closest('button')) {
-        e.preventDefault();
-        openFakeKeyboard();
-      }
-    }, { passive: false });
+  // السحب للأسفل لإغلاق الكيبورد
+  const handle = document.getElementById('fk-drag-handle');
+  if (handle) {
+    let dragStartY = 0, dragging = false;
+    handle.addEventListener('touchstart', (e) => {
+      dragStartY = e.touches[0].clientY; dragging = true;
+    }, { passive: true });
+    handle.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const dy = e.touches[0].clientY - dragStartY;
+      if (dy > 0) { fkKeyboard.style.transform = `translateY(${dy}px)`; fkKeyboard.style.transition = 'none'; }
+    }, { passive: true });
+    handle.addEventListener('touchend', (e) => {
+      if (!dragging) return; dragging = false;
+      fkKeyboard.style.transition = '';
+      const dy = e.changedTouches[0].clientY - dragStartY;
+      if (dy > 60) { fkKeyboard.style.transform = ''; window.closeFakeKeyboard(); }
+      else { fkKeyboard.style.transform = ''; }
+    }, { passive: true });
   }
 
   function escape(s) {
@@ -2478,27 +2514,16 @@ function showToast(msg) {
 
   function renderDisplay() {
     const d = document.getElementById('fkDisplay');
-    const hasText = fkText.length > 0;
-    d.innerHTML = hasText
+    d.innerHTML = fkText.length > 0
       ? escape(fkText) + '<span class="fk-cursor"></span>'
       : '<span class="fk-placeholder">رسالة...</span><span class="fk-cursor"></span>';
-    // زر الإرسال
     document.getElementById('fkSendBtn').classList.toggle('show', fkText.trim().length > 0);
-    // مزامنة الـ input الحقيقي
     realInput.value = fkText;
     updateChatInputBtns();
   }
 
-  window.fkType = (char) => {
-    fkText += char;
-    renderDisplay();
-  };
-
-  window.fkDelete = () => {
-    fkText = [...fkText].slice(0, -1).join('');
-    renderDisplay();
-  };
-
+  window.fkType = (char) => { fkText += char; renderDisplay(); };
+  window.fkDelete = () => { fkText = [...fkText].slice(0,-1).join(''); renderDisplay(); };
   window.fkTogglePage = () => {
     const arActive = document.getElementById('fkPageAr').classList.contains('active');
     document.getElementById('fkPageAr').classList.toggle('active', !arActive);
@@ -2508,13 +2533,11 @@ function showToast(msg) {
   window.fkSend = async () => {
     const text = fkText.trim();
     if (!text) return;
-    // ضع النص في الـ input الحقيقي ثم أرسل
     realInput.value = text;
     fkText = '';
     renderDisplay();
     window.closeFakeKeyboard();
     await sendMessage();
-    // سكرول للأسفل بعد الإرسال
     setTimeout(() => { chatBox.scrollTop = chatBox.scrollHeight; }, 100);
   };
 
@@ -2523,7 +2546,6 @@ function showToast(msg) {
     toggleStickerPanel();
   };
 
-  // إغلاق الكيبورد عند إرسال ستيكر
   const _orig = window.sendSticker;
   window.sendSticker = async (s) => {
     window.closeFakeKeyboard();

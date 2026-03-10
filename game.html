@@ -409,78 +409,118 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 /* ===== كيبورد وهمي داخل الأيفون (جوال فقط) ===== */
 #fake-keyboard {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 80;
-  background: #1a1a1c;
+  background: #000;
   transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+  transition: transform 0.28s cubic-bezier(0.25,0.46,0.45,0.94);
   user-select: none; -webkit-user-select: none;
-  border-radius: 10px 10px 0 0;
+  border-radius: 12px 12px 0 0;
   overflow: hidden;
-  padding-bottom: max(env(safe-area-inset-bottom, 20px), 28px);
-  /* مخفي دائماً على الكمبيوتر */
   display: none;
 }
-/* على الجوال فقط يظهر عند الفتح */
 @media (max-width: 900px) {
   #fake-keyboard { display: block; transform: translateY(100%); }
   #fake-keyboard.open { transform: translateY(0); }
 }
+#fk-drag-handle {
+  width: 100%; display: flex; justify-content: center;
+  padding: 8px 0 4px; background: #000; touch-action: none;
+}
+.fk-handle-bar { width: 36px; height: 4px; background: #444; border-radius: 2px; }
+#fkReplyBar {
+  display: none; background: #1c1c1e;
+  border-right: 3px solid var(--game-purple);
+  padding: 7px 12px; direction: rtl; font-size: 0.8rem;
+}
+.fkrb-inner { display: flex; justify-content: space-between; align-items: center; }
+#fkReplyName { color: var(--game-purple); font-weight: 700; }
+#fkReplyText { color: #aaa; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+#fkReplyBar button { background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer; padding: 0 4px; }
+
+/* صف الاقتراحات */
+.fk-suggestions {
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 10px 0 8px; direction: rtl;
+  border-bottom: 1px solid #2a2a2a; margin-bottom: 6px;
+  font-size: 0.95rem; color: #ccc;
+}
+.fk-sep { width: 1px; height: 22px; background: #444; }
+
+/* صفحات الكيبورد */
+.fk-page { display: none; padding: 0 3px 6px; }
+.fk-page.active { display: block; }
+
+/* صفوف المفاتيح */
+.fk-row {
+  display: flex; gap: 5px; margin-bottom: 5px;
+  justify-content: center; direction: rtl;
+  padding: 0 3px;
+}
+
+/* المفتاح الأساسي - حجم iOS */
+.fk-k {
+  flex: 1;
+  height: 44px;
+  background: #3a3a3c;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.15rem;
+  font-family: 'Cairo', 'Helvetica Neue', sans-serif;
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1.5px 0 #000;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 0;
+}
+.fk-k:active { background: #636366; transform: scale(0.94); }
+
+/* المفاتيح الداكنة (١٢٣، ⌫، ابج، #+=) */
+.fk-dark { background: #1c1c1e !important; }
+.fk-dark:active { background: #3a3a3c !important; }
+
+/* زر الحذف */
+.fk-del { font-size: 1.3rem; }
+
+/* زر المسافة */
+.fk-space {
+  flex: 4 !important;
+  background: #3a3a3c !important;
+  position: relative;
+}
+.fk-space-label {
+  color: #666; font-size: 0.85rem; position: absolute; bottom: 5px; right: 10px;
+}
+
+/* أزرار عريضة: ١٢٣، ابج */
+.fk-wide { flex: 1.6 !important; font-size: 0.88rem !important; }
+.fk-wide2 { flex: 1.6 !important; font-size: 0.82rem !important; }
+
+/* زر الإيموجي */
+.fk-emoji { flex: 1.2 !important; font-size: 1.3rem !important; }
+
+/* زر الإرجاع / الإرسال */
+.fk-return {
+  flex: 1.6 !important;
+  background: #1c1c1e !important;
+  font-size: 1.2rem !important;
+  color: #ccc;
+}
+.fk-return:active { background: #3a3a3c !important; }
+
+/* الصف السفلي */
+.fk-bottom-row {
+  padding-bottom: max(env(safe-area-inset-bottom, 12px), 18px) !important;
+  margin-bottom: 0 !important;
+}
 
 /* عند فتح الكيبورد تُرفع منطقة الرسائل */
-#chat-app-view.kb-open .chat-messages {
-  padding-bottom: 8px;
-}
-#chat-app-view.kb-open {
-  padding-bottom: var(--fk-height, 280px);
-  transition: padding-bottom 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
-}
+#chat-app-view.kb-open { padding-bottom: var(--fk-height, 300px); transition: padding-bottom 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
 
-/* صف مربع الكتابة */
-.fk-input-row {
-  display: flex; align-items: center; gap: 6px;
-  padding: 8px 10px 6px; direction: rtl;
-  background: #1a1a1c;
-}
-.fk-text-display {
-  flex: 1; background: #2c2c2e; border-radius: 20px;
-  padding: 8px 14px; color: white; font-size: 1rem;
-  font-family: 'Cairo', sans-serif; min-height: 36px;
-  text-align: right; direction: rtl; word-break: break-all;
-  line-height: 1.4;
-}
+/* صف مربع الكتابة - للـ desktop */
+.fk-input-row { display: flex; align-items: center; gap: 6px; padding: 8px 10px 6px; direction: rtl; background: #1a1a1c; }
+.fk-text-display { flex: 1; background: #2c2c2e; border-radius: 20px; padding: 8px 14px; color: white; font-size: 1rem; font-family: 'Cairo', sans-serif; min-height: 36px; text-align: right; direction: rtl; word-break: break-all; line-height: 1.4; }
 .fk-placeholder { color: #555; }
 .fk-cursor { display: inline-block; width: 2px; height: 1.1em; background: white; animation: fkBlink 1s infinite; vertical-align: text-bottom; margin-right: 1px; border-radius: 1px; }
 @keyframes fkBlink { 0%,100%{opacity:1;} 50%{opacity:0;} }
-.fk-send-btn { background: #0a84ff; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: none; flex-shrink: 0; align-items: center; justify-content: center; }
-.fk-send-btn.show { display: flex; }
-.fk-sticker-btn { background: none; border: none; color: #888; width: 36px; height: 36px; font-size: 1.3rem; cursor: pointer; display: flex; flex-shrink: 0; align-items: center; justify-content: center; }
-
-/* صفحات الكيبورد */
-.fk-page { display: none; padding: 4px 3px 6px; }
-.fk-page.active { display: block; }
-.fk-row { display: flex; gap: 4px; margin-bottom: 4px; justify-content: center; direction: rtl; }
-
-/* المفاتيح الرئيسية */
-.fk-k {
-  flex: 1; height: 42px; max-width: 34px;
-  background: #3a3a3c; border-radius: 8px;
-  color: white; font-size: 1.05rem; font-family: 'Cairo', sans-serif;
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 1px 0 #000; -webkit-tap-highlight-color: transparent;
-  transition: background 0.07s;
-}
-.fk-k:active { background: #636366; }
-.fk-k.dark  { background: #1c1c1e; max-width: 42px; flex: 1.3; font-size: 0.85rem; }
-.fk-k.dark:active { background: #3a3a3c; }
-.fk-k.space { max-width: 180px; flex: 5; font-size: 0.85rem; }
-.fk-k.blue  { background: #0a84ff; max-width: 60px; flex: 1.8; }
-.fk-k.blue:active { background: #0060cc; }
-.fk-k.del   { font-size: 1.2rem; }
-
-/* الصف السفلي */
-.fk-bottom { display: flex; gap: 4px; padding: 0 3px 14px; direction: rtl; justify-content: center; }
-.fk-pages-num .fk-k { max-width: 32px; font-size: 1rem; }
-.fk-pages-num .fk-row { direction: ltr; }
 .sticker-panel.open { transform: translateY(0); pointer-events: all; opacity: 1; }
 .sticker-panel-handle { width: 36px; height: 4px; background: #444; border-radius: 2px; margin: 0 auto 10px; }
 .sticker-panel-title { color: #a1a1aa; font-size: 0.78rem; font-weight: 700; text-align: center; margin-bottom: 10px; letter-spacing: 0.5px; }
@@ -1048,54 +1088,122 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
         <!-- كيبورد وهمي iOS - داخل الأيفون، جوال فقط -->
         <div id="fake-keyboard">
-          <!-- مقبض السحب للإغلاق -->
-          <div id="fk-drag-handle" style="width:100%;display:flex;justify-content:center;padding:6px 0 2px;cursor:grab;touch-action:none;">
-            <div style="width:36px;height:4px;background:#555;border-radius:2px;"></div>
-          </div>
-          <!-- بار الرد (يظهر عند الرد على رسالة) -->
-          <div id="fkReplyBar" style="display:none;background:#1c1c1e;border-right:3px solid var(--game-purple);padding:7px 12px;direction:rtl;font-size:0.8rem;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <span id="fkReplyName" style="color:var(--game-purple);font-weight:700;"></span>
-                <div id="fkReplyText" style="color:#aaa;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;"></div>
-              </div>
-              <button onclick="cancelReply()" style="background:none;border:none;color:#888;font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>
+          <!-- مقبض السحب -->
+          <div id="fk-drag-handle"><div class="fk-handle-bar"></div></div>
+          <!-- بار الرد -->
+          <div id="fkReplyBar">
+            <div class="fkrb-inner">
+              <div><span id="fkReplyName"></span><div id="fkReplyText"></div></div>
+              <button onclick="cancelReply()">✕</button>
             </div>
           </div>
-          <!-- حروف عربية -->
+
+          <!-- ===== صفحة الحروف العربية ===== -->
           <div class="fk-page active" id="fkPageAr">
-            <div class="fk-row">
-              <button class="fk-k" onclick="fkType('ض')">ض</button><button class="fk-k" onclick="fkType('ص')">ص</button><button class="fk-k" onclick="fkType('ث')">ث</button><button class="fk-k" onclick="fkType('ق')">ق</button><button class="fk-k" onclick="fkType('ف')">ف</button><button class="fk-k" onclick="fkType('غ')">غ</button><button class="fk-k" onclick="fkType('ع')">ع</button><button class="fk-k" onclick="fkType('ه')">ه</button><button class="fk-k" onclick="fkType('خ')">خ</button><button class="fk-k" onclick="fkType('ح')">ح</button><button class="fk-k" onclick="fkType('ج')">ج</button>
+            <!-- صف الاقتراحات -->
+            <div class="fk-suggestions">
+              <span>يا</span><span class="fk-sep"></span><span>أنا</span><span class="fk-sep"></span><span>ما</span>
             </div>
+            <!-- الصف الأول: ج ح خ ه ع غ ف ق ث ص ض -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('ة')">ة</button><button class="fk-k" onclick="fkType('ك')">ك</button><button class="fk-k" onclick="fkType('م')">م</button><button class="fk-k" onclick="fkType('ن')">ن</button><button class="fk-k" onclick="fkType('ت')">ت</button><button class="fk-k" onclick="fkType('ا')">ا</button><button class="fk-k" onclick="fkType('ل')">ل</button><button class="fk-k" onclick="fkType('ب')">ب</button><button class="fk-k" onclick="fkType('ي')">ي</button><button class="fk-k" onclick="fkType('س')">س</button><button class="fk-k" onclick="fkType('ش')">ش</button>
+              <button class="fk-k" onclick="fkType('ج')">ج</button>
+              <button class="fk-k" onclick="fkType('ح')">ح</button>
+              <button class="fk-k" onclick="fkType('خ')">خ</button>
+              <button class="fk-k" onclick="fkType('ه')">ه</button>
+              <button class="fk-k" onclick="fkType('ع')">ع</button>
+              <button class="fk-k" onclick="fkType('غ')">غ</button>
+              <button class="fk-k" onclick="fkType('ف')">ف</button>
+              <button class="fk-k" onclick="fkType('ق')">ق</button>
+              <button class="fk-k" onclick="fkType('ث')">ث</button>
+              <button class="fk-k" onclick="fkType('ص')">ص</button>
+              <button class="fk-k" onclick="fkType('ض')">ض</button>
             </div>
+            <!-- الصف الثاني: ة ك م ن ت ا ل ب ي س ش -->
             <div class="fk-row">
-              <button class="fk-k dark del" onclick="fkDelete()">⌫</button><button class="fk-k" onclick="fkType('ء')">ء</button><button class="fk-k" onclick="fkType('ظ')">ظ</button><button class="fk-k" onclick="fkType('ط')">ط</button><button class="fk-k" onclick="fkType('ذ')">ذ</button><button class="fk-k" onclick="fkType('د')">د</button><button class="fk-k" onclick="fkType('ز')">ز</button><button class="fk-k" onclick="fkType('ر')">ر</button><button class="fk-k" onclick="fkType('و')">و</button><button class="fk-k" onclick="fkType('ى')">ى</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+              <button class="fk-k" onclick="fkType('ة')">ة</button>
+              <button class="fk-k" onclick="fkType('ك')">ك</button>
+              <button class="fk-k" onclick="fkType('م')">م</button>
+              <button class="fk-k" onclick="fkType('ن')">ن</button>
+              <button class="fk-k" onclick="fkType('ت')">ت</button>
+              <button class="fk-k" onclick="fkType('ا')">ا</button>
+              <button class="fk-k" onclick="fkType('ل')">ل</button>
+              <button class="fk-k" onclick="fkType('ب')">ب</button>
+              <button class="fk-k" onclick="fkType('ي')">ي</button>
+              <button class="fk-k" onclick="fkType('س')">س</button>
+              <button class="fk-k" onclick="fkType('ش')">ش</button>
             </div>
-            <div class="fk-bottom">
-              <button class="fk-k dark" onclick="fkTogglePage()">١٢٣</button>
-              <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
-              <button class="fk-k dark" onclick="fkType('،')">،</button>
-              <button class="fk-k blue" onclick="fkSend()">↑</button>
+            <!-- الصف الثالث: ⌫ ى و ر ز د ذ ط ظ ء ⌫ -->
+            <div class="fk-row">
+              <button class="fk-k fk-dark fk-del" onclick="fkDelete()">⌫</button>
+              <button class="fk-k" onclick="fkType('ى')">ى</button>
+              <button class="fk-k" onclick="fkType('و')">و</button>
+              <button class="fk-k" onclick="fkType('ر')">ر</button>
+              <button class="fk-k" onclick="fkType('ز')">ز</button>
+              <button class="fk-k" onclick="fkType('د')">د</button>
+              <button class="fk-k" onclick="fkType('ذ')">ذ</button>
+              <button class="fk-k" onclick="fkType('ط')">ط</button>
+              <button class="fk-k" onclick="fkType('ظ')">ظ</button>
+              <button class="fk-k" onclick="fkType('ء')">ء</button>
+              <button class="fk-k fk-dark fk-del" onclick="fkDelete()">⌫</button>
+            </div>
+            <!-- الصف السفلي: ١٢٣ | 😊 | مسافة | ع. | ↵ -->
+            <div class="fk-row fk-bottom-row">
+              <button class="fk-k fk-dark fk-wide" onclick="fkTogglePage()">١٢٣</button>
+              <button class="fk-k fk-dark fk-emoji">😊</button>
+              <button class="fk-k fk-space" onclick="fkType(' ')"><span class="fk-space-label">ع</span></button>
+              <button class="fk-k fk-dark fk-wide" onclick="fkType('.')">.</button>
+              <button class="fk-k fk-return" onclick="fkSend()">↵</button>
             </div>
           </div>
-          <!-- أرقام -->
+
+          <!-- ===== صفحة الأرقام ===== -->
           <div class="fk-page" id="fkPageNum">
-            <div class="fk-row">
-              <button class="fk-k" onclick="fkType('1')">1</button><button class="fk-k" onclick="fkType('2')">2</button><button class="fk-k" onclick="fkType('3')">3</button><button class="fk-k" onclick="fkType('4')">4</button><button class="fk-k" onclick="fkType('5')">5</button><button class="fk-k" onclick="fkType('6')">6</button><button class="fk-k" onclick="fkType('7')">7</button><button class="fk-k" onclick="fkType('8')">8</button><button class="fk-k" onclick="fkType('9')">9</button><button class="fk-k" onclick="fkType('0')">0</button>
+            <!-- صف الاقتراحات -->
+            <div class="fk-suggestions">
+              <span>يا</span><span class="fk-sep"></span><span>أنا</span><span class="fk-sep"></span><span>ما</span>
             </div>
+            <!-- الصف الأول: ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٠ -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('-')">-</button><button class="fk-k" onclick="fkType('/')">/</button><button class="fk-k" onclick="fkType(':')">:</button><button class="fk-k" onclick="fkType(';')">;</button><button class="fk-k" onclick="fkType('(')">(</button><button class="fk-k" onclick="fkType(')')">)</button><button class="fk-k" onclick="fkType('$')">$</button><button class="fk-k" onclick="fkType('&')">&amp;</button><button class="fk-k" onclick="fkType('@')">@</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+              <button class="fk-k" onclick="fkType('١')">١</button>
+              <button class="fk-k" onclick="fkType('٢')">٢</button>
+              <button class="fk-k" onclick="fkType('٣')">٣</button>
+              <button class="fk-k" onclick="fkType('٤')">٤</button>
+              <button class="fk-k" onclick="fkType('٥')">٥</button>
+              <button class="fk-k" onclick="fkType('٦')">٦</button>
+              <button class="fk-k" onclick="fkType('٧')">٧</button>
+              <button class="fk-k" onclick="fkType('٨')">٨</button>
+              <button class="fk-k" onclick="fkType('٩')">٩</button>
+              <button class="fk-k" onclick="fkType('٠')">٠</button>
             </div>
+            <!-- الصف الثاني: - / : ؛ ( ) $ & @ " -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('.')">.</button><button class="fk-k" onclick="fkType(',')">,</button><button class="fk-k" onclick="fkType('?')">?</button><button class="fk-k" onclick="fkType('!')">!</button><button class="fk-k" onclick="fkType(&quot;'&quot;)">'</button><button class="fk-k" onclick="fkType('_')">_</button><button class="fk-k" onclick="fkType('%')">%</button><button class="fk-k" onclick="fkType('+')">+</button><button class="fk-k" onclick="fkType('=')">=</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+              <button class="fk-k" onclick="fkType('-')">-</button>
+              <button class="fk-k" onclick="fkType('/')">/</button>
+              <button class="fk-k" onclick="fkType(':')">:</button>
+              <button class="fk-k" onclick="fkType('؛')">؛</button>
+              <button class="fk-k" onclick="fkType('(')">(</button>
+              <button class="fk-k" onclick="fkType(')')">)</button>
+              <button class="fk-k" onclick="fkType('$')">$</button>
+              <button class="fk-k" onclick="fkType('&')">&amp;</button>
+              <button class="fk-k" onclick="fkType('@')">@</button>
+              <button class="fk-k" onclick="fkType('&quot;')">"</button>
             </div>
-            <div class="fk-bottom">
-              <button class="fk-k dark" onclick="fkTogglePage()">ع</button>
-              <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
-              <button class="fk-k dark" onclick="fkType('.')">.</button>
-              <button class="fk-k blue" onclick="fkSend()">↑</button>
+            <!-- الصف الثالث: #+= . ، ؟ ! ' ⌫ -->
+            <div class="fk-row">
+              <button class="fk-k fk-dark fk-wide2" onclick="fkToggleSymbols()">#+=</button>
+              <button class="fk-k" onclick="fkType('.')">.</button>
+              <button class="fk-k" onclick="fkType('،')">،</button>
+              <button class="fk-k" onclick="fkType('؟')">؟</button>
+              <button class="fk-k" onclick="fkType('!')">!</button>
+              <button class="fk-k" onclick="fkType(&quot;'&quot;)">'</button>
+              <button class="fk-k fk-dark fk-del" onclick="fkDelete()">⌫</button>
+            </div>
+            <!-- الصف السفلي: ابج | 😊 | مسافة | ↵ -->
+            <div class="fk-row fk-bottom-row">
+              <button class="fk-k fk-dark fk-wide" onclick="fkTogglePage()">ابج</button>
+              <button class="fk-k fk-dark fk-emoji">😊</button>
+              <button class="fk-k fk-space" onclick="fkType(' ')"><span class="fk-space-label">ع</span></button>
+              <button class="fk-k fk-return" onclick="fkSend()">↵</button>
             </div>
           </div>
         </div>
@@ -2587,6 +2695,10 @@ function showToast(msg) {
     const arActive = document.getElementById('fkPageAr').classList.contains('active');
     document.getElementById('fkPageAr').classList.toggle('active', !arActive);
     document.getElementById('fkPageNum').classList.toggle('active', arActive);
+  };
+
+  window.fkToggleSymbols = () => {
+    // للتبسيط: نبقى في صفحة الأرقام (يمكن توسيعها لاحقاً)
   };
 
   window.fkSend = async () => {

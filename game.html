@@ -2614,6 +2614,17 @@ function showToast(msg) {
   };
 })();
 
+// زر الستيكر - listener مباشر يتجاوز أي منع
+(function() {
+  const btn = document.getElementById('mob-sticker-btn');
+  if (!btn) return;
+  btn.addEventListener('touchstart', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (window.fkOpenSticker) window.fkOpenSticker();
+  }, { passive: false, capture: true });
+})();
+
 // === PHOTOS APP ===
 window.openPhotoViewer = (src) => {
   const viewer = document.getElementById('photo-viewer');

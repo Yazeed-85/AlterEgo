@@ -52,10 +52,23 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .form-group label { display: block; margin-bottom: 5px; color: #a1a1aa; font-size: 0.95rem; font-weight: bold; }
 .form-input { width: 100%; padding: 14px; background: #09090b; border: 1px solid #3f3f46; border-radius: 12px; color: white; font-size: 1.1rem; outline: none; transition: 0.2s; }
 .form-input:focus { border-color: var(--game-purple); box-shadow: 0 0 0 3px rgba(135,116,225,0.2); }
-.avatars-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 20px; justify-items: center; }
+.avatars-grid { display: none; } /* مخفي - استُبدل بالكاروسيل */
 .avatar-option { width: 65px; height: 65px; background: #27272a; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; border: 3px solid transparent; transition: 0.2s; overflow: hidden; flex-shrink: 0; }
 .avatar-option img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; object-position: top center; display: block; }
 .avatar-option.selected { border-color: var(--game-purple); transform: scale(1.1); box-shadow: 0 0 20px rgba(135,116,225,0.4); }
+
+/* ===== AVATAR CAROUSEL ===== */
+.avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; user-select: none; }
+.avatar-carousel-track-outer { flex: 1; overflow: hidden; border-radius: 12px; }
+.avatar-carousel-track { display: flex; gap: 10px; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform; }
+.avatar-carousel-track .avatar-option { flex-shrink: 0; width: 62px; height: 62px; }
+.carousel-arrow { width: 34px; height: 34px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
+.carousel-arrow:hover { background: rgba(135,116,225,0.45); }
+.carousel-arrow:active { transform: scale(0.88); }
+.carousel-arrow:disabled { opacity: 0.25; cursor: default; }
+.carousel-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+.carousel-dot { width: 7px; height: 7px; border-radius: 50%; background: #3f3f46; transition: 0.2s; cursor: pointer; }
+.carousel-dot.active { background: var(--game-purple); transform: scale(1.3); }
 .btn-save { background: linear-gradient(135deg, #10b981, #047857); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3); transition: 0.2s; }
 .btn-save:active { transform: scale(0.96); }
 .ready-msg { color: #10b981; font-size: 1.2rem; font-weight: bold; text-align: center; display: none; padding: 25px; background: rgba(16,185,129,0.1); border-radius: 15px; border: 1px solid #10b981; line-height: 1.6; }
@@ -483,8 +496,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
   .btn-save { font-size: 1rem; padding: 13px; }
-  .avatars-grid { grid-template-columns: repeat(6, 1fr); gap: 6px; }
-  .avatar-option { width: 46px; height: 46px; }
+  .avatar-carousel-track .avatar-option { width: 52px; height: 52px; }
+  .carousel-arrow { width: 30px; height: 30px; font-size: 0.9rem; }
   #playerListArea { margin-top: 18px; padding: 16px 12px; }
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }
@@ -538,6 +551,14 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
       <div class="section-title">🕵️‍♂️ اصنع هويتك الوهمية</div>
       <div class="form-group">
         <label>اختر صورة لحسابك:</label>
+        <div class="avatar-carousel-wrapper" id="avatarCarouselWrapper">
+          <button class="carousel-arrow" id="carouselPrev" onclick="carouselMove(-1)">&#8250;</button>
+          <div class="avatar-carousel-track-outer">
+            <div class="avatar-carousel-track" id="avatarCarouselTrack"></div>
+          </div>
+          <button class="carousel-arrow" id="carouselNext" onclick="carouselMove(1)">&#8249;</button>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
         <div class="avatars-grid" id="avatarsGrid"></div>
       </div>
       <div class="form-group">
@@ -859,14 +880,35 @@ let iphoneState = { currentView: 'none', volume: 50, brightness: 80, isSilent: f
 let prevViewBeforePanel    = null;   // المشهد السابق قبل فتح CC/NC
 let prevViewBeforeSwitcher = null;   // المشهد السابق قبل مبدّل التطبيقات
 
-// === AVATARS ===
-// 18 أفاتار حقيقي مرفوع من المستخدم
-const AVATAR_LIST = [
+// === AVATARS CAROUSEL ===
+// الصف الأول (6 صور ثابتة في البداية)
+const AVATAR_FIRST_6 = [
+  'https://i.postimg.cc/qhqhCNPX/22download.jpg',
+  'https://i.postimg.cc/1ndg09Sg/download.jpg',
+  'https://i.postimg.cc/TL1LWKzj/download1.jpg',
+  'https://i.postimg.cc/47y7hYD6/download22.jpg',
+  'https://i.postimg.cc/5YyYFXhS/download35.jpg',
+  'https://i.postimg.cc/R6Y31Mm6/slman-khwshrw-Page-2.jpg',
+];
+// الصور الباقية تُوزَّع عشوائياً على الصفحات التالية
+const AVATAR_REST_RAW = [
+  'https://i.postimg.cc/hf6r4B7r/Images-et-photos-insolites-et-droles-659.jpg',
+  'https://i.postimg.cc/KRwNc2g0/lilies.jpg',
+  'https://i.postimg.cc/rK3JyktQ/M-O-T-H-E-R.jpg',
+  'https://i.postimg.cc/GHVQ3Csx/nexxcanflyyyyy.jpg',
+  'https://i.postimg.cc/svqcfrZY/on-Tik-Tok.jpg',
+  'https://i.postimg.cc/QHwbN3Wz/Pin-by-abid-on-%CA%BFbady-aljwhr-People-Attack-on-titan-season-Cartoon-wallpaper-iphone.jpg',
+  'https://i.postimg.cc/SJ3rQhzG/Rustin-Cohle.jpg',
+  'https://i.postimg.cc/rK3Jykt5/sasha-on-Tik-Tok.jpg',
+  'https://i.postimg.cc/hXm0f591/saudi-arabic-explore-bedouin-als%CA%BFwdyt.jpg',
+  'https://i.postimg.cc/0bFf5sJX/Troubled-man.jpg',
+  'https://i.postimg.cc/yktP6HSX/aftar.jpg',
+  'https://i.postimg.cc/NKXx5z17/khald-%CA%BFbdalrhmn.jpg',
+  'https://i.postimg.cc/WhCnpvJW/slman-khwshrw-Page-2.jpg',
   'https://i.postimg.cc/Zv9bJ31f/138133913566163230.jpg',
   'https://i.postimg.cc/Fkfrhc2T/291115563424531954.jpg',
   'https://i.postimg.cc/xNkf9HWZ/579697783327814801.jpg',
   'https://i.postimg.cc/jnWxRNG3/580964420720114298.jpg',
-  'https://i.postimg.cc/QKB8j5Rw/693061830184852546.jpg',
   'https://i.postimg.cc/y3J179wr/693061830187225168.jpg',
   'https://i.postimg.cc/T5ydTmZJ/822681056955009207.jpg',
   'https://i.postimg.cc/Mfc6zRhD/868913321871524282.jpg',
@@ -882,16 +924,81 @@ const AVATAR_LIST = [
   'https://i.postimg.cc/PvLXdZBb/khraaaaa.jpg',
 ];
 
+// خلط عشوائي للصور الباقية
+const AVATAR_REST = [...AVATAR_REST_RAW].sort(() => Math.random() - 0.5);
+
+// تجميع القائمة الكاملة: الـ 6 الأولى ثابتة ثم الباقي عشوائي
+const AVATAR_LIST = [...AVATAR_FIRST_6, ...AVATAR_REST];
+
 window.getAvatarUrl = (id) => AVATAR_LIST[(id - 1) % AVATAR_LIST.length] || AVATAR_LIST[0];
 
-const avatarsGrid = document.getElementById('avatarsGrid');
+// ── بناء الكاروسيل ──
+const AVATARS_PER_PAGE = 6;
+let carouselPage = 0;
+const totalPages = Math.ceil(AVATAR_LIST.length / AVATARS_PER_PAGE);
+
+const carouselTrack = document.getElementById('avatarCarouselTrack');
+const dotsContainer = document.getElementById('carouselDots');
+
+// إنشاء جميع الأفاتارات في الـ track
 AVATAR_LIST.forEach((url, idx) => {
   const i = idx + 1;
-  avatarsGrid.innerHTML += `<div class="avatar-option ${i===1?'selected':''}" onclick="selectAvatar(${i}, this)"><img src="${url}" loading="lazy"></div>`;
+  const div = document.createElement('div');
+  div.className = 'avatar-option' + (i === 1 ? ' selected' : '');
+  div.onclick = () => window.selectAvatar(i, div);
+  div.innerHTML = `<img src="${url}" loading="lazy">`;
+  carouselTrack.appendChild(div);
 });
+
+// إنشاء النقاط
+for (let p = 0; p < totalPages; p++) {
+  const dot = document.createElement('div');
+  dot.className = 'carousel-dot' + (p === 0 ? ' active' : '');
+  dot.onclick = () => goToCarouselPage(p);
+  dotsContainer.appendChild(dot);
+}
+
+function goToCarouselPage(page) {
+  carouselPage = Math.max(0, Math.min(page, totalPages - 1));
+  // احسب عرض الأفاتار + gap
+  const avatarW = 62 + 10; // width + gap
+  carouselTrack.style.transform = `translateX(${carouselPage * AVATARS_PER_PAGE * avatarW}px)`;
+  // تحديث النقاط
+  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
+  // تحديث الأسهم
+  document.getElementById('carouselPrev').disabled = carouselPage >= totalPages - 1;
+  document.getElementById('carouselNext').disabled = carouselPage <= 0;
+}
+
+window.carouselMove = (dir) => goToCarouselPage(carouselPage - dir);
+
+// السحب باللمس
+(function setupCarouselSwipe() {
+  const outer = document.querySelector('.avatar-carousel-track-outer');
+  let startX = 0, isDragging = false;
+  outer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = true; }, { passive: true });
+  outer.addEventListener('touchend', e => {
+    if (!isDragging) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) goToCarouselPage(carouselPage + (dx < 0 ? 1 : -1));
+    isDragging = false;
+  });
+  // سحب الماوس
+  outer.addEventListener('mousedown', e => { startX = e.clientX; isDragging = true; });
+  window.addEventListener('mouseup', e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 40) goToCarouselPage(carouselPage + (dx < 0 ? 1 : -1));
+    isDragging = false;
+  });
+})();
+
+// تهيئة الكاروسيل
+goToCarouselPage(0);
+
 window.selectAvatar = (num, el) => {
   selectedAvatar = num;
-  document.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
+  document.querySelectorAll('#avatarCarouselTrack .avatar-option').forEach(d => d.classList.remove('selected'));
   el.classList.add('selected');
 };
 

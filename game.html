@@ -415,7 +415,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   user-select: none; -webkit-user-select: none;
   border-radius: 10px 10px 0 0;
   overflow: hidden;
-  padding-bottom: env(safe-area-inset-bottom, 16px);
+  padding-bottom: max(env(safe-area-inset-bottom, 20px), 28px);
   /* مخفي دائماً على الكمبيوتر */
   display: none;
 }
@@ -478,7 +478,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .fk-k.del   { font-size: 1.2rem; }
 
 /* الصف السفلي */
-.fk-bottom { display: flex; gap: 4px; padding: 0 3px 8px; direction: rtl; justify-content: center; }
+.fk-bottom { display: flex; gap: 4px; padding: 0 3px 14px; direction: rtl; justify-content: center; }
 .fk-pages-num .fk-k { max-width: 32px; font-size: 1rem; }
 .fk-pages-num .fk-row { direction: ltr; }
 .sticker-panel.open { transform: translateY(0); pointer-events: all; opacity: 1; }

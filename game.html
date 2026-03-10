@@ -404,7 +404,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 .chat-sticker-btn { background: rgba(135,116,225,0.15); border: 1.5px solid rgba(135,116,225,0.35); color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; flex-shrink: 0; font-size: 1.25rem; transition: 0.2s; }
 .chat-sticker-btn:active { transform: scale(0.9); background: rgba(135,116,225,0.3); }
 /* بانيل الستيكرات */
-.sticker-panel { position: absolute; bottom: 100%; left: 0; right: 0; background: #1c1c1e; border-top: 1px solid #3a3a3c; border-radius: 18px 18px 0 0; z-index: 60; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94); padding: 10px 12px 16px; max-height: 220px; overflow-y: auto; pointer-events: none; opacity: 0; }
+.sticker-panel { position: absolute; bottom: 70px; left: 0; right: 0; background: #1c1c1e; border-top: 1px solid #3a3a3c; border-radius: 18px 18px 0 0; z-index: 60; transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94); padding: 10px 12px 16px; max-height: 220px; overflow-y: auto; pointer-events: none; opacity: 0; }
 
 /* ===== كيبورد وهمي داخل الأيفون (جوال فقط) ===== */
 #fake-keyboard {
@@ -864,8 +864,10 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                   <input type="text" class="chat-input" id="msgInput" placeholder="رسالة..." autocomplete="off" inputmode="text" enterkeyhint="send">
                   <button class="chat-sticker-btn" id="chatStickerBtn" onclick="toggleStickerPanel()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/><path d="M15 2.5 Q19 2.5 21.5 5 L21.5 9 Q18 9 15 12 L15 2.5Z" fill="currentColor" stroke="none" opacity="0.35"/></svg></button>
                 </div>
-                <!-- بانيل الستيكرات -->
-                <div class="sticker-panel" id="stickerPanel">
+              </div><!-- end chat-bottom-wrapper -->
+
+              <!-- بانيل الستيكرات - خارج chat-bottom-wrapper حتى يظهر على الجوال -->
+              <div class="sticker-panel" id="stickerPanel">
                   <div class="sticker-panel-handle"></div>
                   <div class="sticker-panel-title">الستيكرات</div>
                   <div class="sticker-grid" id="stickerGrid">
@@ -897,7 +899,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
                     <div class="sticker-item" onclick="sendSticker('https://i.postimg.cc/dk9bg9nG/%F0%9D%96%AF%F0%9D%96%BA%F0%9D%96%BA%F0%9D%96%BC-Reaction.jpg')"><img src="https://i.postimg.cc/dk9bg9nG/%F0%9D%96%AF%F0%9D%96%BA%F0%9D%96%BA%F0%9D%96%BC-Reaction.jpg" loading="lazy"></div>
                   </div>
                 </div>
-              </div>
             </div>
 
             <!-- PHOTOS APP -->
@@ -2618,9 +2619,11 @@ function showToast(msg) {
 (function() {
   const btn = document.getElementById('mob-sticker-btn');
   if (!btn) return;
+
+  // touchstart بـ capture:true يجعله أول من يرى الحدث قبل أي listener آخر
   btn.addEventListener('touchstart', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
+    e.stopImmediatePropagation(); // يوقف كل listeners أخرى على نفس العنصر والأجداد
+    e.preventDefault();           // يمنع click وأي سلوك افتراضي
     if (window.fkOpenSticker) window.fkOpenSticker();
   }, { passive: false, capture: true });
 })();

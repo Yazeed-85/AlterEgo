@@ -837,12 +837,18 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
               <!-- شريط الإدخال الوحيد - جوال فقط -->
               <div id="mobile-chat-trigger">
                 <!-- اليمين: زر الستيكر أو السهم (يتبادلان) -->
-                <button id="mob-send-btn" onclick="event.stopPropagation(); if(window.fkSend) window.fkSend();">↑</button>
-                <button id="mob-sticker-btn" onclick="event.stopPropagation(); if(window.fkOpenSticker) window.fkOpenSticker();">
+                <button id="mob-send-btn"
+                  onclick="event.stopPropagation(); if(window.fkSend) window.fkSend();"
+                  ontouchend="event.preventDefault(); event.stopPropagation(); if(window.fkSend) window.fkSend();">↑</button>
+                <button id="mob-sticker-btn"
+                  onclick="event.stopPropagation(); if(window.fkOpenSticker) window.fkOpenSticker();"
+                  ontouchend="event.preventDefault(); event.stopPropagation(); if(window.fkOpenSticker) window.fkOpenSticker();">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
                 </button>
                 <!-- مربع النص -->
-                <span id="mob-input-display" onclick="if(window.openFakeKeyboard) window.openFakeKeyboard()">رسالة...</span>
+                <span id="mob-input-display"
+                  onclick="if(window.openFakeKeyboard) window.openFakeKeyboard();"
+                  ontouchend="event.preventDefault(); if(window.openFakeKeyboard) window.openFakeKeyboard();">رسالة...</span>
               </div>
 
               <div class="chat-bottom-wrapper">
@@ -2428,18 +2434,26 @@ function showToast(msg) {
   // ===== المنطق الصارم: أي تمرير فوق الأيفون = للأيفون فقط =====
   let _inIphone = false;
   let _tapStartX = 0, _tapStartY = 0;
+  let _touchTarget = null;
 
   document.addEventListener('touchstart', (e) => {
     const r = document.getElementById('iphone-container').getBoundingClientRect();
     const t = e.touches[0];
     _tapStartX = t.clientX;
     _tapStartY = t.clientY;
+    _touchTarget = e.target;
     _inIphone = t.clientX >= r.left && t.clientX <= r.right &&
                 t.clientY >= r.top  && t.clientY <= r.bottom;
   }, { passive: true });
 
   document.addEventListener('touchmove', (e) => {
-    if (_inIphone) e.preventDefault();
+    if (!_inIphone) return;
+    // اسمح بالسكرول داخل chatBox وsticker panel وfake-keyboard
+    const scrollable = _touchTarget &&
+      (_touchTarget.closest('#chatBox') ||
+       _touchTarget.closest('#stickerPanel') ||
+       _touchTarget.closest('#fake-keyboard'));
+    if (!scrollable) e.preventDefault();
   }, { passive: false });
 
   // ===== إغلاق CC/NC بالنقر في المنطقة الفارغة (جوال) =====

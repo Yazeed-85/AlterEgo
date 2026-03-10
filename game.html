@@ -378,10 +378,16 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
   user-select: none; -webkit-user-select: none;
-  border-radius: 12px 12px 0 0;
+  border-radius: 10px 10px 0 0;
   overflow: hidden;
+  /* مخفي دائماً على الكمبيوتر */
+  display: none;
 }
-#fake-keyboard.open { transform: translateY(0); }
+/* على الجوال فقط يظهر عند الفتح */
+@media (max-width: 900px) {
+  #fake-keyboard { display: block; transform: translateY(100%); }
+  #fake-keyboard.open { transform: translateY(0); }
+}
 
 /* عند فتح الكيبورد تُرفع منطقة الرسائل */
 #chat-app-view.kb-open .chat-messages {
@@ -985,114 +991,55 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
           <div class="speaker-hole"></div><div class="speaker-hole"></div>
           <div class="speaker-hole"></div><div class="speaker-hole"></div>
         </div>
+
+        <!-- كيبورد وهمي iOS - داخل الأيفون، جوال فقط -->
+        <div id="fake-keyboard">
+          <div class="fk-input-row">
+            <button class="fk-sticker-btn" id="fkStickerBtn" onclick="fkOpenSticker()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
+            </button>
+            <div class="fk-text-display" id="fkDisplay"><span class="fk-placeholder">رسالة...</span></div>
+            <button class="fk-send-btn" id="fkSendBtn" onclick="fkSend()">↑</button>
+          </div>
+          <!-- حروف عربية -->
+          <div class="fk-page active" id="fkPageAr">
+            <div class="fk-row">
+              <button class="fk-k" onclick="fkType('ض')">ض</button><button class="fk-k" onclick="fkType('ص')">ص</button><button class="fk-k" onclick="fkType('ث')">ث</button><button class="fk-k" onclick="fkType('ق')">ق</button><button class="fk-k" onclick="fkType('ف')">ف</button><button class="fk-k" onclick="fkType('غ')">غ</button><button class="fk-k" onclick="fkType('ع')">ع</button><button class="fk-k" onclick="fkType('ه')">ه</button><button class="fk-k" onclick="fkType('خ')">خ</button><button class="fk-k" onclick="fkType('ح')">ح</button><button class="fk-k" onclick="fkType('ج')">ج</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-k" onclick="fkType('ة')">ة</button><button class="fk-k" onclick="fkType('ك')">ك</button><button class="fk-k" onclick="fkType('م')">م</button><button class="fk-k" onclick="fkType('ن')">ن</button><button class="fk-k" onclick="fkType('ت')">ت</button><button class="fk-k" onclick="fkType('ا')">ا</button><button class="fk-k" onclick="fkType('ل')">ل</button><button class="fk-k" onclick="fkType('ب')">ب</button><button class="fk-k" onclick="fkType('ي')">ي</button><button class="fk-k" onclick="fkType('س')">س</button><button class="fk-k" onclick="fkType('ش')">ش</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-k dark del" onclick="fkDelete()">⌫</button><button class="fk-k" onclick="fkType('ء')">ء</button><button class="fk-k" onclick="fkType('ظ')">ظ</button><button class="fk-k" onclick="fkType('ط')">ط</button><button class="fk-k" onclick="fkType('ذ')">ذ</button><button class="fk-k" onclick="fkType('د')">د</button><button class="fk-k" onclick="fkType('ز')">ز</button><button class="fk-k" onclick="fkType('ر')">ر</button><button class="fk-k" onclick="fkType('و')">و</button><button class="fk-k" onclick="fkType('ى')">ى</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+            </div>
+            <div class="fk-bottom">
+              <button class="fk-k dark" onclick="fkTogglePage()">١٢٣</button>
+              <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
+              <button class="fk-k dark" onclick="fkType('،')">،</button>
+              <button class="fk-k blue" onclick="fkSend()">↑</button>
+            </div>
+          </div>
+          <!-- أرقام -->
+          <div class="fk-page" id="fkPageNum">
+            <div class="fk-row">
+              <button class="fk-k" onclick="fkType('1')">1</button><button class="fk-k" onclick="fkType('2')">2</button><button class="fk-k" onclick="fkType('3')">3</button><button class="fk-k" onclick="fkType('4')">4</button><button class="fk-k" onclick="fkType('5')">5</button><button class="fk-k" onclick="fkType('6')">6</button><button class="fk-k" onclick="fkType('7')">7</button><button class="fk-k" onclick="fkType('8')">8</button><button class="fk-k" onclick="fkType('9')">9</button><button class="fk-k" onclick="fkType('0')">0</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-k" onclick="fkType('-')">-</button><button class="fk-k" onclick="fkType('/')">/</button><button class="fk-k" onclick="fkType(':')">:</button><button class="fk-k" onclick="fkType(';')">;</button><button class="fk-k" onclick="fkType('(')">(</button><button class="fk-k" onclick="fkType(')')">)</button><button class="fk-k" onclick="fkType('$')">$</button><button class="fk-k" onclick="fkType('&')">&amp;</button><button class="fk-k" onclick="fkType('@')">@</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+            </div>
+            <div class="fk-row">
+              <button class="fk-k" onclick="fkType('.')">.</button><button class="fk-k" onclick="fkType(',')">,</button><button class="fk-k" onclick="fkType('?')">?</button><button class="fk-k" onclick="fkType('!')">!</button><button class="fk-k" onclick="fkType(&quot;'&quot;)">'</button><button class="fk-k" onclick="fkType('_')">_</button><button class="fk-k" onclick="fkType('%')">%</button><button class="fk-k" onclick="fkType('+')">+</button><button class="fk-k" onclick="fkType('=')">=</button><button class="fk-k dark del" onclick="fkDelete()">⌫</button>
+            </div>
+            <div class="fk-bottom">
+              <button class="fk-k dark" onclick="fkTogglePage()">ع</button>
+              <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
+              <button class="fk-k dark" onclick="fkType('.')">.</button>
+              <button class="fk-k blue" onclick="fkSend()">↑</button>
+            </div>
+          </div>
+        </div>
+
       </div><!-- /iphone-body -->
-      <!-- كيبورد وهمي - يظهر على الجوال فقط -->
-      <!-- كيبورد وهمي iOS - يظهر على الجوال فقط -->
-      <div id="fake-keyboard">
-        <!-- صف الإدخال -->
-        <div class="fk-input-row">
-          <button class="fk-sticker-btn" id="fkStickerBtn" onclick="fkOpenSticker()">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="9" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5 Q12 17.5 15.5 14.5"/></svg>
-          </button>
-          <div class="fk-text-display" id="fkDisplay"><span class="fk-placeholder">رسالة...</span></div>
-          <button class="fk-send-btn" id="fkSendBtn" onclick="fkSend()">↑</button>
-        </div>
-
-        <!-- صفحة الحروف العربية - نفس ترتيب iOS -->
-        <div class="fk-page active" id="fkPageAr">
-          <div class="fk-row">
-            <button class="fk-k" onclick="fkType('ض')">ض</button>
-            <button class="fk-k" onclick="fkType('ص')">ص</button>
-            <button class="fk-k" onclick="fkType('ث')">ث</button>
-            <button class="fk-k" onclick="fkType('ق')">ق</button>
-            <button class="fk-k" onclick="fkType('ف')">ف</button>
-            <button class="fk-k" onclick="fkType('غ')">غ</button>
-            <button class="fk-k" onclick="fkType('ع')">ع</button>
-            <button class="fk-k" onclick="fkType('ه')">ه</button>
-            <button class="fk-k" onclick="fkType('خ')">خ</button>
-            <button class="fk-k" onclick="fkType('ح')">ح</button>
-            <button class="fk-k" onclick="fkType('ج')">ج</button>
-          </div>
-          <div class="fk-row">
-            <button class="fk-k" onclick="fkType('ة')">ة</button>
-            <button class="fk-k" onclick="fkType('ك')">ك</button>
-            <button class="fk-k" onclick="fkType('م')">م</button>
-            <button class="fk-k" onclick="fkType('ن')">ن</button>
-            <button class="fk-k" onclick="fkType('ت')">ت</button>
-            <button class="fk-k" onclick="fkType('ا')">ا</button>
-            <button class="fk-k" onclick="fkType('ل')">ل</button>
-            <button class="fk-k" onclick="fkType('ب')">ب</button>
-            <button class="fk-k" onclick="fkType('ي')">ي</button>
-            <button class="fk-k" onclick="fkType('س')">س</button>
-            <button class="fk-k" onclick="fkType('ش')">ش</button>
-          </div>
-          <div class="fk-row">
-            <button class="fk-k dark del" onclick="fkDelete()">⌫</button>
-            <button class="fk-k" onclick="fkType('ء')">ء</button>
-            <button class="fk-k" onclick="fkType('ظ')">ظ</button>
-            <button class="fk-k" onclick="fkType('ط')">ط</button>
-            <button class="fk-k" onclick="fkType('ذ')">ذ</button>
-            <button class="fk-k" onclick="fkType('د')">د</button>
-            <button class="fk-k" onclick="fkType('ز')">ز</button>
-            <button class="fk-k" onclick="fkType('ر')">ر</button>
-            <button class="fk-k" onclick="fkType('و')">و</button>
-            <button class="fk-k" onclick="fkType('ى')">ى</button>
-            <button class="fk-k dark del" onclick="fkDelete()">⌫</button>
-          </div>
-          <div class="fk-bottom">
-            <button class="fk-k dark" onclick="fkTogglePage()">١٢٣</button>
-            <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
-            <button class="fk-k dark" onclick="fkType('،')">،</button>
-            <button class="fk-k blue" onclick="fkSend()">↑</button>
-          </div>
-        </div>
-
-        <!-- صفحة الأرقام -->
-        <div class="fk-page fk-pages-num" id="fkPageNum">
-          <div class="fk-row">
-            <button class="fk-k" onclick="fkType('1')">1</button>
-            <button class="fk-k" onclick="fkType('2')">2</button>
-            <button class="fk-k" onclick="fkType('3')">3</button>
-            <button class="fk-k" onclick="fkType('4')">4</button>
-            <button class="fk-k" onclick="fkType('5')">5</button>
-            <button class="fk-k" onclick="fkType('6')">6</button>
-            <button class="fk-k" onclick="fkType('7')">7</button>
-            <button class="fk-k" onclick="fkType('8')">8</button>
-            <button class="fk-k" onclick="fkType('9')">9</button>
-            <button class="fk-k" onclick="fkType('0')">0</button>
-          </div>
-          <div class="fk-row">
-            <button class="fk-k" onclick="fkType('-')">-</button>
-            <button class="fk-k" onclick="fkType('/')">/ </button>
-            <button class="fk-k" onclick="fkType(':')">:</button>
-            <button class="fk-k" onclick="fkType(';')">;</button>
-            <button class="fk-k" onclick="fkType('(')">(</button>
-            <button class="fk-k" onclick="fkType(')')">)</button>
-            <button class="fk-k" onclick="fkType('$')">$</button>
-            <button class="fk-k" onclick="fkType('&')">&amp;</button>
-            <button class="fk-k" onclick="fkType('@')">@</button>
-            <button class="fk-k dark del" onclick="fkDelete()">⌫</button>
-          </div>
-          <div class="fk-row">
-            <button class="fk-k" onclick="fkType('.')">.</button>
-            <button class="fk-k" onclick="fkType(','">,</button>
-            <button class="fk-k" onclick="fkType('?')">?</button>
-            <button class="fk-k" onclick="fkType('!')">!</button>
-            <button class="fk-k" onclick="fkType(&quot;'&quot;)">'</button>
-            <button class="fk-k" onclick="fkType('_')">_</button>
-            <button class="fk-k" onclick="fkType('%')">%</button>
-            <button class="fk-k" onclick="fkType('+')">+</button>
-            <button class="fk-k" onclick="fkType('=')">=</button>
-            <button class="fk-k dark del" onclick="fkDelete()">⌫</button>
-          </div>
-          <div class="fk-bottom">
-            <button class="fk-k dark" onclick="fkTogglePage()">ع</button>
-            <button class="fk-k space" onclick="fkType(' ')">مسافة</button>
-            <button class="fk-k dark" onclick="fkType('.')">.</button>
-            <button class="fk-k blue" onclick="fkSend()">↑</button>
-          </div>
-        </div>
-      </div>
     </div><!-- /iphone-container -->
 
     <div id="volume-indicator"><div id="volume-bar"><div id="volume-fill" style="height:50%;"></div></div></div>

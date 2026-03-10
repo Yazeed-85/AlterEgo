@@ -739,9 +739,12 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 }
 
 /* ===== آيباد (901px - 1200px) ===== */
-@media (min-width: 901px) and (max-width: 1200px) {
+@media (min-width: 901px) and (max-width: 1600px) {
   #iphone-container {
     transform-origin: center center;
+  }
+  .left-phone-section {
+    overflow: hidden;
   }
 }
 </style>
@@ -2486,27 +2489,18 @@ function showToast(msg) {
     const container = document.getElementById('iphone-container');
     if (!container) return;
 
-    // الأيفون يشغل ~45% من العرض الكلي (النصف الأيسر)
-    const availW = (w * 0.45) - 40;
-    const availH = window.innerHeight - 80; // ناقص top-bar
+    const availW = (w * 0.42) - 60;
+    const availH = window.innerHeight - 120;
 
-    const scaleByW = availW / IPHONE_W;
-    const scaleByH = availH / IPHONE_H;
-    const scale = Math.min(scaleByW, scaleByH);
+    const scale = Math.min(availW / IPHONE_W, availH / IPHONE_H);
 
     container.style.transform = `scale(${scale})`;
     container.style.transformOrigin = 'center center';
   }
 
-  // شغّل بعد تحميل الصفحة
-  if (document.readyState === 'complete') {
-    scaleTablet();
-  } else {
-    window.addEventListener('load', scaleTablet);
-  }
+  window.addEventListener('load', scaleTablet);
   window.addEventListener('resize', scaleTablet);
-  // أيضاً بعد 300ms للتأكد
-  setTimeout(scaleTablet, 300);
+  setTimeout(scaleTablet, 100);
 })();
 
   // ===== إصلاح مشكلة الكيبورد على الجوال =====

@@ -59,9 +59,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== AVATAR CAROUSEL ===== */
 .avatar-carousel-wrapper { position: relative; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; user-select: none; }
-.avatar-carousel-track-outer { flex: 1; overflow: hidden; border-radius: 12px; }
-.avatar-carousel-track { display: flex; gap: 10px; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform; }
-.avatar-carousel-track .avatar-option { flex: 0 0 calc((100% - 50px) / 6); width: calc((100% - 50px) / 6); height: 62px; aspect-ratio: 1; }
+.avatar-carousel-track-outer { flex: 1; overflow: hidden; }
+.avatar-carousel-track { display: flex; gap: 8px; transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94); will-change: transform; align-items: center; padding: 4px 0; }
+.avatar-carousel-track .avatar-option { flex: 0 0 54px; width: 54px; height: 54px; min-width: 54px; min-height: 54px; max-width: 54px; max-height: 54px; border-radius: 50%; }
 .carousel-arrow { width: 34px; height: 34px; background: rgba(135,116,225,0.2); border: 1.5px solid rgba(135,116,225,0.4); border-radius: 50%; color: white; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
 .carousel-arrow:hover { background: rgba(135,116,225,0.45); }
 .carousel-arrow:active { transform: scale(0.88); }
@@ -496,7 +496,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
   .btn-save { font-size: 1rem; padding: 13px; }
-  .avatar-carousel-track .avatar-option { width: 52px; height: 52px; }
   .carousel-arrow { width: 30px; height: 30px; font-size: 0.9rem; }
   #playerListArea { margin-top: 18px; padding: 16px 12px; }
   .real-names-title { font-size: 1.1rem; }
@@ -960,19 +959,12 @@ for (let p = 0; p < totalPages; p++) {
 
 function goToCarouselPage(page) {
   carouselPage = Math.max(0, Math.min(page, totalPages - 1));
-  // احسب عرض الـ outer ديناميكياً لضمان عرض 6 صور بالضبط
-  const outer = document.getElementById('carouselOuter');
-  const outerW = outer ? outer.offsetWidth : 0;
-  const gap = 10;
-  const avatarW = Math.floor((outerW - gap * 5) / 6); // 6 صور مع 5 فجوات
-  const pageW = (avatarW + gap) * AVATARS_PER_PAGE;
-  // تحريك الـ track
+  // حجم ثابت: 54px + 8px gap = 62px لكل أفاتار
+  const avatarW = 54 + 8;
+  const pageW = avatarW * AVATARS_PER_PAGE;
   carouselTrack.style.transform = `translateX(${carouselPage * pageW}px)`;
-  // تحديث النقاط
   document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
-  // السهم الأيسر (‹) يعود للخلف → يُفعَّل إذا كنا في صفحة > 0
   document.getElementById('carouselPrev').disabled = carouselPage <= 0;
-  // السهم الأيمن (›) يذهب للأمام → يُفعَّل إذا كنا في آخر صفحة
   document.getElementById('carouselNext').disabled = carouselPage >= totalPages - 1;
 }
 

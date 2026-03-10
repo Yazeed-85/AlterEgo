@@ -2134,20 +2134,25 @@ function showToast(msg) {
   scaleIphone();
   window.addEventListener('resize', scaleIphone);
 
-  // ===== القاعدة الأساسية: أي لمسة فوق الأيفون = للأيفون فقط =====
-  // نستمع على document بـ capture=true لنكون أول من يرى الحدث
+  // ===== القاعدة الأساسية: أي scroll فوق الأيفون = للأيفون فقط =====
+  // نتتبع هل بدأت اللمسة داخل الأيفون
+  let touchStartedInIphone = false;
+
   document.addEventListener('touchstart', (e) => {
     const iphoneEl = document.getElementById('iphone-container');
     if (!iphoneEl) return;
     const rect = iphoneEl.getBoundingClientRect();
     const t = e.touches[0];
-    // هل اللمسة داخل مساحة الأيفون؟
-    const insideIphone = (
+    touchStartedInIphone = (
       t.clientX >= rect.left && t.clientX <= rect.right &&
       t.clientY >= rect.top  && t.clientY <= rect.bottom
     );
-    if (insideIphone) {
-      // امنع الصفحة من التمرير - اللمسة للأيفون فقط
+    // لا نمنع touchstart أبداً حتى تعمل الضغطات والكلكات
+  }, { passive: true, capture: true });
+
+  // نمنع scroll الصفحة فقط عند التحريك إذا بدأت اللمسة داخل الأيفون
+  document.addEventListener('touchmove', (e) => {
+    if (touchStartedInIphone) {
       e.preventDefault();
     }
   }, { passive: false, capture: true });

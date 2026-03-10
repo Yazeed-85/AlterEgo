@@ -579,11 +579,6 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     height: 680px;
   }
 
-  /* الأيفون يأخذ كل اللمسات لنفسه - لا يُمرر للصفحة */
-  #iphone-body {
-    touch-action: none;
-  }
-
   #iphone-container {
     transform-origin: top center;
     position: absolute;
@@ -2140,79 +2135,60 @@ function showToast(msg) {
   window.addEventListener('resize', scaleIphone);
 
   // ===== إصلاح مشكلة الكيبورد على الجوال =====
-  // نمنع الصفحة من التمرير عند فتح الكيبورد
-  // ونجعل مربع الكتابة يُركّز على الأيفون بدلاً من تحريك الصفحة
   document.addEventListener('focusin', (e) => {
     if (window.innerWidth > 900) return;
     const el = e.target;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      // إذا كان داخل الأيفون، نمنع scroll الصفحة
-      if (el.closest('#iphone-body') || el.closest('.chat-bottom-wrapper')) {
-        const scrollY = window.scrollY;
-        setTimeout(() => {
-          window.scrollTo(0, scrollY);
-          // نُمرر الأيفون فقط لإظهار مربع الكتابة
-          el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-        }, 150);
-      }
+    if ((el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') &&
+        (el.closest('#iphone-body') || el.closest('.chat-bottom-wrapper'))) {
+      const scrollY = window.scrollY;
+      setTimeout(() => { window.scrollTo(0, scrollY); }, 150);
     }
   });
 
-  document.addEventListener('focusout', (e) => {
-    if (window.innerWidth > 900) return;
-    // عند إغلاق الكيبورد نعيد الـ scroll
-    setTimeout(() => window.scrollTo(0, window.scrollY), 100);
-  });
+  // ===== السحب من status-bar فقط =====
+  // الفكرة: status-bar (أعلى الأيفون) يعترض السحب
+  // يمين → مركز التحكم ، يسار → مركز الإشعارات
+  // باقي الأيفون حر تماماً (سكرول شات، ضغطات، إلخ)
 
-  // ===== السحب داخل الأيفون لمركز الإشعارات / التحكم =====
-  const iphoneBody = document.getElementById('iphone-body');
-  if (!iphoneBody) return;
+  const statusBar = document.getElementById('status-bar');
+  if (!statusBar) return;
 
-  let touchStartY = 0;
-  let touchStartX = 0;
+  let sbStartY = 0, sbStartX = 0, sbTracking = false;
 
-  iphoneBody.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchStartX = e.touches[0].clientX;
-  }, { passive: true });
-
-  iphoneBody.addEventListener('touchmove', (e) => {
-    // نمنع الصفحة من التمرير عند اللمس داخل الأيفون
+  statusBar.addEventListener('touchstart', (e) => {
+    sbStartY = e.touches[0].clientY;
+    sbStartX = e.touches[0].clientX;
+    sbTracking = true;
+    // نمنع الصفحة من التمرير فقط عند البدء من status-bar
     e.preventDefault();
   }, { passive: false });
 
-  iphoneBody.addEventListener('touchend', (e) => {
-    const dy = e.changedTouches[0].clientY - touchStartY;
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const absDy = Math.abs(dy);
-    const absDx = Math.abs(dx);
+  statusBar.addEventListener('touchmove', (e) => {
+    if (!sbTracking) return;
+    e.preventDefault(); // نمنع الصفحة من التمرير
+  }, { passive: false });
 
-    // سحب رأسي فقط (وليس أفقي)
-    if (absDy < 50 || absDx > absDy * 0.8) return;
+  statusBar.addEventListener('touchend', (e) => {
+    if (!sbTracking) return;
+    sbTracking = false;
 
-    const iphone = document.getElementById('iphone-container');
-    const iphoneRect = iphone.getBoundingClientRect();
-    const relY = touchStartY - iphoneRect.top;
-    const iphoneH = iphoneRect.height;
+    const dy = e.changedTouches[0].clientY - sbStartY;
+    const dx = e.changedTouches[0].clientX - sbStartX;
 
-    if (dy > 50) {
-      // سحب للأسفل
-      if (relY < iphoneH * 0.15) {
-        // من الأعلى → مركز الإشعارات
-        openNotifCenter();
-      } else if (relY > iphoneH * 0.85) {
-        // من الأسفل للأعلى → تجاهل (home indicator)
-      }
-    } else if (dy < -50) {
-      // سحب للأعلى
-      if (relY > iphoneH * 0.85) {
-        // من الأسفل → الشاشة الرئيسية
-        if (iphoneState.currentView === 'lock') unlockPhone();
-        else if (iphoneState.currentView !== 'home') showView('home');
-      } else if (relY < iphoneH * 0.15) {
-        // من الأعلى للأسفل → مركز التحكم
-        openControlCenter();
-      }
+    // يجب أن يكون سحب للأسفل وليس أفقي
+    if (dy < 40 || Math.abs(dx) > dy * 0.9) return;
+
+    // نحدد الجانب بناءً على موضع X داخل الأيفون
+    const iphoneRect = document.getElementById('iphone-container').getBoundingClientRect();
+    const relX = sbStartX - iphoneRect.left;
+    const iphoneW = iphoneRect.width;
+
+    if (relX > iphoneW * 0.55) {
+      // يمين → مركز التحكم
+      openControlCenter();
+    } else {
+      // يسار → مركز الإشعارات
+      openNotifCenter();
     }
   }, { passive: true });
 
@@ -2220,7 +2196,6 @@ function showToast(msg) {
     const nc = document.getElementById('notification-center');
     if (nc) {
       nc.classList.add('show');
-      iphoneState.prevView = iphoneState.currentView;
       iphoneState.currentView = 'notif-center';
     }
   }
@@ -2229,7 +2204,6 @@ function showToast(msg) {
     const cc = document.getElementById('control-center');
     if (cc) {
       cc.classList.add('show');
-      iphoneState.prevView = iphoneState.currentView;
       iphoneState.currentView = 'control-center';
     }
   }

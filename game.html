@@ -714,7 +714,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
   /* زر فتح/إغلاق الداشبورد */
   #mob-dash-toggle {
-    display: flex;
+    display: flex !important;
     align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 10px;
     background: var(--game-card);
@@ -725,8 +725,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   #mob-dash-toggle .arr { transition: transform 0.3s; }
   #mob-dash-toggle.open .arr { transform: rotate(180deg); }
 
-/* إخفاء زر الداشبورد على الآيباد والكمبيوتر */
-#mob-dash-toggle { display: none; }
+/* إخفاء زر الداشبورد افتراضياً - يظهر فقط على الجوال */
+#mob-dash-toggle { display: none !important; }
   .profile-builder { padding: 18px 14px; }
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }

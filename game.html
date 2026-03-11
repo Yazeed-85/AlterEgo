@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
 <title>الوجه الآخر - غرفة العمليات</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -29,7 +30,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background-color: var(--game-bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+body { background-color: var(--game-bg); color: white; height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; -webkit-user-select: none; touch-action: pan-y; overscroll-behavior: none; -webkit-touch-callout: none; }
 
 /* ===== TOP BAR ===== */
 .top-bar { background: var(--game-card); padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--game-border); z-index: 10; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
@@ -678,7 +679,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 
 /* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 900px) {
-  html { touch-action: manipulation; }
+  html { touch-action: pan-y; overscroll-behavior-x: none; }
+  html, body { max-width: 100vw; overflow-x: hidden; }
   body { overflow: auto; height: auto; min-height: 100vh; }
 
   .top-bar { padding: 10px 15px; flex-wrap: wrap; gap: 6px; }
@@ -723,6 +725,8 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   #mob-dash-toggle .arr { transition: transform 0.3s; }
   #mob-dash-toggle.open .arr { transform: rotate(180deg); }
 
+/* إخفاء زر الداشبورد على الآيباد والكمبيوتر */
+#mob-dash-toggle { display: none; }
   .profile-builder { padding: 18px 14px; }
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
@@ -2848,6 +2852,37 @@ setInterval(() => {
     else fill.style.background = '#30d158';
   }
 }, 30000);
+
+// ===== منع التكبير والسحب الأفقي =====
+(function preventZoomAndSwipe() {
+  // منع double-tap zoom
+  let lastTap = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+
+  // منع pinch-to-zoom
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+  }, { passive: false });
+
+  // منع السحب الأفقي على مستوى الصفحة
+  let touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) { e.preventDefault(); return; }
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    // إذا كانت الحركة أفقية أكثر من عمودية → امنع
+    if (dx > dy && dx > 10) e.preventDefault();
+  }, { passive: false });
+})();
 
 </script>
 </body>

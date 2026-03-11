@@ -718,15 +718,14 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 10px;
     background: var(--game-card);
-    border: none; border-top: 1px solid var(--game-border);
+    border: none; border-bottom: 1px solid var(--game-border);
     color: #a1a1aa; font-family: 'Cairo', sans-serif;
-    font-size: 0.9rem; cursor: pointer; order: 3;
+    font-size: 0.9rem; cursor: pointer;
+    flex-shrink: 0;
   }
   #mob-dash-toggle .arr { transition: transform 0.3s; }
   #mob-dash-toggle.open .arr { transform: rotate(180deg); }
 
-/* إخفاء زر الداشبورد افتراضياً - يظهر فقط على الجوال */
-#mob-dash-toggle { display: none !important; }
   .profile-builder { padding: 18px 14px; }
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
@@ -735,7 +734,7 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }
 
-  /* حاوية الأيفون - الأيفون أولاً على الجوال */
+  /* حاوية الأيفون */
   .left-phone-section {
     flex: none;
     width: 100%;
@@ -744,11 +743,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     border-radius: 20px;
     padding: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     overflow: visible;
     position: relative;
-    /* الارتفاع يُضبط بالكامل عبر JS */
   }
 
   #iphone-container {
@@ -764,9 +763,14 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     overflow: hidden;
     align-items: center;
     justify-content: center;
+    flex-direction: row;
   }
   #iphone-container {
     transform-origin: center center;
+  }
+  /* إخفاء زر الداشبورد على الآيباد والكمبيوتر */
+  #mob-dash-toggle {
+    display: none !important;
   }
 }
 </style>
@@ -842,17 +846,16 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     </div>
   </div>
 
-  <!-- زر فتح/إغلاق الداشبورد - جوال فقط -->
-  <button id="mob-dash-toggle" onclick="
-    this.classList.toggle('open');
-    document.querySelector('.right-dashboard').classList.toggle('mob-expanded');
-  ">
-    <span>معلومات اللعبة</span>
-    <span class="arr">▼</span>
-  </button>
-
   <!-- LEFT: iPHONE -->
   <div class="left-phone-section">
+    <!-- زر فتح/إغلاق الداشبورد - جوال فقط، داخل حاوية الأيفون -->
+    <button id="mob-dash-toggle" onclick="
+      this.classList.toggle('open');
+      document.querySelector('.right-dashboard').classList.toggle('mob-expanded');
+    ">
+      <span>معلومات اللعبة</span>
+      <span class="arr">▼</span>
+    </button>
     <!-- إضاءة الفلاش خلف الهاتف -->
     <div class="flashlight-glow" id="flashlight-glow"></div>
     <div id="iphone-container">

@@ -2484,23 +2484,25 @@ function showToast(msg) {
 
   function scaleTablet() {
     const w = window.innerWidth;
-    if (w <= 900 || w > 1600) return;
+    if (w <= 900) return;
 
     const container = document.getElementById('iphone-container');
-    if (!container) return;
+    const section = document.querySelector('.left-phone-section');
+    if (!container || !section) return;
 
-    const availW = (w * 0.42) - 60;
-    const availH = window.innerHeight - 120;
+    // قياس المساحة الفعلية المتاحة من العنصر نفسه
+    const rect = section.getBoundingClientRect();
+    const availW = rect.width  - 40;  // هامش 20px من كل جانب
+    const availH = rect.height - 40;  // هامش 20px من الأعلى والأسفل
 
     const scale = Math.min(availW / IPHONE_W, availH / IPHONE_H);
-
     container.style.transform = `scale(${scale})`;
     container.style.transformOrigin = 'center center';
   }
 
-  window.addEventListener('load', scaleTablet);
+  // شغّل بعد اكتمال الرسم الكامل
+  window.addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(scaleTablet)));
   window.addEventListener('resize', scaleTablet);
-  setTimeout(scaleTablet, 100);
 })();
 
   // ===== إصلاح مشكلة الكيبورد على الجوال =====

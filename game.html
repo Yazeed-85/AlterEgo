@@ -802,9 +802,81 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     display: none !important;
   }
 }
+
+/* ===== شاشة الشخصية الأولى على الجوال ===== */
+#mob-profile-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--game-bg);
+  overflow-y: auto;
+  padding: 20px 16px 40px;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  #mob-profile-overlay { display: flex; }
+  #mob-profile-overlay.done { display: none; }
+}
+#mob-profile-overlay .profile-builder {
+  margin: 0;
+}
+#mob-profile-overlay .mob-profile-title {
+  font-size: 1.4rem; font-weight: 900;
+  color: var(--game-purple); text-align: center;
+  margin-bottom: 4px;
+}
+#mob-profile-overlay .mob-profile-sub {
+  font-size: 0.9rem; color: #71717a;
+  text-align: center; margin-bottom: 8px;
+}
 </style>
 </head>
 <body>
+
+<!-- ===== شاشة إدخال الشخصية - جوال فقط ===== -->
+<div id="mob-profile-overlay">
+  <div class="mob-profile-title">🕵️‍♂️ اصنع هويتك الوهمية</div>
+  <div class="mob-profile-sub">أدخل بياناتك الوهمية قبل الدخول للغرفة</div>
+  <div class="profile-builder" style="margin:0;">
+    <div class="form-group">
+      <label>اختر صورة لحسابك:</label>
+      <div class="avatar-carousel-wrapper" id="mobCarouselWrapper">
+        <button class="carousel-arrow" onclick="carouselMove(-1)">&#8249;</button>
+        <div class="avatar-carousel-track-outer" id="mobCarouselOuter">
+          <div class="avatar-carousel-track" id="mobAvatarTrack"></div>
+        </div>
+        <button class="carousel-arrow" onclick="carouselMove(1)">&#8250;</button>
+      </div>
+      <div class="carousel-dots" id="mobCarouselDots"></div>
+    </div>
+    <div class="form-group">
+      <label>الاسم الثنائي الوهمي:</label>
+      <input type="text" class="form-input" id="mob-fakeName" placeholder="مثال: سميح عبدالله" autocomplete="off">
+    </div>
+    <div style="display:flex;gap:15px;">
+      <div class="form-group" style="flex:1;">
+        <label>العمر:</label>
+        <input type="number" class="form-input" id="mob-fakeAge" placeholder="39" min="1" max="99" autocomplete="off">
+      </div>
+      <div class="form-group" style="flex:1;">
+        <label>الحالة:</label>
+        <select class="form-input" id="mob-fakeStatus">
+          <option value="أعزب">أعزب</option><option value="متزوج">متزوج</option>
+          <option value="مطلق">مطلق</option><option value="أرمل">أرمل</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>المهنة الوهمية:</label>
+      <input type="text" class="form-input" id="mob-fakeJob" placeholder="مثال: معلم تاريخ" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>نبذة عنك (Bio):</label>
+      <textarea class="form-input" id="mob-fakeBio" rows="2" placeholder="اكتب نبذة قصيرة..."></textarea>
+    </div>
+    <button class="btn-save" onclick="mobSaveProfile()">💾 حفظ الشخصية والدخول للهاتف</button>
+  </div>
+</div>
 
 <!-- TOP BAR -->
 <div class="top-bar">
@@ -1442,6 +1514,61 @@ function goToCarouselPage(page) {
 
 window.carouselMove = (dir) => goToCarouselPage(carouselPage + dir);
 
+// ===== بناء carousel الـ overlay للجوال =====
+(function buildMobCarousel() {
+  const mobTrack = document.getElementById('mobAvatarTrack');
+  const mobDots  = document.getElementById('mobCarouselDots');
+  if (!mobTrack) return;
+  let mobPage = 0;
+  for (let p = 0; p < totalPages; p++) {
+    const pageDiv = document.createElement('div');
+    pageDiv.className = 'carousel-page';
+    pageDiv.style.display = p === 0 ? 'flex' : 'none';
+    const start = p * AVATARS_PER_PAGE;
+    const end = Math.min(start + AVATARS_PER_PAGE, AVATAR_LIST.length);
+    for (let idx = start; idx < end; idx++) {
+      const num = idx + 1;
+      const av = document.createElement('div');
+      av.className = 'avatar-option' + (num === 1 ? ' selected' : '');
+      av.onclick = () => {
+        selectedAvatar = num;
+        mobTrack.querySelectorAll('.avatar-option').forEach(d => d.classList.remove('selected'));
+        av.classList.add('selected');
+      };
+      av.innerHTML = `<img src="${AVATAR_LIST[idx]}" loading="lazy">`;
+      pageDiv.appendChild(av);
+    }
+    mobTrack.appendChild(pageDiv);
+    if (mobDots) {
+      const dot = document.createElement('div');
+      dot.className = 'carousel-dot' + (p === 0 ? ' active' : '');
+      dot.onclick = () => goMobPage(p);
+      mobDots.appendChild(dot);
+    }
+  }
+  function goMobPage(p) {
+    mobPage = Math.max(0, Math.min(p, totalPages - 1));
+    mobTrack.querySelectorAll('.carousel-page').forEach((pg, i) => {
+      pg.style.display = i === mobPage ? 'flex' : 'none';
+    });
+    if (mobDots) mobDots.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === mobPage));
+  }
+  // swipe
+  const outer = document.getElementById('mobCarouselOuter');
+  if (outer) {
+    let sx = 0;
+    outer.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+    outer.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - sx;
+      if (Math.abs(dx) > 40) goMobPage(mobPage + (dx < 0 ? 1 : -1));
+    });
+  }
+  // arrows
+  document.querySelectorAll('#mob-profile-overlay .carousel-arrow').forEach((btn, i) => {
+    btn.onclick = () => goMobPage(mobPage + (i === 0 ? -1 : 1));
+  });
+})();
+
 (function setupSwipe() {
   const outer = document.querySelector('.avatar-carousel-track-outer');
   let startX = 0, active = false;
@@ -1603,6 +1730,29 @@ window.saveProfile = async () => {
   if(!fakeName || !fakeAge || !fakeJob || !fakeBio) return alert("أكمل جميع الحقول!");
   await update(ref(db, `alterego/${pin}/profiles/${myId}`), { fakeName, age: fakeAge, job: fakeJob, status: fakeStatus, bio: fakeBio, avatarId: selectedAvatar });
   await update(ref(db, `alterego/${pin}/players/${myId}`), { isReady: true });
+  document.getElementById('profileBuilder').style.display = 'none';
+  document.getElementById('readyMsg').style.display = 'block';
+};
+
+// حفظ الشخصية من overlay الجوال
+window.mobSaveProfile = async () => {
+  if(players[myId] && !players[myId].isAlive) return alert("أنت مقصى ولا يمكنك اللعب!");
+  const fakeName = document.getElementById('mob-fakeName').value.trim();
+  const fakeAge  = document.getElementById('mob-fakeAge').value;
+  const fakeJob  = document.getElementById('mob-fakeJob').value;
+  const fakeStatus = document.getElementById('mob-fakeStatus').value;
+  const fakeBio  = document.getElementById('mob-fakeBio').value;
+  if(!fakeName || !fakeAge || !fakeJob || !fakeBio) return alert("أكمل جميع الحقول!");
+  // انسخ القيم للنموذج الأصلي أيضاً
+  document.getElementById('fakeName').value  = fakeName;
+  document.getElementById('fakeAge').value   = fakeAge;
+  document.getElementById('fakeJob').value   = fakeJob;
+  document.getElementById('fakeStatus').value = fakeStatus;
+  document.getElementById('fakeBio').value   = fakeBio;
+  await update(ref(db, `alterego/${pin}/profiles/${myId}`), { fakeName, age: fakeAge, job: fakeJob, status: fakeStatus, bio: fakeBio, avatarId: selectedAvatar });
+  await update(ref(db, `alterego/${pin}/players/${myId}`), { isReady: true });
+  // أخفِ overlay وأظهر الهاتف
+  document.getElementById('mob-profile-overlay').classList.add('done');
   document.getElementById('profileBuilder').style.display = 'none';
   document.getElementById('readyMsg').style.display = 'block';
 };

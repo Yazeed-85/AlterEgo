@@ -699,25 +699,43 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     max-width: 560px;
     border-left: none;
     border-top: 2px solid var(--game-border);
-    padding: 20px 12px;
-    overflow: visible;
-    order: 1;
+    padding: 0 12px;
+    overflow: hidden;
+    order: 2; /* الداشبورد تحت الأيفون */
+    max-height: 0;
+    transition: max-height 0.35s ease, padding 0.35s ease;
   }
+  .right-dashboard.mob-expanded {
+    max-height: 2000px;
+    padding: 16px 12px;
+  }
+
+  /* زر فتح/إغلاق الداشبورد */
+  #mob-dash-toggle {
+    display: flex;
+    align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 10px;
+    background: var(--game-card);
+    border: none; border-top: 1px solid var(--game-border);
+    color: #a1a1aa; font-family: 'Cairo', sans-serif;
+    font-size: 0.9rem; cursor: pointer; order: 3;
+  }
+  #mob-dash-toggle .arr { transition: transform 0.3s; }
+  #mob-dash-toggle.open .arr { transform: rotate(180deg); }
 
   .profile-builder { padding: 18px 14px; }
   .section-title { font-size: 1.3rem; }
   .form-input { font-size: 1rem; padding: 11px 12px; }
   .btn-save { font-size: 1rem; padding: 13px; }
-  /* carousel arrows same size on mobile - avatars auto-scale */
   #playerListArea { margin-top: 18px; padding: 16px 12px; }
   .real-names-title { font-size: 1.1rem; }
   #realNamesList { font-size: 1rem; line-height: 2; }
 
-  /* حاوية الأيفون - الارتفاع يُحسب بـ JS */
+  /* حاوية الأيفون - الأيفون أولاً على الجوال */
   .left-phone-section {
     flex: none;
     width: 100%;
-    order: 2;
+    order: 1;
     background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
     border-radius: 20px;
     padding: 0;
@@ -819,6 +837,15 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
       <ul id="realNamesList"></ul>
     </div>
   </div>
+
+  <!-- زر فتح/إغلاق الداشبورد - جوال فقط -->
+  <button id="mob-dash-toggle" onclick="
+    this.classList.toggle('open');
+    document.querySelector('.right-dashboard').classList.toggle('mob-expanded');
+  ">
+    <span>معلومات اللعبة</span>
+    <span class="arr">▼</span>
+  </button>
 
   <!-- LEFT: iPHONE -->
   <div class="left-phone-section">
@@ -2466,28 +2493,23 @@ function showToast(msg) {
     if (!container || !section) return;
 
     if (vw <= 900) {
-      // ===== جوال: يحسب من عرض وارتفاع الشاشة الفعلية =====
+      // ===== جوال: الأيفون يأخذ أكبر مساحة ممكنة =====
       const topBarH = document.querySelector('.top-bar')?.offsetHeight || 60;
-      const dashH   = document.querySelector('.right-dashboard')?.offsetHeight || 0;
 
-      // المساحة المتاحة للأيفون عمودياً
-      const usedH  = topBarH + dashH;
-      const availH = vh - usedH - 32; // 32px هامش
-      const availW = vw - 24;          // 12px من كل جانب
+      // نعطي الأيفون 90% من ارتفاع الشاشة المتبقية بعد top-bar
+      const maxH = (vh - topBarH) * 0.90;
+      const maxW = vw - 20; // هامش 10px من كل جانب
 
-      // scale يحترم كلا البعدين
-      const scaleByW = availW / IPHONE_W;
-      const scaleByH = availH / IPHONE_H;
-      const scale    = Math.min(scaleByW, scaleByH, 1); // لا يكبر عن 100%
+      const scaleByH = maxH / IPHONE_H;
+      const scaleByW = maxW / IPHONE_W;
+      const scale    = Math.min(scaleByH, scaleByW);
 
-      const scaledH = IPHONE_H * scale;
-      const scaledW = IPHONE_W * scale;
+      const scaledH = Math.round(IPHONE_H * scale);
 
       container.style.transform       = `scale(${scale})`;
       container.style.transformOrigin = 'center center';
-      section.style.height  = (scaledH + 20) + 'px';
-      section.style.width   = '100%';
-      section.style.minHeight = (scaledH + 20) + 'px';
+      section.style.height    = (scaledH + 16) + 'px';
+      section.style.minHeight = (scaledH + 16) + 'px';
 
     } else {
       // ===== ديسكتوب / تابلت / آيباد =====

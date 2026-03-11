@@ -1168,52 +1168,52 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
           <div class="fk-page active" id="fkPageAr">
             <!-- الصف الأول: ج ح خ ه ع غ ف ق ث ص ض -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('ج')">ج</button>
-              <button class="fk-k" onclick="fkType('ح')">ح</button>
-              <button class="fk-k" onclick="fkType('خ')">خ</button>
-              <button class="fk-k" onclick="fkType('ه')">ه</button>
-              <button class="fk-k" onclick="fkType('ع')">ع</button>
-              <button class="fk-k" onclick="fkType('غ')">غ</button>
-              <button class="fk-k" onclick="fkType('ف')">ف</button>
-              <button class="fk-k" onclick="fkType('ق')">ق</button>
-              <button class="fk-k" onclick="fkType('ث')">ث</button>
-              <button class="fk-k" onclick="fkType('ص')">ص</button>
-              <button class="fk-k" onclick="fkType('ض')">ض</button>
+              <button class="fk-k" data-char="ج">ج</button>
+              <button class="fk-k" data-char="ح">ح</button>
+              <button class="fk-k" data-char="خ">خ</button>
+              <button class="fk-k" data-char="ه">ه</button>
+              <button class="fk-k" data-char="ع">ع</button>
+              <button class="fk-k" data-char="غ">غ</button>
+              <button class="fk-k" data-char="ف">ف</button>
+              <button class="fk-k" data-char="ق">ق</button>
+              <button class="fk-k" data-char="ث">ث</button>
+              <button class="fk-k" data-char="ص">ص</button>
+              <button class="fk-k" data-char="ض">ض</button>
             </div>
             <!-- الصف الثاني: ة ك م ن ت ا ل ب ي س ش -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('ة')">ة</button>
-              <button class="fk-k" onclick="fkType('ك')">ك</button>
-              <button class="fk-k" onclick="fkType('م')">م</button>
-              <button class="fk-k" onclick="fkType('ن')">ن</button>
-              <button class="fk-k" onclick="fkType('ت')">ت</button>
-              <button class="fk-k" onclick="fkType('ا')">ا</button>
-              <button class="fk-k" onclick="fkType('ل')">ل</button>
-              <button class="fk-k" onclick="fkType('ب')">ب</button>
-              <button class="fk-k" onclick="fkType('ي')">ي</button>
-              <button class="fk-k" onclick="fkType('س')">س</button>
-              <button class="fk-k" onclick="fkType('ش')">ش</button>
+              <button class="fk-k" data-char="ة">ة</button>
+              <button class="fk-k" data-char="ك">ك</button>
+              <button class="fk-k" data-char="م">م</button>
+              <button class="fk-k" data-char="ن">ن</button>
+              <button class="fk-k" data-char="ت">ت</button>
+              <button class="fk-k" data-char="ا">ا</button>
+              <button class="fk-k" data-char="ل">ل</button>
+              <button class="fk-k" data-char="ب">ب</button>
+              <button class="fk-k" data-char="ي">ي</button>
+              <button class="fk-k" data-char="س">س</button>
+              <button class="fk-k" data-char="ش">ش</button>
             </div>
-            <!-- الصف الثالث: ى و ر ز د ذ ط ظ ء ⌫ -->
+            <!-- الصف الثالث: ⌫ ى و ر ز د ذ ط ظ ء -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('ى')">ى</button>
-              <button class="fk-k" onclick="fkType('و')">و</button>
-              <button class="fk-k" onclick="fkType('ر')">ر</button>
-              <button class="fk-k" onclick="fkType('ز')">ز</button>
-              <button class="fk-k" onclick="fkType('د')">د</button>
-              <button class="fk-k" onclick="fkType('ذ')">ذ</button>
-              <button class="fk-k" onclick="fkType('ط')">ط</button>
-              <button class="fk-k" onclick="fkType('ظ')">ظ</button>
-              <button class="fk-k" onclick="fkType('ء')">ء</button>
               <button class="fk-k fk-dark fk-del" id="fk-del-btn">⌫</button>
+              <button class="fk-k" data-char="ى">ى</button>
+              <button class="fk-k" data-char="و">و</button>
+              <button class="fk-k" data-char="ر">ر</button>
+              <button class="fk-k" data-char="ز">ز</button>
+              <button class="fk-k" data-char="د">د</button>
+              <button class="fk-k" data-char="ذ">ذ</button>
+              <button class="fk-k" data-char="ط">ط</button>
+              <button class="fk-k" data-char="ظ">ظ</button>
+              <button class="fk-k" data-char="ء">ء</button>
             </div>
             <!-- الصف السفلي: ١٢٣ | 😊 | مسافة | ع. | ↵ -->
             <div class="fk-row fk-bottom-row">
-              <button class="fk-k fk-dark fk-wide" onclick="fkTogglePage()">١٢٣</button>
+              <button class="fk-k fk-dark fk-wide" data-action="togglePage">١٢٣</button>
               <button class="fk-k fk-dark fk-emoji">😊</button>
-              <button class="fk-k fk-space" onclick="fkType(' ')"><span class="fk-space-label">ع</span></button>
-              <button class="fk-k fk-dark fk-wide" onclick="fkType('.')">.</button>
-              <button class="fk-k fk-return" onclick="fkSend()">↵</button>
+              <button class="fk-k fk-space" data-char=" "><span class="fk-space-label">ع</span></button>
+              <button class="fk-k fk-dark fk-wide" data-char=".">.</button>
+              <button class="fk-k fk-return" data-action="send">↵</button>
             </div>
           </div>
 
@@ -1221,46 +1221,46 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
           <div class="fk-page" id="fkPageNum">
             <!-- الصف الأول: ١ ٢ ٣ ٤ ٥ ٦ ٧ ٨ ٩ ٠ -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('١')">١</button>
-              <button class="fk-k" onclick="fkType('٢')">٢</button>
-              <button class="fk-k" onclick="fkType('٣')">٣</button>
-              <button class="fk-k" onclick="fkType('٤')">٤</button>
-              <button class="fk-k" onclick="fkType('٥')">٥</button>
-              <button class="fk-k" onclick="fkType('٦')">٦</button>
-              <button class="fk-k" onclick="fkType('٧')">٧</button>
-              <button class="fk-k" onclick="fkType('٨')">٨</button>
-              <button class="fk-k" onclick="fkType('٩')">٩</button>
-              <button class="fk-k" onclick="fkType('٠')">٠</button>
+              <button class="fk-k" data-char="١">١</button>
+              <button class="fk-k" data-char="٢">٢</button>
+              <button class="fk-k" data-char="٣">٣</button>
+              <button class="fk-k" data-char="٤">٤</button>
+              <button class="fk-k" data-char="٥">٥</button>
+              <button class="fk-k" data-char="٦">٦</button>
+              <button class="fk-k" data-char="٧">٧</button>
+              <button class="fk-k" data-char="٨">٨</button>
+              <button class="fk-k" data-char="٩">٩</button>
+              <button class="fk-k" data-char="٠">٠</button>
             </div>
             <!-- الصف الثاني: - / : ؛ ( ) $ & @ " -->
             <div class="fk-row">
-              <button class="fk-k" onclick="fkType('-')">-</button>
-              <button class="fk-k" onclick="fkType('/')">/</button>
-              <button class="fk-k" onclick="fkType(':')">:</button>
-              <button class="fk-k" onclick="fkType('؛')">؛</button>
-              <button class="fk-k" onclick="fkType('(')">(</button>
-              <button class="fk-k" onclick="fkType(')')">)</button>
-              <button class="fk-k" onclick="fkType('$')">$</button>
-              <button class="fk-k" onclick="fkType('&')">&amp;</button>
-              <button class="fk-k" onclick="fkType('@')">@</button>
-              <button class="fk-k" onclick="fkType('&quot;')">"</button>
+              <button class="fk-k" data-char="-">-</button>
+              <button class="fk-k" data-char="/">/</button>
+              <button class="fk-k" data-char=":">:</button>
+              <button class="fk-k" data-char="؛">؛</button>
+              <button class="fk-k" data-char="(">(</button>
+              <button class="fk-k" data-char=")">)</button>
+              <button class="fk-k" data-char="$">$</button>
+              <button class="fk-k" data-char="&">&</button>
+              <button class="fk-k" data-char="@">@</button>
+              <button class="fk-k" data-char="&quot;">&quot;</button>
             </div>
             <!-- الصف الثالث: #+= . ، ؟ ! ' ⌫ -->
             <div class="fk-row">
-              <button class="fk-k fk-dark fk-wide2" onclick="fkToggleSymbols()">#+=</button>
-              <button class="fk-k" onclick="fkType('.')">.</button>
-              <button class="fk-k" onclick="fkType('،')">،</button>
-              <button class="fk-k" onclick="fkType('؟')">؟</button>
-              <button class="fk-k" onclick="fkType('!')">!</button>
-              <button class="fk-k" onclick="fkType(&quot;'&quot;)">'</button>
+              <button class="fk-k fk-dark fk-wide2" data-action="toggleSymbols">#+=</button>
+              <button class="fk-k" data-char=".">.</button>
+              <button class="fk-k" data-char="،">،</button>
+              <button class="fk-k" data-char="؟">؟</button>
+              <button class="fk-k" data-char="!">!</button>
+              <button class="fk-k" data-char="'">'</button>
               <button class="fk-k fk-dark fk-del" onclick="fkDelete()">⌫</button>
             </div>
             <!-- الصف السفلي: ابج | 😊 | مسافة | ↵ -->
             <div class="fk-row fk-bottom-row">
-              <button class="fk-k fk-dark fk-wide" onclick="fkTogglePage()">ابج</button>
+              <button class="fk-k fk-dark fk-wide" data-action="togglePage">ابج</button>
               <button class="fk-k fk-dark fk-emoji">😊</button>
-              <button class="fk-k fk-space" onclick="fkType(' ')"><span class="fk-space-label">ع</span></button>
-              <button class="fk-k fk-return" onclick="fkSend()">↵</button>
+              <button class="fk-k fk-space" data-char=" "><span class="fk-space-label">ع</span></button>
+              <button class="fk-k fk-return" data-action="send">↵</button>
             </div>
           </div>
         </div>
@@ -2868,6 +2868,35 @@ setInterval(() => {
     else fill.style.background = '#30d158';
   }
 }, 30000);
+
+// ===== كيبورد: touchstart فوري بدون تأخير =====
+(function setupKeyboardTouch() {
+  const kb = document.getElementById('fake-keyboard');
+  if (!kb) return;
+
+  kb.addEventListener('touchstart', (e) => {
+    const btn = e.target.closest('button.fk-k');
+    if (!btn) return;
+    e.preventDefault(); // منع تأخير 300ms وأي سلوك افتراضي
+
+    if (btn.id === 'fk-del-btn') return; // معالج خاص أدناه
+
+    const char = btn.dataset.char;
+    const action = btn.dataset.action;
+
+    if (char !== undefined) {
+      if (window.fkType) window.fkType(char);
+    } else if (action === 'send') {
+      if (window.fkSend) window.fkSend();
+    } else if (action === 'togglePage') {
+      if (window.fkTogglePage) window.fkTogglePage();
+    } else if (action === 'toggleSymbols') {
+      if (window.fkToggleSymbols) window.fkToggleSymbols();
+    } else if (btn.classList.contains('fk-emoji')) {
+      if (window.fkOpenSticker) window.fkOpenSticker();
+    }
+  }, { passive: false });
+})();
 
 // ===== منطقة السحب الشفافة لإغلاق الكيبورد =====
 (function setupSwipeZone() {

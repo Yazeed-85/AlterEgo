@@ -470,15 +470,25 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
   box-shadow: 0 1.5px 0 #000;
   -webkit-tap-highlight-color: transparent;
   min-width: 0;
-  transition: transform 0.08s ease, background 0.08s ease;
+  transition: transform 0.06s ease, background 0.06s ease;
   position: relative;
   touch-action: manipulation;
+  /* تكبير منطقة اللمس الفعلية بدون تغيير المظهر */
+  padding: 0;
+  margin: 1px;
+}
+.fk-k::after {
+  content: '';
+  position: absolute;
+  inset: -4px; /* منطقة لمس أكبر بـ 4px من كل جانب */
+  border-radius: 12px;
 }
 .fk-k:active {
   background: #636366;
-  transform: scale(1.18) translateY(-6px);
+  transform: scale(1.15) translateY(-5px);
   z-index: 10;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  box-shadow: 0 5px 14px rgba(0,0,0,0.5);
+  transition: none; /* فوري عند الضغط */
 }
 
 /* المفاتيح الداكنة (١٢٣، ⌫، ابج، #+=) */
@@ -514,9 +524,9 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
 }
 .fk-return:active { background: #3a3a3c !important; }
 
-/* الصف السفلي */
+/* الصف السفلي - رفع عن شريط الهوم */
 .fk-bottom-row {
-  padding-bottom: max(env(safe-area-inset-bottom, 12px), 18px) !important;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 22px) !important;
   margin-bottom: 0 !important;
 }
 
@@ -1207,13 +1217,13 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
               <button class="fk-k" data-char="ظ">ظ</button>
               <button class="fk-k" data-char="ء">ء</button>
             </div>
-            <!-- الصف السفلي: ١٢٣ | 😊 | مسافة | ع. | ↵ -->
+            <!-- الصف السفلي: ↵ | 😊 | مسافة | . | ١٢٣ -->
             <div class="fk-row fk-bottom-row">
-              <button class="fk-k fk-dark fk-wide" data-action="togglePage">١٢٣</button>
+              <button class="fk-k fk-return" data-action="send">↵</button>
               <button class="fk-k fk-dark fk-emoji">😊</button>
               <button class="fk-k fk-space" data-char=" "><span class="fk-space-label">ع</span></button>
               <button class="fk-k fk-dark fk-wide" data-char=".">.</button>
-              <button class="fk-k fk-return" data-action="send">↵</button>
+              <button class="fk-k fk-dark fk-wide" data-action="togglePage">١٢٣</button>
             </div>
           </div>
 
@@ -1255,12 +1265,12 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
               <button class="fk-k" data-char="'">'</button>
               <button class="fk-k fk-dark fk-del" onclick="fkDelete()">⌫</button>
             </div>
-            <!-- الصف السفلي: ابج | 😊 | مسافة | ↵ -->
+            <!-- الصف السفلي: ↵ | 😊 | مسافة | ابج -->
             <div class="fk-row fk-bottom-row">
-              <button class="fk-k fk-dark fk-wide" data-action="togglePage">ابج</button>
+              <button class="fk-k fk-return" data-action="send">↵</button>
               <button class="fk-k fk-dark fk-emoji">😊</button>
               <button class="fk-k fk-space" data-char=" "><span class="fk-space-label">ع</span></button>
-              <button class="fk-k fk-return" data-action="send">↵</button>
+              <button class="fk-k fk-dark fk-wide" data-action="togglePage">ابج</button>
             </div>
           </div>
         </div>
@@ -2874,26 +2884,46 @@ setInterval(() => {
   const kb = document.getElementById('fake-keyboard');
   if (!kb) return;
 
+  // Visual feedback فوري
+  function flashKey(btn) {
+    btn.style.background = btn.classList.contains('fk-dark') ? '#3a3a3c' : '#636366';
+    btn.style.transform = 'scale(1.15) translateY(-5px)';
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        btn.style.background = '';
+        btn.style.transform = '';
+      }, 80);
+    });
+  }
+
   kb.addEventListener('touchstart', (e) => {
-    const btn = e.target.closest('button.fk-k');
-    if (!btn) return;
-    e.preventDefault(); // منع تأخير 300ms وأي سلوك افتراضي
+    // كل الأصابع - دعم الكتابة السريعة بأكثر من إصبع
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const touch = e.changedTouches[i];
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const btn = el && el.closest('button.fk-k');
+      if (!btn) continue;
 
-    if (btn.id === 'fk-del-btn') return; // معالج خاص أدناه
+      e.preventDefault();
 
-    const char = btn.dataset.char;
-    const action = btn.dataset.action;
+      if (btn.id === 'fk-del-btn') continue; // معالج خاص
 
-    if (char !== undefined) {
-      if (window.fkType) window.fkType(char);
-    } else if (action === 'send') {
-      if (window.fkSend) window.fkSend();
-    } else if (action === 'togglePage') {
-      if (window.fkTogglePage) window.fkTogglePage();
-    } else if (action === 'toggleSymbols') {
-      if (window.fkToggleSymbols) window.fkToggleSymbols();
-    } else if (btn.classList.contains('fk-emoji')) {
-      if (window.fkOpenSticker) window.fkOpenSticker();
+      flashKey(btn);
+
+      const char = btn.dataset.char;
+      const action = btn.dataset.action;
+
+      if (char !== undefined) {
+        if (window.fkType) window.fkType(char);
+      } else if (action === 'send') {
+        if (window.fkSend) window.fkSend();
+      } else if (action === 'togglePage') {
+        if (window.fkTogglePage) window.fkTogglePage();
+      } else if (action === 'toggleSymbols') {
+        if (window.fkToggleSymbols) window.fkToggleSymbols();
+      } else if (btn.classList.contains('fk-emoji')) {
+        if (window.fkOpenSticker) window.fkOpenSticker();
+      }
     }
   }, { passive: false });
 })();

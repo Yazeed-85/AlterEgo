@@ -718,9 +718,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     align-items: center; justify-content: center; gap: 8px;
     width: 100%; padding: 10px;
     background: var(--game-card);
-    border: none; border-top: 1px solid var(--game-border);
+    border: none; border-bottom: 1px solid var(--game-border);
     color: #a1a1aa; font-family: 'Cairo', sans-serif;
-    font-size: 0.9rem; cursor: pointer; order: 3;
+    font-size: 0.9rem; cursor: pointer;
+    order: 0; /* قبل الأيفون */
+    flex-shrink: 0;
   }
   #mob-dash-toggle .arr { transition: transform 0.3s; }
   #mob-dash-toggle.open .arr { transform: rotate(180deg); }
@@ -744,11 +746,11 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     border-radius: 20px;
     padding: 0;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     overflow: visible;
     position: relative;
-    /* الارتفاع يُضبط بالكامل عبر JS */
   }
 
   #iphone-container {
@@ -842,17 +844,16 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     </div>
   </div>
 
-  <!-- زر فتح/إغلاق الداشبورد - جوال فقط -->
-  <button id="mob-dash-toggle" onclick="
-    this.classList.toggle('open');
-    document.querySelector('.right-dashboard').classList.toggle('mob-expanded');
-  ">
-    <span>معلومات اللعبة</span>
-    <span class="arr">▼</span>
-  </button>
-
   <!-- LEFT: iPHONE -->
   <div class="left-phone-section">
+    <!-- زر فتح/إغلاق الداشبورد - جوال فقط، داخل حاوية الأيفون -->
+    <button id="mob-dash-toggle" onclick="
+      this.classList.toggle('open');
+      document.querySelector('.right-dashboard').classList.toggle('mob-expanded');
+    ">
+      <span>معلومات اللعبة</span>
+      <span class="arr">▼</span>
+    </button>
     <!-- إضاءة الفلاش خلف الهاتف -->
     <div class="flashlight-glow" id="flashlight-glow"></div>
     <div id="iphone-container">

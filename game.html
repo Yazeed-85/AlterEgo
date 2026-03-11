@@ -720,18 +720,19 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     order: 2;
     background: radial-gradient(circle, #1a1a2e 0%, #050508 100%);
     border-radius: 20px;
-    padding: 20px 0 30px;
+    padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
-    height: 680px;
+    /* الارتفاع يُضبط بالكامل عبر JS */
   }
 
   #iphone-container {
     transform-origin: center center;
     position: relative;
+    flex-shrink: 0;
   }
 }
 
@@ -2464,37 +2465,47 @@ function showToast(msg) {
     const section   = document.querySelector('.left-phone-section');
     if (!container || !section) return;
 
-    let scale;
-
     if (vw <= 900) {
-      // ===== جوال: عمودي - الأيفون يأخذ عرض الشاشة =====
-      const availW = vw - 32;
-      const targetW = Math.min(availW * 0.92, 370);
-      scale = targetW / IPHONE_W;
+      // ===== جوال: يحسب من عرض وارتفاع الشاشة الفعلية =====
+      const topBarH = document.querySelector('.top-bar')?.offsetHeight || 60;
+      const dashH   = document.querySelector('.right-dashboard')?.offsetHeight || 0;
+
+      // المساحة المتاحة للأيفون عمودياً
+      const usedH  = topBarH + dashH;
+      const availH = vh - usedH - 32; // 32px هامش
+      const availW = vw - 24;          // 12px من كل جانب
+
+      // scale يحترم كلا البعدين
+      const scaleByW = availW / IPHONE_W;
+      const scaleByH = availH / IPHONE_H;
+      const scale    = Math.min(scaleByW, scaleByH, 1); // لا يكبر عن 100%
+
       const scaledH = IPHONE_H * scale;
-      section.style.height = (scaledH + 50) + 'px';
-      container.style.transformOrigin = 'top center';
+      const scaledW = IPHONE_W * scale;
+
+      container.style.transform       = `scale(${scale})`;
+      container.style.transformOrigin = 'center center';
+      section.style.height  = (scaledH + 20) + 'px';
+      section.style.width   = '100%';
+      section.style.minHeight = (scaledH + 20) + 'px';
+
     } else {
-      // ===== ديسكتوب / تابلت / آيباد: جنباً إلى جنب =====
-      // الأيفون يجلس في نصف الشاشة الأيسر
-      // نقيس المساحة المتاحة فعلياً من العنصر نفسه
-      const sRect = section.getBoundingClientRect();
+      // ===== ديسكتوب / تابلت / آيباد =====
+      const sRect  = section.getBoundingClientRect();
       const availW = sRect.width  - 48;
       const availH = sRect.height - 48;
-      scale = Math.min(availW / IPHONE_W, availH / IPHONE_H);
+      const scale  = Math.min(availW / IPHONE_W, availH / IPHONE_H);
+      container.style.transform       = `scale(${scale})`;
       container.style.transformOrigin = 'center center';
     }
-
-    container.style.transform = `scale(${scale})`;
   }
 
-  // شغّل فوراً، بعد load، وعند resize
   doScale();
   window.addEventListener('resize', doScale);
   window.addEventListener('load', () => {
     doScale();
-    requestAnimationFrame(doScale);
-    setTimeout(doScale, 200); // ضمان بعد اكتمال الرسم
+    requestAnimationFrame(() => requestAnimationFrame(doScale));
+    setTimeout(doScale, 300);
   });
 })();
 

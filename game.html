@@ -2498,6 +2498,8 @@ function showToast(msg) {
   });
 })();
 
+// ===== أحداث اللمس والكيبورد على الجوال =====
+(function setupMobileTouchEvents() {
   // ===== إصلاح مشكلة الكيبورد على الجوال =====
   document.addEventListener('focusin', (e) => {
     if (window.innerWidth > 900) return;

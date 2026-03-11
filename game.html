@@ -723,28 +723,27 @@ body { background-color: var(--game-bg); color: white; height: 100vh; overflow: 
     padding: 20px 0 30px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     overflow: hidden;
     position: relative;
-    /* الارتفاع يُضبط ديناميكياً بـ JS */
     height: 680px;
   }
 
   #iphone-container {
-    transform-origin: top center;
-    position: absolute;
-    top: 20px;
-    /* الـ scale يُضبط ديناميكياً بـ JS */
+    transform-origin: center center;
+    position: relative;
   }
 }
 
-/* ===== آيباد (901px - 1200px) ===== */
-@media (min-width: 901px) and (max-width: 1600px) {
-  #iphone-container {
-    transform-origin: center center;
-  }
+/* ===== تابلت وآيباد: نفس layout الكمبيوتر لكن left-phone-section بارتفاع مرن ===== */
+@media (min-width: 901px) {
   .left-phone-section {
     overflow: hidden;
+    align-items: center;
+    justify-content: center;
+  }
+  #iphone-container {
+    transform-origin: center center;
   }
 }
 </style>
@@ -2453,56 +2452,50 @@ function showToast(msg) {
   t._t = setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ===== MOBILE: ضبط حجم الأيفون ديناميكياً =====
-(function setupMobileIphone() {
-  if (window.innerWidth > 900) return;
-
-  const IPHONE_NATURAL_W = 393;
-  const IPHONE_NATURAL_H = 852;
-
-  function scaleIphone() {
-    if (window.innerWidth > 900) return;
-    const screenW = window.innerWidth;
-    const availW = screenW - 32;
-    const targetW = Math.min(availW * 0.90, 370);
-    const scale = targetW / IPHONE_NATURAL_W;
-    const scaledH = IPHONE_NATURAL_H * scale;
-    const container = document.getElementById('iphone-container');
-    const section = document.querySelector('.left-phone-section');
-    if (!container || !section) return;
-    container.style.transform = `scale(${scale})`;
-    section.style.height = (scaledH + 60) + 'px';
-  }
-
-  scaleIphone();
-  window.addEventListener('resize', scaleIphone);
-
-// ===== تحجيم الآيباد تلقائياً =====
-(function setupTabletIphone() {
+// ===== تحجيم الأيفون الموحد - يعمل على جميع الأجهزة =====
+(function scaleIphoneUnified() {
   const IPHONE_W = 393;
   const IPHONE_H = 852;
 
-  function scaleTablet() {
-    const w = window.innerWidth;
-    if (w <= 900) return;
-
+  function doScale() {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const container = document.getElementById('iphone-container');
-    const section = document.querySelector('.left-phone-section');
+    const section   = document.querySelector('.left-phone-section');
     if (!container || !section) return;
 
-    // قياس المساحة الفعلية المتاحة من العنصر نفسه
-    const rect = section.getBoundingClientRect();
-    const availW = rect.width  - 40;  // هامش 20px من كل جانب
-    const availH = rect.height - 40;  // هامش 20px من الأعلى والأسفل
+    let scale;
 
-    const scale = Math.min(availW / IPHONE_W, availH / IPHONE_H);
+    if (vw <= 900) {
+      // ===== جوال: عمودي - الأيفون يأخذ عرض الشاشة =====
+      const availW = vw - 32;
+      const targetW = Math.min(availW * 0.92, 370);
+      scale = targetW / IPHONE_W;
+      const scaledH = IPHONE_H * scale;
+      section.style.height = (scaledH + 50) + 'px';
+      container.style.transformOrigin = 'top center';
+    } else {
+      // ===== ديسكتوب / تابلت / آيباد: جنباً إلى جنب =====
+      // الأيفون يجلس في نصف الشاشة الأيسر
+      // نقيس المساحة المتاحة فعلياً من العنصر نفسه
+      const sRect = section.getBoundingClientRect();
+      const availW = sRect.width  - 48;
+      const availH = sRect.height - 48;
+      scale = Math.min(availW / IPHONE_W, availH / IPHONE_H);
+      container.style.transformOrigin = 'center center';
+    }
+
     container.style.transform = `scale(${scale})`;
-    container.style.transformOrigin = 'center center';
   }
 
-  // شغّل بعد اكتمال الرسم الكامل
-  window.addEventListener('load', () => requestAnimationFrame(() => requestAnimationFrame(scaleTablet)));
-  window.addEventListener('resize', scaleTablet);
+  // شغّل فوراً، بعد load، وعند resize
+  doScale();
+  window.addEventListener('resize', doScale);
+  window.addEventListener('load', () => {
+    doScale();
+    requestAnimationFrame(doScale);
+    setTimeout(doScale, 200); // ضمان بعد اكتمال الرسم
+  });
 })();
 
   // ===== إصلاح مشكلة الكيبورد على الجوال =====

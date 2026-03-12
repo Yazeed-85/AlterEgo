@@ -1504,10 +1504,10 @@ for (let p = 0; p < totalPages; p++) {
 
 function goToCarouselPage(page) {
   carouselPage = Math.max(0, Math.min(page, totalPages - 1));
-  document.querySelectorAll('.carousel-page').forEach((pg, i) => {
+  carouselTrack.querySelectorAll('.carousel-page').forEach((pg, i) => {
     pg.style.display = i === carouselPage ? 'flex' : 'none';
   });
-  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
+  dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === carouselPage));
   document.getElementById('carouselPrev').disabled = carouselPage <= 0;
   document.getElementById('carouselNext').disabled = carouselPage >= totalPages - 1;
 }
@@ -1570,7 +1570,7 @@ window.carouselMove = (dir) => goToCarouselPage(carouselPage + dir);
 })();
 
 (function setupSwipe() {
-  const outer = document.querySelector('.avatar-carousel-track-outer');
+  const outer = document.getElementById('carouselOuter');
   let startX = 0, active = false;
   outer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; active = true; }, { passive: true });
   outer.addEventListener('touchend',   e => {
